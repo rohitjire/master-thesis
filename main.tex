@@ -1,0 +1,368 @@
+\documentclass[12pt,a4paper,english,notitlepage]{report}
+%\usepackage{showframe}% http://ctan.org/pkg/showframe
+\usepackage{etoolbox}% http://ctan.org/pkg/etoolbox
+\makeatletter
+\patchcmd{\@makechapterhead}{\vspace*{50\p@}}{}{}{}% Removes space above \chapter head
+\patchcmd{\@makeschapterhead}{\vspace*{50\p@}}{}{}{}% Removes space above \chapter* head
+\makeatother
+
+%\usepackage[applemac]{inputenc} % Kommentierung entfernen,falls Mac
+\usepackage[utf8]{inputenc} % Windows, Linux
+
+% Umlaute und Sonderzeichen
+\usepackage[english]{babel}
+%\usepackage[ngerman]{babel}
+
+
+
+
+
+\newcommand{\titelthema}{Aligning the BMW Group's Cloud Data Hub with the Principles of Data Mesh}
+\newcommand{\authorname}{Mahesh Kumar Shanmuganandha Vadivel}
+\newcommand{\authormail}{TBD}
+\newcommand{\authoraddress}{Lerchenauerstraße 7 \\80809 München}
+\newcommand{\matrikelnr}{2226323}
+\newcommand{\abgabedatum}{31.03.2025}
+\newcommand{\betreuer}{TBD}
+\newcommand{\arbeitstyp}{Master's Thesis}
+\newcommand{\professor}{TBD}
+
+%Grafiken
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+% Seitenränder
+\usepackage[a4paper]{geometry}
+\geometry{top=25mm, bottom=19mm, left=35mm, right=25mm, includefoot}
+
+% Seitenränder auf Deckblatt
+\usepackage[strict]{changepage}
+
+% Querseiten mit korrekter Kopf-/Fußzeile
+\usepackage{pdflscape}
+
+
+% sauberer Blocksatz, optischer Randausgleich
+\usepackage{microtype}
+
+%1,5facher Zeilenabstand nur im Fließtext
+\usepackage{setspace}
+\onehalfspacing
+
+%einfaches Anpassen von Kopf- und Fußzeilen 
+\usepackage{fancyhdr}
+\rhead{\small\thepage}
+\lhead{\footnotesize\leftmark}
+\chead{}
+\rfoot{\footnotesize{\authorname \hspace{1ex}| March, 2025 }}
+\lfoot{\footnotesize{\arbeitstyp}}
+\cfoot{}
+
+% Tabellen
+\usepackage{tabularx}
+\usepackage{threeparttable}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Listings
+\usepackage{listings}
+\lstset{
+    basicstyle=\small\ttfamily,
+    breaklines=true,
+    frame=single,
+    frameround=tttt,
+    columns=fullflexible,
+    showstringspaces=false,
+}
+
+% Mathematisches
+\usepackage{amssymb}
+\usepackage{amsmath} 
+\usepackage{amsfonts} 
+
+%Silbentrennung
+\usepackage[T1]{fontenc}
+
+% PDF options
+\usepackage[hyperfootnotes=false, pdfpagelabels, colorlinks, linkcolor=black, filecolor=black, citecolor=black]{hyperref}
+\urlstyle{rm}
+\hypersetup{%
+bookmarksopen={true},
+%bookmarksopenlevel={2},
+bookmarksnumbered=true,
+pdfstartpage={1},
+pdftitle={\arbeitstyp},
+pdfsubject={\titelthema},
+pdfauthor={\authorname},
+pdfkeywords={},
+pdfcreator={hyperref},
+pdfproducer={LaTeX with hyperref},
+pdffitwindow={false},
+pdfpagelayout={SinglePage}
+}
+
+\usepackage{color}
+\usepackage{colortbl} %Für Listings
+  \definecolor{darkgray}{rgb}{0.7,0.7,0.7}
+  \definecolor{lightgray}{rgb}{0.9,0.9,0.9}
+
+\usepackage{listing}
+  \renewcommand{\listlistingname}{Quelltextverzeichnis}
+
+\usepackage{listings}
+  \lstset{numbers=left, numberstyle=\tiny, basicstyle=\scriptsize, backgroundcolor=\color{hellgrau}}
+  \lstset{captionpos=b, aboveskip=15pt, belowskip=8pt, showstringspaces=false}
+
+
+% Anhang
+\usepackage{appendix}
+
+
+% Bild-, Tabellenuntschriften schöner formatieren
+\usepackage[format=hang,margin=10pt,font=small,labelfont=bf]{caption}
+
+% PDF einbinden
+%\usepackage{pdfpages}
+%\includepdf[pages=1-4]{Meindoku.pdf}
+
+%Lorem ipsum Auto-Text um Format zu zeigen
+\usepackage{blindtext}
+
+% Trennlinie unter der Kopfzeile
+\renewcommand{\plainheadrulewidth}{0.4pt}
+
+% Abstand zwischen Absätzen
+%\parskip 3pt
+\usepackage{comment}
+% kein Erstzeileneinzug
+%\setlength{\parindent}{0em}
+
+\author{
+\authorname\\
+\texttt{\authormail}
+}
+
+% % Symbole und Abkürzungen
+% % Mögliche Optionen:
+% % draft: wird standardmäßig gesetzt. Entwurfmodus, was bedeutet das unter anderem die Befehle für die Symbole in der Symbolübersicht auftauchen und hinter der Bezeichnung List of Symbols das Wort draft geklammert erscheint. Im Verzeichnis selbst werden die Symbole markiert ob sie verwendet wurden (yes) oder nicht (no).
+% % final:  nur verwendete Symbole angezeigt. Auch wird das Wort draft unterdrückt, wie auch die Befehle für die Symbole und ob diese gesetzt wurden.
+% % Final: wirkt ähnlich wie final mit dem Unterschied, dass die vom Paket erzeugten Zusatzdatei (.sym und .sub) nicht mehr verändert werden.
+% % Von den Optionen draft, final, Final kann jeweils nur eine zur gleichen Zeit gesetzt werden.
+% % nopageno: wird standardmäßig gesetzt. Sie hat dabei die Wirkung, dass keine Seitenzahlen im Verzeichnis angezeigt werden.
+% % pageno: fügt im Verzeichnis die Seitenzahl der Seite ein auf der das Symbol definiert wurde.
+% % Es kann entweder nopageno oder pageno gesetzt werden.
+% % usexspace: wird standardmäßig gesetzt. Sie fügt automatisch einen Abstand hinter dem Symbol im Text ein.
+% % noxspace: es wird kein automatischer Abstand hinter dem Symbol gesetzt. Das führt dazu, dass das nachfolgende Wort mit dem Symbol verschmelzen kann. Daher muss hier von Hand einen Abstand einfügen.
+% \usepackage[draft, noxspace]{listofsymbols}
+
+% %Abkürzungsverzeichnis, nur verwendete Abkürzungen darstellen
+% \usepackage[printonlyused]{acronym}
+\usepackage{makecell}
+\usepackage[acronym, toc, nonumberlist, nogroupskip]{glossaries}
+\newglossarystyle{MystyleSymbole}{%
+  \renewenvironment{theglossary}%
+    {\begin{longtable}[l]{@{}lp{10cm}l}}% [l]= linksbündige longtable,
+                                                              %@{}= kein Abstand vor erster Spalte
+    {\end{longtable}}%
+  \renewcommand*{\glossaryheader}{%
+    \bfseries Symbol & \bfseries Beschreibung\tabularnewline\endhead}%
+  \renewcommand*{\glsgroupheading}[1]{}%
+  \renewcommand{\glossentry}[2]{%
+    \glsentryitem{##1}\glstarget{##1}{\glossentrysymbol{##1}}     & \glossentryname{##1}\tabularnewline
+  }%
+}
+
+\makeglossaries
+\input{preamble/acronyms}
+
+% Automatisches Setzen von Referenzen (als letztes laden!)
+\usepackage{cleveref}
+
+% Use the 'cite' package for numeric citation
+%\usepackage{cite}  % For numeric citations (plain, unsrt, etc.)
+
+% Zitierstil
+%\usepackage[natbibapa]{apacite} % APA-style citations
+%\usepackage{natbib}
+\usepackage[numbers]{natbib}
+\usepackage{xcolor}
+\usepackage{glossaries}
+\usepackage{fancyhdr}
+\definecolor{myblue}{rgb}{0,0,0.6}
+
+\usepackage{url}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+%Charts
+\usepackage{pgfplots}
+
+%CSV Dateien
+\usepackage{csvsimple}
+\usepackage{float}
+
+\usepackage{enumitem}
+\usepackage{multicol}
+\usepackage{afterpage}
+\usepackage{longtable}
+\usepackage{subcaption}
+\usepackage{afterpage}
+
+\newlist{myitemize}{itemize}{1}
+\setlist[myitemize]{label=\textbullet, left=0em, nosep}
+
+
+\renewcommand\lstlistingname{Figure}
+
+\newenvironment{mytighttable}
+  {%
+   \renewcommand{\arraystretch}{1.5}% Adjust the cell height
+   \setlength{\tabcolsep}{8pt}% Adjust the cell padding
+   \begin{table}[H]
+  }
+  {%
+   \end{table}
+  }
+
+\input{preamble/glossary}
+\makeglossaries
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%% Anfang Dokument                                   %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\begin{document}
+\pagenumbering{roman}
+\include{preamble/title}
+%\include{preamble/blocknote}
+\include{preamble/abstract}
+\newpage
+
+
+% Keine Kopf-/Fußzeile auf den ersten Seiten
+\pagestyle{fancyplain}
+% "Kapitel" aus Kopfzeile weglassen
+\renewcommand{\chaptermark}[1]{\markboth{\uppercase{\thechapter.\ #1}}{}}
+% Nummerierungen nur bis Gliederungsebene 3 (\subsubsection)
+\setcounter{secnumdepth}{3}
+% Nur Überschriften bis Gliederungsebene 3 (\subsubsection) ins Inhaltsverzeichnis
+\setcounter{tocdepth}{3}
+\setcounter{page}{1}
+\newpage
+
+% Inhaltsverzeichnis
+\pdfbookmark[0]{Inhaltsverzeichnis}{Inhaltsverzeichnis}
+\tableofcontents
+\newpage
+  
+% Abbildungsverzeichnis
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{List of Figures}
+\listoffigures
+\newpage
+
+
+\phantomsection
+\printglossaries
+\newpage
+% Tabellenverzeichnis
+%\clearpage
+%\phantomsection
+%\addcontentsline{toc}{chapter}{List of Tables}
+%\listoftables
+%\newpage
+
+% Abkürzungsverzeichnis
+% nur verwendete Abkürzungen werden dargestellt
+
+
+
+%Verhinderung von "Schusterjungen" und "Hurenkinder"
+  \clubpenalty=10000
+  \widowpenalty=10000 
+  \displaywidowpenalty = 10000
+  \tolerance=500 %Zeilenumbruch
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Nummerierung wieder bei 1 beginnen
+\setcounter{page}{1}
+
+\pagestyle{fancy}
+\pagenumbering{arabic}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Eigentliche Arbeit %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{chapters/01_introduction}
+\input{chapters/02_Background}
+\input{chapters/03_literature_review}
+\input{chapters/04_applied_research}
+\input{chapters/05_oppurtunities_and_challenges}
+\input{chapters/06_proof_of_concept}
+\input{chapters/07_strategic_road_map}
+\input{chapters/08_conclusion}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% Glossary %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% Anhang %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand*\appendixpagename{Anhang} 
+\appendix  
+
+\newpage
+%\phantomsection
+%\addcontentsline{toc}{chapter}{Anhang}
+
+%\renewcommand*\appendixpagename{Anhang} 
+%\setcounter{secnumdepth}{0}
+
+%\chapter{Appendix}
+%\label{Anhang}
+
+\newpage
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% Literaturverzeichnis %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagenumbering{roman}
+\setcounter{page}{5}
+
+\hypersetup{linkcolor=myblue, urlcolor=myblue, citecolor=myblue}
+
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\hypersetup{linkcolor=black, urlcolor=black, citecolor=black}  % Reset colors after bibliography
+
+\clearpage
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Eidesstattliche Erklärung %%%%
+%
+% nur bei Abschlussarbeiten!
+%
+
+\thispagestyle{empty}
+\phantomsection
+
+%\addcontentsline{toc}{chapter}{Erklärung}
+\pdfbookmark[0]{Eidesstattliche Erklärung}{erklaerung}
+
+
+
+
+\end{document}
