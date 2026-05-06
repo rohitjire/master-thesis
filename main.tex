@@ -6,10 +6,10 @@
 \patchcmd{\@makeschapterhead}{\vspace*{50\p@}}{}{}{}% Removes space above \chapter* head
 \makeatother
 
-%\usepackage[applemac]{inputenc} % Kommentierung entfernen,falls Mac
+%\usepackage[applemac]{inputenc} % Uncomment if on Mac
 \usepackage[utf8]{inputenc} % Windows, Linux
 
-% Umlaute und Sonderzeichen
+% Umlauts and special characters
 \usepackage[english]{babel}
 %\usepackage[ngerman]{babel}
 
@@ -17,50 +17,50 @@
 
 
 
-\newcommand{\titelthema}{Aligning the BMW Group's Cloud Data Hub with the Principles of Data Mesh}
-\newcommand{\authorname}{Mahesh Kumar Shanmuganandha Vadivel}
-\newcommand{\authormail}{TBD}
-\newcommand{\authoraddress}{Lerchenauerstraße 7 \\80809 München}
-\newcommand{\matrikelnr}{2226323}
-\newcommand{\abgabedatum}{31.03.2025}
+\newcommand{\titelthema}{Benchmarking and Performance Analysis of Data space Connectors}
+\newcommand{\authorname}{Rohit Vilas Jire}
+\newcommand{\authormail}{rohitjire55@gmail.com}
+\newcommand{\authoraddress}{Gosslerweg 1, 55122 Mainz, Germany}
+\newcommand{\matrikelnr}{2224725}
+\newcommand{\abgabedatum}{14.09.2026}
 \newcommand{\betreuer}{TBD}
 \newcommand{\arbeitstyp}{Master's Thesis}
 \newcommand{\professor}{TBD}
 
-%Grafiken
+%Graphics
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
 
 
-% Seitenränder
+% Page margins
 \usepackage[a4paper]{geometry}
 \geometry{top=25mm, bottom=19mm, left=35mm, right=25mm, includefoot}
 
-% Seitenränder auf Deckblatt
+% Page margins on cover page
 \usepackage[strict]{changepage}
 
-% Querseiten mit korrekter Kopf-/Fußzeile
+% Landscape pages with correct header/footer
 \usepackage{pdflscape}
 
 
-% sauberer Blocksatz, optischer Randausgleich
+% clean justified text, optical margin alignment
 \usepackage{microtype}
 
-%1,5facher Zeilenabstand nur im Fließtext
+% 1.5 line spacing only in body text
 \usepackage{setspace}
 \onehalfspacing
 
-%einfaches Anpassen von Kopf- und Fußzeilen 
+% easy adjustment of headers and footers
 \usepackage{fancyhdr}
 \rhead{\small\thepage}
 \lhead{\footnotesize\leftmark}
 \chead{}
-\rfoot{\footnotesize{\authorname \hspace{1ex}| March, 2025 }}
+\rfoot{\footnotesize{\authorname \hspace{1ex}| September, 2026 }}
 \lfoot{\footnotesize{\arbeitstyp}}
 \cfoot{}
 
-% Tabellen
+% Tables
 \usepackage{tabularx}
 \usepackage{threeparttable}
 \usepackage{booktabs}
@@ -79,12 +79,12 @@
     showstringspaces=false,
 }
 
-% Mathematisches
+% Mathematics
 \usepackage{amssymb}
-\usepackage{amsmath} 
-\usepackage{amsfonts} 
+\usepackage{amsmath}
+\usepackage{amsfonts}
 
-%Silbentrennung
+% Hyphenation
 \usepackage[T1]{fontenc}
 
 % PDF options
@@ -106,39 +106,39 @@ pdfpagelayout={SinglePage}
 }
 
 \usepackage{color}
-\usepackage{colortbl} %Für Listings
+\usepackage{colortbl} % For Listings
   \definecolor{darkgray}{rgb}{0.7,0.7,0.7}
   \definecolor{lightgray}{rgb}{0.9,0.9,0.9}
 
 \usepackage{listing}
-  \renewcommand{\listlistingname}{Quelltextverzeichnis}
+  \renewcommand{\listlistingname}{List of Listings}
 
 \usepackage{listings}
-  \lstset{numbers=left, numberstyle=\tiny, basicstyle=\scriptsize, backgroundcolor=\color{hellgrau}}
+  \lstset{numbers=left, numberstyle=\tiny, basicstyle=\scriptsize, backgroundcolor=\color{lightgray}}
   \lstset{captionpos=b, aboveskip=15pt, belowskip=8pt, showstringspaces=false}
 
 
-% Anhang
+% Appendix
 \usepackage{appendix}
 
 
-% Bild-, Tabellenuntschriften schöner formatieren
+% Format figure and table captions more nicely
 \usepackage[format=hang,margin=10pt,font=small,labelfont=bf]{caption}
 
-% PDF einbinden
+% Embed PDF
 %\usepackage{pdfpages}
 %\includepdf[pages=1-4]{Meindoku.pdf}
 
-%Lorem ipsum Auto-Text um Format zu zeigen
+% Lorem ipsum auto-text to show format
 \usepackage{blindtext}
 
-% Trennlinie unter der Kopfzeile
+% Separator line below the header
 \renewcommand{\plainheadrulewidth}{0.4pt}
 
-% Abstand zwischen Absätzen
+% Space between paragraphs
 %\parskip 3pt
 \usepackage{comment}
-% kein Erstzeileneinzug
+% no first-line indent
 %\setlength{\parindent}{0em}
 
 \author{
@@ -146,30 +146,18 @@ pdfpagelayout={SinglePage}
 \texttt{\authormail}
 }
 
-% % Symbole und Abkürzungen
-% % Mögliche Optionen:
-% % draft: wird standardmäßig gesetzt. Entwurfmodus, was bedeutet das unter anderem die Befehle für die Symbole in der Symbolübersicht auftauchen und hinter der Bezeichnung List of Symbols das Wort draft geklammert erscheint. Im Verzeichnis selbst werden die Symbole markiert ob sie verwendet wurden (yes) oder nicht (no).
-% % final:  nur verwendete Symbole angezeigt. Auch wird das Wort draft unterdrückt, wie auch die Befehle für die Symbole und ob diese gesetzt wurden.
-% % Final: wirkt ähnlich wie final mit dem Unterschied, dass die vom Paket erzeugten Zusatzdatei (.sym und .sub) nicht mehr verändert werden.
-% % Von den Optionen draft, final, Final kann jeweils nur eine zur gleichen Zeit gesetzt werden.
-% % nopageno: wird standardmäßig gesetzt. Sie hat dabei die Wirkung, dass keine Seitenzahlen im Verzeichnis angezeigt werden.
-% % pageno: fügt im Verzeichnis die Seitenzahl der Seite ein auf der das Symbol definiert wurde.
-% % Es kann entweder nopageno oder pageno gesetzt werden.
-% % usexspace: wird standardmäßig gesetzt. Sie fügt automatisch einen Abstand hinter dem Symbol im Text ein.
-% % noxspace: es wird kein automatischer Abstand hinter dem Symbol gesetzt. Das führt dazu, dass das nachfolgende Wort mit dem Symbol verschmelzen kann. Daher muss hier von Hand einen Abstand einfügen.
+% Optional: list of symbols / list of acronyms (uncomment to use)
 % \usepackage[draft, noxspace]{listofsymbols}
-
-% %Abkürzungsverzeichnis, nur verwendete Abkürzungen darstellen
 % \usepackage[printonlyused]{acronym}
 \usepackage{makecell}
 \usepackage[acronym, toc, nonumberlist, nogroupskip]{glossaries}
 \newglossarystyle{MystyleSymbole}{%
   \renewenvironment{theglossary}%
-    {\begin{longtable}[l]{@{}lp{10cm}l}}% [l]= linksbündige longtable,
-                                                              %@{}= kein Abstand vor erster Spalte
+    {\begin{longtable}[l]{@{}lp{10cm}l}}% [l]= left-aligned longtable,
+                                                              %@{}= no space before first column
     {\end{longtable}}%
   \renewcommand*{\glossaryheader}{%
-    \bfseries Symbol & \bfseries Beschreibung\tabularnewline\endhead}%
+    \bfseries Symbol & \bfseries Description\tabularnewline\endhead}%
   \renewcommand*{\glsgroupheading}[1]{}%
   \renewcommand{\glossentry}[2]{%
     \glsentryitem{##1}\glstarget{##1}{\glossentrysymbol{##1}}     & \glossentryname{##1}\tabularnewline
@@ -179,30 +167,26 @@ pdfpagelayout={SinglePage}
 \makeglossaries
 \input{preamble/acronyms}
 
-% Automatisches Setzen von Referenzen (als letztes laden!)
+% Automatic setting of references (load last!)
 \usepackage{cleveref}
 
 % Use the 'cite' package for numeric citation
 %\usepackage{cite}  % For numeric citations (plain, unsrt, etc.)
 
-% Zitierstil
+% Citation style
 %\usepackage[natbibapa]{apacite} % APA-style citations
 %\usepackage{natbib}
 \usepackage[numbers]{natbib}
 \usepackage{xcolor}
-\usepackage{glossaries}
-\usepackage{fancyhdr}
 \definecolor{myblue}{rgb}{0,0,0.6}
 
 \usepackage{url}
 \usepackage{multirow}
-\usepackage{graphicx}
-\usepackage{subcaption}
 
-%Charts
+% Charts
 \usepackage{pgfplots}
 
-%CSV Dateien
+% CSV files
 \usepackage{csvsimple}
 \usepackage{float}
 
@@ -210,31 +194,26 @@ pdfpagelayout={SinglePage}
 \usepackage{multicol}
 \usepackage{afterpage}
 \usepackage{longtable}
-\usepackage{subcaption}
-\usepackage{afterpage}
 
 \newlist{myitemize}{itemize}{1}
 \setlist[myitemize]{label=\textbullet, left=0em, nosep}
 
 
-\renewcommand\lstlistingname{Figure}
-
 \newenvironment{mytighttable}
   {%
-   \renewcommand{\arraystretch}{1.5}% Adjust the cell height
-   \setlength{\tabcolsep}{8pt}% Adjust the cell padding
-   \begin{table}[H]
+    \renewcommand{\arraystretch}{1.5}% Adjust the cell height
+    \setlength{\tabcolsep}{8pt}% Adjust the cell padding
+    \begin{table}[H]
   }
   {%
-   \end{table}
+    \end{table}
   }
 
 \input{preamble/glossary}
-\makeglossaries
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-%%% Anfang Dokument                                   %%%
+%%% Document begin                                    %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \begin{document}
 \pagenumbering{roman}
@@ -244,23 +223,23 @@ pdfpagelayout={SinglePage}
 \newpage
 
 
-% Keine Kopf-/Fußzeile auf den ersten Seiten
+% No header/footer on the first pages
 \pagestyle{fancyplain}
-% "Kapitel" aus Kopfzeile weglassen
+% Omit "Chapter" from header
 \renewcommand{\chaptermark}[1]{\markboth{\uppercase{\thechapter.\ #1}}{}}
-% Nummerierungen nur bis Gliederungsebene 3 (\subsubsection)
+% Numbering only up to outline level 3 (\subsubsection)
 \setcounter{secnumdepth}{3}
-% Nur Überschriften bis Gliederungsebene 3 (\subsubsection) ins Inhaltsverzeichnis
+% Only headings up to outline level 3 (\subsubsection) in the table of contents
 \setcounter{tocdepth}{3}
 \setcounter{page}{1}
 \newpage
 
-% Inhaltsverzeichnis
-\pdfbookmark[0]{Inhaltsverzeichnis}{Inhaltsverzeichnis}
+% Table of Contents
+\pdfbookmark[0]{Contents}{Contents}
 \tableofcontents
 \newpage
-  
-% Abbildungsverzeichnis
+
+% List of Figures
 \clearpage
 \phantomsection
 \addcontentsline{toc}{chapter}{List of Figures}
@@ -271,34 +250,34 @@ pdfpagelayout={SinglePage}
 \phantomsection
 \printglossaries
 \newpage
-% Tabellenverzeichnis
+% List of Tables
 %\clearpage
 %\phantomsection
 %\addcontentsline{toc}{chapter}{List of Tables}
 %\listoftables
 %\newpage
 
-% Abkürzungsverzeichnis
-% nur verwendete Abkürzungen werden dargestellt
+% List of Abbreviations
+% only used abbreviations are displayed
 
 
 
-%Verhinderung von "Schusterjungen" und "Hurenkinder"
+% Prevent "orphans" and "widows"
   \clubpenalty=10000
-  \widowpenalty=10000 
+  \widowpenalty=10000
   \displaywidowpenalty = 10000
-  \tolerance=500 %Zeilenumbruch
+  \tolerance=500 % Line break
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Nummerierung wieder bei 1 beginnen
+% Restart numbering at 1
 \setcounter{page}{1}
 
 \pagestyle{fancy}
 \pagenumbering{arabic}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Eigentliche Arbeit %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Main work %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \input{chapters/01_introduction}
 \input{chapters/02_Background}
@@ -315,15 +294,15 @@ pdfpagelayout={SinglePage}
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%% Anhang %%%%%%%%%%%%%%%%%%%%%%%%%%%
-\renewcommand*\appendixpagename{Anhang} 
-\appendix  
+%%%%%%%%%%%%%%%%%%%%%%%%% Appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand*\appendixpagename{Appendix}
+\appendix
 
 \newpage
 %\phantomsection
-%\addcontentsline{toc}{chapter}{Anhang}
+%\addcontentsline{toc}{chapter}{Appendix}
 
-%\renewcommand*\appendixpagename{Anhang} 
+%\renewcommand*\appendixpagename{Appendix}
 %\setcounter{secnumdepth}{0}
 
 %\chapter{Appendix}
@@ -333,7 +312,7 @@ pdfpagelayout={SinglePage}
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%% Literaturverzeichnis %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%% Bibliography %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \pagenumbering{roman}
 \setcounter{page}{5}
@@ -343,7 +322,7 @@ pdfpagelayout={SinglePage}
 \phantomsection
 \addcontentsline{toc}{chapter}{Bibliography}
 \bibliographystyle{plainnat}
-\bibliography{references}
+\bibliography{biblography/references}
 
 \hypersetup{linkcolor=black, urlcolor=black, citecolor=black}  % Reset colors after bibliography
 
@@ -351,16 +330,16 @@ pdfpagelayout={SinglePage}
 
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Eidesstattliche Erklärung %%%%
+%% Statutory Declaration %%%%
 %
-% nur bei Abschlussarbeiten!
+% only for theses!
 %
 
 \thispagestyle{empty}
 \phantomsection
 
-%\addcontentsline{toc}{chapter}{Erklärung}
-\pdfbookmark[0]{Eidesstattliche Erklärung}{erklaerung}
+%\addcontentsline{toc}{chapter}{Declaration}
+\pdfbookmark[0]{Statutory Declaration}{erklaerung}
 
 
 
