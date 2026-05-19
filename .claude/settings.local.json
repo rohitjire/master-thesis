@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(miktex packages:*)",
+      "Bash(where perl *)",
+      "Bash(perl *)",
+      "Bash(C:/Strawberry/perl/bin/perl.exe *)",
+      "Bash(dir .claude)"
+    ]
+  }
+}
