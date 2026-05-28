@@ -1,7 +1,72 @@
 \chapter{Introduction}\label{chap:introduction}
 
+\section{Motivation}\label{sec:motivation}
+
+Industrial value chains increasingly depend on data exchanged across organisational boundaries. Predictive maintenance pulls sensor telemetry from suppliers, carbon-footprint reporting aggregates emissions data from upstream tiers, and circular-economy use cases trace materials across the lifetime of a product. In each of these scenarios the participants are competitors as much as collaborators, and the data they exchange is commercially sensitive. The European Union has identified this tension as a strategic concern and has called for a single market for data in which actors retain sovereignty over the data they share% TODO: needs source -- EU Data Strategy 2020 (COM(2020) 66 final).
+. The dominant cloud-centric pattern, in which data is consolidated into a small number of hyperscaler platforms, is increasingly seen as incompatible with this goal% TODO: needs source -- Gaia-X position paper or Otto et al. 2022 "Designing Data Spaces".
+.
+
+Dataspaces have emerged as the architectural response. A dataspace is a federation of independent participants that exchange data peer-to-peer under shared rules for identity, usage policy, and contract negotiation, without consolidating storage in a central authority% TODO: needs source -- IDS-RAM 4.0 or Otto et al. 2022.
+. The International Data Spaces (IDS) initiative and the Gaia-X association have produced the conceptual and governance scaffolding for this model% TODO: needs source -- IDS-RAM, Gaia-X Trust Framework.
+, and the Eclipse Dataspace Working Group has standardised the wire-level interactions in the \gls{dsp}% TODO: needs source -- Eclipse DSP specification.
+. Industrial initiatives such as Catena-X in the automotive sector and Factory-X / Manufacturing-X in discrete manufacturing have moved these specifications from reference architecture to production-track deployment% TODO: needs source -- Catena-X consortium paper or official site.
+.
+
+The component that turns these specifications into running software is the connector. Every cross-organisation data exchange in a dataspace passes through a pair of connectors: one on the provider side, exposing a catalog and enforcing usage policy, and one on the consumer side, requesting access and orchestrating the transfer \citep{dam2024surveydataspaceconnectorimplementations}. The \gls{edc}, maintained by the Eclipse Foundation, has become the de-facto reference implementation and is the basis of multiple downstream variants tailored to specific consortia and use cases \citep{dam2024surveydataspaceconnectorimplementations}.
+
+Despite this operational centrality, the performance of dataspace connectors remains largely unmeasured. Public documentation describes what each connector does, not how fast it does it, and the small number of empirical studies in the literature address either a single connector or a single design dimension \citep{Galij2025, dam2024surveydataspaceconnectorimplementations}. Practitioners planning a production rollout, and researchers reasoning about the scalability of the dataspace model, therefore work without a quantitative baseline.
+
+
+\section{Problem Statement}\label{sec:problem-statement}
+
+The dataspace connector ecosystem is heterogeneous. Several \gls{edc}-derived implementations exist in parallel -- Tractus-X EDC, Factory-X EDC, the DSP-Native BaSyx connector developed at Fraunhofer ISST, and the ISST internal EDC build -- and although all four implement the \gls{dsp}, they differ in their identity layer, transfer-process mechanics, persistence choices, and extension model \citep{dam2024surveydataspaceconnectorimplementations}. These differences are documented at the level of features and supported protocols, but their performance consequences are not.
+
+The existing comparative literature reinforces this gap. \citet{dam2024surveydataspaceconnectorimplementations} provide the most comprehensive cross-implementation survey to date and explicitly frame their analysis as feature- and architecture-centric; performance evaluation is identified as out of scope and as future work. \citet{Galij2025} take a complementary, performance-oriented angle by quantifying the cost of data-sovereignty features on a single \gls{edc} deployment, but their study examines one connector and isolates one design dimension, leaving the broader cross-implementation question open.
+
+A second, methodological gap compounds the first. The \gls{dsp} negotiation and transfer cycle is asynchronous -- catalog request, contract offer, contract agreement, transfer-process initiation, and data plane handover proceed as a sequence of stateful exchanges rather than as a single request-response pair% TODO: needs source -- DSP specification, transfer-process state machine.
+. Classical benchmarking methodology for synchronous web services \citep{jain1990art} does not directly accommodate this control-plane / data-plane split, and the benchmarking-as-empirical-standard literature has not yet produced a reusable instrument for the dataspace domain \citep{hasselbring2021benchmarking, Ralph2020}.
+
+The combined gap is therefore two-fold:
+
+\begin{enumerate}
+    \item \textbf{No systematic cross-implementation performance benchmark} for the production-track \gls{edc} variants currently being deployed in European industrial dataspaces.
+    \item \textbf{No reproducible methodology adapted to dataspace-specific protocol behaviour} -- in particular, to the asynchronous \gls{dsp} negotiation cycle, contract negotiation, and policy evaluation overhead.
+\end{enumerate}
+
+For practitioners, the consequence is that capacity planning, \gls{api} budget design, and connector selection are currently undertaken without published baselines. For researchers, the absence of a shared methodology hinders the comparison of results across studies and the cumulative validation of dataspace architectures as a viable foundation for industrial-scale data exchange \citep{Ralph2020}.
+
+
 \section{Research Objective}\label{sec:research-objective}
+
+The objective of this thesis is to design, execute, and analyse a systematic and reproducible performance benchmark of four production-track \gls{edc} implementations -- Tractus-X EDC, Factory-X EDC, DSP-Native BaSyx, and the Fraunhofer ISST internal EDC -- under controlled, dataspace-representative workloads. The benchmark targets four performance dimensions: end-to-end latency, sustained throughput, scalability under concurrent load, and resource consumption (\gls{cpu} and memory). Out of scope are security audit, full protocol-compliance testing, and feature-completeness review; these are addressed elsewhere in the literature \citep{dam2024surveydataspaceconnectorimplementations}. Methodologically the work is anchored in the \gls{gqm} framework of \citet{caldiera1994goal}, follows the empirical standards for software engineering research compiled by \citet{Ralph2020}, treats benchmarking as a first-class empirical instrument in the sense of \citet{hasselbring2021benchmarking}, and applies the measurement and statistical-analysis conventions of \citet{jain1990art}.
+
 
 \section{Research Questions}\label{sec:research-questions}
 
+Three thesis-level research questions structure the investigation. They are deliberately stated at a level above the operational metrics; \Cref{chap:methodology} decomposes them into measurable sub-questions and indicators via the \gls{gqm} framework.
+
+\begin{description}
+    \item[\textbf{TRQ1}] How do current production-track \gls{edc} implementations compare in end-to-end performance under realistic dataspace data-exchange workloads?
+    \item[\textbf{TRQ2}] Which architectural and implementation-level factors most strongly drive the observed performance differences across these implementations?
+    \item[\textbf{TRQ3}] What methodological approach yields a reproducible and fair performance comparison across heterogeneous dataspace connector implementations?
+\end{description}
+
+\textbf{TRQ1} addresses the empirical \emph{what}: the latencies, throughputs, scalability curves, and resource footprints that practitioners require for capacity planning. \textbf{TRQ2} addresses the explanatory \emph{why}: linking measured differences back to identity-layer choices, transfer-process mechanics, and extension models documented for each connector. \textbf{TRQ3} addresses the methodological \emph{how}: it acknowledges that, in the absence of a domain-specific reusable benchmark, the methodology itself is a research contribution rather than a given \citep{hasselbring2021benchmarking}.
+
+
+\section{Contributions}\label{sec:contributions}
+
+This thesis makes four primary contributions and one minor by-product contribution:
+
+\begin{itemize}
+    \item \textbf{A \gls{gqm}-derived benchmarking methodology} adapted to the asynchronous \gls{dsp} negotiation and transfer cycle, including operationalised metrics for catalog access, contract negotiation, transfer initiation, and data-plane throughput.
+    \item \textbf{A reproducible test harness} comprising a \texttt{kind}-based Kubernetes deployment, Helm-managed connector configurations, k6 workload generators, and a Prometheus and Grafana monitoring stack. All artefacts are released in the \texttt{benchmarking-*} repositories accompanying this work, enabling third-party replication and extension.
+    \item \textbf{Empirical performance baselines} for four production-track \gls{edc} implementations across latency, throughput, scalability, and resource consumption, accompanied by raw measurement data for further analysis.
+    \item \textbf{An architectural analysis} that links measured performance differences to specific implementation choices in the identity layer, transfer-process state machine, persistence backend, and extension model of each connector, building on the feature taxonomy of \citet{dam2024surveydataspaceconnectorimplementations}.
+    \item \textbf{A patched DSP-Native BaSyx runtime} with a BouncyCastle \texttt{EdDSA} fallback in \texttt{MvdValidationService}, produced as a prerequisite for bringing the \gls{sut} into a runnable state and contributed back as a small ancillary engineering result.
+\end{itemize}
+
+
 \section{Thesis Outline}\label{sec:thesis-outline}
+
+The remainder of this thesis is organised as follows. \Cref{chap:background} introduces the conceptual background of dataspaces, the \gls{idsram}, the \gls{dsp}, the architecture of the \gls{edc}, and the performance concepts used throughout. \Cref{chap:related-work} surveys existing benchmarks for data-exchange systems and performance studies on dataspace connectors, and consolidates the gap addressed by this work. \Cref{chap:methodology} develops the \gls{gqm}-derived methodology, defines the primary and secondary performance metrics, and specifies the experimental scenarios. \Cref{chap:implementation} describes the systems under test, the Kubernetes-based test environment, the connector configurations, and the workload generation pipeline. \Cref{chap:results-evaluation} reports the measurements along throughput, latency, scalability, and resource-consumption dimensions, together with cross-connector comparisons. \Cref{chap:discussion} interprets these results in light of the architectural differences between the connectors, compares them with related work, and discusses threats to validity. \Cref{chap:conclusion} summarises the findings, answers the research questions, and outlines directions for future work.
