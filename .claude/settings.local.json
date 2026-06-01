@@ -5,7 +5,23 @@
       "Bash(where perl *)",
       "Bash(perl *)",
       "Bash(C:/Strawberry/perl/bin/perl.exe *)",
-      "Bash(dir .claude)"
+      "Bash(dir .claude)",
+      "WebSearch",
+      "WebFetch(domain:www.mdpi.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:newsroom.eclipse.org)",
+      "WebFetch(domain:www.dataspaces.fraunhofer.de)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl -sL --max-time 40 https://raw.githubusercontent.com/factory-x-contributions/factoryx-edc/main/README.md -o fx_readme.tmp.txt)",
+      "Bash(curl -sL --max-time 40 https://raw.githubusercontent.com/factory-x-contributions/dsp-native-basyx/main/README.md -o basyx_readme.tmp.txt)",
+      "Bash(curl -sL --max-time 40 \"https://raw.githubusercontent.com/factory-x-contributions/factoryx-edc/main/README.md\" -o fx_readme.tmp.txt)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(ls -l fx_readme.tmp.txt)",
+      "Bash(curl -sL --max-time 40 \"https://raw.githubusercontent.com/factory-x-contributions/dsp-native-basyx/main/README.md\" -o basyx_readme.tmp.txt)",
+      "Bash(ls -l basyx_readme.tmp.txt)",
+      "PowerShell($ProgressPreference='SilentlyContinue'; try { $fx = Invoke-WebRequest -Uri \"https://raw.githubusercontent.com/factory-x-contributions/factoryx-edc/main/README.md\" -UseBasicParsing -TimeoutSec 40; Write-Output \"FX-LEN: $\\($fx.Content.Length\\)\" } catch { Write-Output \"FX-ERR: $\\($_.Exception.Message\\)\" })",
+      "Bash(ls *.tmp.txt build.tmp.log)",
+      "Bash(echo \"exit=$? \\(non-zero/empty = no temp files, good\\)\")"
     ]
   }
 }
