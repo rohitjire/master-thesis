@@ -9,7 +9,7 @@ Three structural elements recur in every operational dataspace and provide the v
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\linewidth]{figures/dataspace_overview.png}
-    \caption{Structural elements of a single dataspace: participants, connectors, the Data Space Governance Authority, and the supporting services for identity, vocabularies, and observability. Figure source: International Data Spaces Association.}
+    \caption[Structural elements of a single dataspace]{Structural elements of a single dataspace: participants, connectors, the Data Space Governance Authority, and the supporting services for identity, vocabularies, and observability. Figure source: International Data Spaces Association.}
     \label{fig:dataspace-overview}
 \end{figure}
 
@@ -27,7 +27,7 @@ The model is organised as five horizontal layers crossed by three cross-cutting 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.78\linewidth]{figures/ids_ram_overview.png}
-    \caption{Overview of the IDS Reference Architecture Model: five horizontal layers (Business, Functional, Process, Information, System) cross-cut by three perspectives (Security, Certification, Governance). Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
+    \caption[Overview of the IDS Reference Architecture Model]{Overview of the IDS Reference Architecture Model: five horizontal layers (Business, Functional, Process, Information, System) cross-cut by three perspectives (Security, Certification, Governance). Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
     \label{fig:ids-ram-overview}
 \end{figure}
 
@@ -40,7 +40,7 @@ The Business Layer further enumerates roles that recur in the source code of eve
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.95\linewidth]{figures/ids_ram_roles_interactions.png}
-    \caption{Roles and interactions in the International Data Spaces. Solid arrows denote data flow, dashed arrows metadata flow, and thick arrows software flow; Core Participants and Intermediaries are distinguished by node shape. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
+    \caption[Roles and interactions in the International Data Spaces]{Roles and interactions in the International Data Spaces. Solid arrows denote data flow, dashed arrows metadata flow, and thick arrows software flow; Core Participants and Intermediaries are distinguished by node shape. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
     \label{fig:ids-ram-roles}
 \end{figure}
 
@@ -60,7 +60,7 @@ This is the architectural basis on which two distinct dataspaces, each with its 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\linewidth]{figures/data_sharing_across_dataspaces.png}
-    \caption{Cross-dataspace exchange: participants in Data Space~A and Data Space~B enter agreements mediated by their respective connectors, without consolidating storage in either dataspace. Figure source: International Data Spaces Association.}
+    \caption[Cross-dataspace exchange between two dataspaces]{Cross-dataspace exchange: participants in Data Space~A and Data Space~B enter agreements mediated by their respective connectors, without consolidating storage in either dataspace. Figure source: International Data Spaces Association.}
     \label{fig:cross-dataspace}
 \end{figure}
 
@@ -78,7 +78,7 @@ The boundary DSP draws between what it standardises and what it leaves open is n
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.6\linewidth]{figures/dataspace_protocol_layers.png}
-    \caption{The three-plane dataspace stack: a Trust Plane for identity and trust, a Control Plane standardised by the Dataspace Protocol, and one or more Data Planes that carry the actual bytes using existing exchange protocols. Figure adapted from \citet{niisXRoadDataspaceStack}.}
+    \caption[The three-plane dataspace stack]{The three-plane dataspace stack: a Trust Plane for identity and trust, a Control Plane standardised by the Dataspace Protocol, and one or more Data Planes that carry the actual bytes using existing exchange protocols. Figure adapted from \citet{niisXRoadDataspaceStack}.}
     \label{fig:dsp-planes}
 \end{figure}
 
@@ -87,7 +87,7 @@ Within this Control-Plane scope the specification has matured through two govern
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\linewidth]{figures/dsp_protocol_overview.png}
-    \caption{Dataspace Protocol overview: two connectors with an external Identity Provider, exchanging cataloging, contract negotiation, and data-transfer interactions, with policy enforcement and monitoring as cross-cutting concerns on each side. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}, licensed under Apache~2.0.}
+    \caption[Dataspace Protocol overview]{Dataspace Protocol overview: two connectors with an external Identity Provider, exchanging cataloging, contract negotiation, and data-transfer interactions, with policy enforcement and monitoring as cross-cutting concerns on each side. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}, licensed under Apache~2.0.}
     \label{fig:dsp-overview}
 \end{figure}
 
@@ -102,7 +102,7 @@ The first half exchanges an offer. The Consumer opens the negotiation with a \em
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.6\linewidth]{figures/dsp_cn_state_machine.png}
-    \caption{Contract Negotiation state machine in DSP 2025-1. Transitions labelled \texttt{C} are sent by the Consumer, \texttt{P} by the Provider, and \texttt{C/P} by either. The terminal state \textsc{terminated} is reachable from every non-terminal state. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}, licensed under Apache~2.0.}
+    \caption[Contract Negotiation state machine in DSP 2025-1]{Contract Negotiation state machine in DSP 2025-1. Transitions labelled \texttt{C} are sent by the Consumer, \texttt{P} by the Provider, and \texttt{C/P} by either. The terminal state \textsc{terminated} is reachable from every non-terminal state. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}, licensed under Apache~2.0.}
     \label{fig:dsp-cn}
 \end{figure}
 
@@ -115,7 +115,7 @@ The happy path is short. The Consumer opens the process with a \emph{Transfer Re
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.5\linewidth]{figures/dsp_tp_state_machine.png}
-    \caption{Transfer Process state machine in DSP 2025-1. \textsc{completed} and \textsc{terminated} are terminal; \textsc{suspended} may return to \textsc{started}. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}, licensed under Apache~2.0.}
+    \caption[Transfer Process state machine in DSP 2025-1]{Transfer Process state machine in DSP 2025-1. \textsc{completed} and \textsc{terminated} are terminal; \textsc{suspended} may return to \textsc{started}. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}, licensed under Apache~2.0.}
     \label{fig:dsp-tp}
 \end{figure}
 
@@ -132,7 +132,7 @@ The Dataspace Protocol specified in \Cref{sec:dsp} defines what two connectors s
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\linewidth]{figures/ids_ram_system_components.png}
-    \caption{Standard runtime environment of a dataspace connector as defined by the IDS-RAM: a Data Provider connector and a Data Consumer connector at the centre, surrounded by the Metadata Broker, Clearing House, App Store, and Vocabulary Hub intermediaries. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
+    \caption[Standard runtime environment of a dataspace connector]{Standard runtime environment of a dataspace connector as defined by the IDS-RAM: a Data Provider connector and a Data Consumer connector at the centre, surrounded by the Metadata Broker, Clearing House, App Store, and Vocabulary Hub intermediaries. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
     \label{fig:ids-ram-system-components}
 \end{figure}
 
@@ -161,7 +161,7 @@ The codebase is correspondingly partitioned into four modules~\citep{eclipseEdcD
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.95\linewidth]{figures/ids_ram_connector_functional_view.png}
-    \caption{Functional view of an IDS connector as defined by the IDS-RAM: internal components for User Management, Authentication, Data, Metadata, Contract, Policy, and App Management, the IDS Protocol engine, and external interfaces to the Identity Service (DAPS), Metadata Broker, App Store, Clearing House, and Participant Information Service (ParIS). EDC instantiates this functional surface as the modular Control Plane / Data Plane / Management API architecture described in the surrounding paragraphs. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
+    \caption[Functional view of an IDS connector]{Functional view of an IDS connector as defined by the IDS-RAM: internal components for User Management, Authentication, Data, Metadata, Contract, Policy, and App Management, the IDS Protocol engine, and external interfaces to the Identity Service (DAPS), Metadata Broker, App Store, Clearing House, and Participant Information Service (ParIS). EDC instantiates this functional surface as the modular Control Plane / Data Plane / Management API architecture described in the surrounding paragraphs. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
     \label{fig:ids-ram-connector-functional}
 \end{figure}
 
@@ -190,7 +190,7 @@ Four DSP-conformant implementations are in scope for the benchmarks reported in 
 
 \begin{table}[ht]
     \centering
-    \caption{Architectural profile of the four connector implementations evaluated in this thesis.}
+    \caption[Architectural profile of the four connector implementations]{Architectural profile of the four connector implementations evaluated in this thesis.}
     \label{tab:connector-comparison}
     \small
     \setlength{\tabcolsep}{4pt}
