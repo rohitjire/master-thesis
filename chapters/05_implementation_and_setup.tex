@@ -43,7 +43,7 @@ The \textbf{Factory-X \gls{edc}}, version 0.3.0, derives from Tractus-X \gls{edc
 
 \subsection{Hardware Configuration}\label{subsec:hardware}
 
-All measurements run on \texttt{edc-performance}, a dedicated benchmark server operated by Fraunhofer ISST. The machine is accessed remotely over SSH, with run artefacts transferred via SCP/WinSCP; it is headless, which constrains the tooling to command-line instruments and motivates the fully scripted identity provisioning described in \cref{subsec:k6-harness}. \Cref{tab:hardware-config} lists the configuration.
+All measurements run on \texttt{edc-performance}, a dedicated benchmark server operated by Fraunhofer ISST. The machine is accessed remotely over SSH, with run artefacts transferred via SCP/WinSCP; it is headless, which constrains the tooling to command-line instruments and motivates the fully scripted identity provisioning described in \cref{subsec:workflow}. \Cref{tab:hardware-config} lists the configuration.
 
 \begin{table}[ht]
     \centering
@@ -160,13 +160,15 @@ Two cross-connector non-uniformities remain and are disclosed rather than hidden
 
 \section{Observability Stack}\label{sec:data-tools}
 
-\Cref{sec:metrics} requires two independent vantage points: the client view of the load generator and the server view of the systems under test. The server view is realised by one pipeline -- \gls{otel} instrumentation feeding Prometheus for metrics and Tempo for traces, with Grafana as the reading instrument -- deployed with byte-identical configuration in all three connector repositories. This section describes each component and, because the choice of tooling shapes what the study can claim, states explicitly why this composition was selected.
+\Cref{sec:metrics} requires two independent vantage points: the client view of the load generator and the server view of the systems under test. The server view is realised by one pipeline -- \gls{otel} instrumentation feeding Prometheus for metrics and Tempo for traces, with Grafana as the reading instrument -- deployed with byte-identical configuration in all three connector repositories.
+
+\textbf{Why this composition.} The pipeline has three layers because \gls{otel} deliberately covers only the first of them. Instrumentation has to be identical across heterogeneous runtimes, because a measurement instrument that varies per connector reintroduces precisely the confound the fairness requirement forbids~\citep{Ralph2020}; \gls{otel} meets that condition as a vendor- and tool-agnostic \gls{cncf} standard, and it is explicitly not an observability backend, leaving storage and visualisation to other tools~\citep{otelWhatIs}. That boundary forces an explicit backend decision, which Prometheus answers on the three properties this study depends on: a dimensional data model queried through PromQL, which yields the per-service breakdown the analysis needs~\citep{prometheusOverview}; counter and histogram types that match the rate-error-duration view~\citep{prometheusMetricTypes}; and a range-query endpoint that evaluates an expression between an explicit start and end timestamp, which is what makes the time-aligned per-run snapshot of \cref{subsec:orchestration} possible~\citep{prometheusHttpApi}. Grafana supplies the frontend that \gls{otel} leaves open, over the metric and the trace store alike~\citep{grafanaDocs, grafanaTempoDocs}. Two alternatives were rejected on the same criteria: a hosted commercial observability service would move telemetry off the benchmark host and forfeit reproduction from pinned open images~\citep{papadopoulos2021reproducible}, and consuming each connector's own metrics endpoint would make the instrument a per-connector variable. The cost of instrumenting at all is acknowledged rather than assumed away -- monitoring frameworks impose measurable overhead on the application they observe~\citep{reichelt2021overhead} -- which is why the agent is itself subjected to the on-versus-off comparison of \cref{subsec:tracing}.
 
 \subsection{Metrics Pipeline: OpenTelemetry, Prometheus, and Grafana}\label{subsec:metrics-pipeline}
 
-\textbf{Instrumentation.} Every connector \gls{jvm} is instrumented by the \gls{otel} Java agent (version 2.8.0), attached at start-up via the \texttt{-javaagent} flag; the agent injects bytecode at class-loading time and requires no modification of the application~\citep{otelJavaAgent}. This zero-code property is the decisive fairness argument: the connectors under test are heterogeneous -- Jetty/Jersey-based \gls{edc} runtimes and a Spring Boot application -- yet the same agent instruments all of them, and the \gls{otel} semantic conventions guarantee that the resulting series carry the same names and semantics everywhere, such as \texttt{http\_server\_request\_duration} for server-side request latency and the \texttt{jvm\_*} series for heap, \gls{gc}, and thread telemetry~\citep{opentelemetrySemconv}. Any per-connector instrumentation -- hand-wired Micrometer registries or JMX exporters -- would have made the measurement instrument itself a per-connector variable, which the fairness requirement of the benchmark standard rules out~\citep{Ralph2020}. Each container sets a distinct \texttt{OTEL\_SERVICE\_NAME}, so every runtime is separable in every downstream query, and the agent exports over OTLP/gRPC every 5\,s.
+\textbf{Instrumentation.} Every connector \gls{jvm} is instrumented by the \gls{otel} Java agent (version 2.8.0), attached at start-up via the \texttt{-javaagent} flag; the agent injects bytecode at class-loading time and requires no modification of the application~\citep{otelJavaAgent}. This zero-code property is the decisive fairness argument: the connectors under test are heterogeneous -- Jetty/Jersey-based \gls{edc} runtimes and a Spring Boot application -- yet the same agent instruments all of them, and the \gls{otel} semantic conventions guarantee that the resulting series carry the same names and semantics everywhere, such as \texttt{http\_server\_request\_duration} for server-side request latency and the \texttt{jvm\_*} series for heap, \gls{gc}, and thread telemetry~\citep{opentelemetrySemconv}. Each container sets a distinct \texttt{OTEL\_SERVICE\_NAME}, so every runtime is separable in every downstream query, and the agent exports over OTLP/gRPC every 5\,s.
 
-\textbf{Collection and storage.} All agents push to a single \gls{otel} Collector, which batches the streams and re-exposes the metrics in Prometheus format, converting the \gls{otel} resource attributes into Prometheus labels so that per-runtime attribution survives the format boundary. Prometheus scrapes the collector and the node exporter every 5\,s, matching the agent export interval so that every scrape observes fresh samples. Prometheus was selected for three reasons: its multi-dimensional data model and the PromQL query language support exactly the per-service, per-route slicing that the analysis needs~\citep{prometheusOverview}; its counter and histogram metric types match the rate-error-duration analysis the study performs~\citep{prometheusMetricTypes}; and its \gls{api} supports range queries over an arbitrary time window, which is what makes the time-aligned per-run snapshot of \cref{subsec:orchestration} possible. Its position as a de-facto standard -- the second project hosted by the Cloud Native Computing Foundation -- also means the pipeline is reproducible from stock images with no bespoke tooling~\citep{prometheusOverview}.
+\textbf{Collection and storage.} All agents push to a single \gls{otel} Collector, which batches the streams and re-exposes the metrics in Prometheus format, converting the \gls{otel} resource attributes into Prometheus labels so that per-runtime attribution survives the format boundary. Prometheus scrapes the collector and the node exporter every 5\,s, matching the agent export interval so that every scrape observes fresh samples. Retention covers one working week, which comfortably outlives the longest scenario and leaves the archived per-run snapshot, not the live database, as the artefact of record.
 
 \textbf{Reading instrument.} Grafana provisions two dashboards from the repository: a rate-error-duration dashboard over the connector \gls{api} series and a host dashboard over the node-exporter series~\citep{grafanaDocs}. Grafana's role is deliberately limited to live inspection -- verifying during a run that the stack is healthy and that load arrives where expected. The measurement of record is never a dashboard screenshot: it is the k6 summary and the Prometheus snapshot CSVs archived per run (\cref{subsec:orchestration}), which reuse the same PromQL expressions as the dashboards, so what is archived equals what was observed live.
 
@@ -185,13 +187,55 @@ The Prometheus node exporter publishes hardware and operating-system metrics of 
 
 Load is generated with Grafana k6, a scriptable load generator whose scenarios are JavaScript programs executed by configurable executors~\citep{k6docs}. Three properties motivated the choice. First, k6 provides open-model arrival-rate executors that fire requests on a clock, independently of how quickly the system responds; a closed loop, in which each virtual user waits for its previous transaction, lets a slow system throttle its own offered load and thereby hide the latency tail -- the classic open-versus-closed distortion~\citep{schroeder2006open}. Second, a \gls{dsp} transaction is not a single request but a multi-step, partially asynchronous protocol flow; k6 scripts express the full sequence -- catalog request, negotiation initiation, polling to the agreed state, transfer initiation, polling to the \gls{edr}, data pull -- as one measured transaction. Third, custom metrics, tags, and thresholds allow the harness to emit exactly the metric set defined in \cref{sec:metrics} and to enforce per-scenario validity gates.
 
-The harness consists of a library layer (\texttt{lib/}: protocol flow, HTTP wrappers, polling, seeding, metric definitions, checks) and seven scenario scripts (\texttt{scenarios/}), and it is deliberately duplicated into each connector repository as a byte-identical copy: the only per-connector file is a small configuration (\texttt{config/\allowbreak <connector>.json}) holding endpoints, participant identifiers, the seed asset, and the Prometheus address. A parity checker (\texttt{verify-parity.sh}) diffs \texttt{lib/} and \texttt{scenarios/} against the canonical copy and refuses a run on any drift -- without this guard, the duplicated load driver could itself drift into a confound. One driver therefore exercises six deployments: three connectors, each in two arms, selected only by the target configuration and an \texttt{IDENTITY\_MODE} tag. The single exception is the BaSyx $G_2$ arm, whose raw-\gls{dsp} driver variant replaces the \gls{edc} management flow for the reasons given in \cref{subsec:mock-arm}, reproducing the same load shapes and metric definitions against the \gls{dsp} endpoints directly.
+The harness is maintained as a small software project rather than as a set of ad-hoc scripts, so that running an experiment is one reproducible command instead of a remembered procedure. \Cref{lst:harness-layout} shows its layout: a library layer carrying the protocol flow, the polling logic, the seeding helpers and the metric definitions; the seven scenario scripts; the orchestration and tooling scripts; and one configuration file per connector.
 
-Two auxiliary scripts complete the harness. A one-shot identity-provisioning script ports the interactive provisioning collection to k6 so it runs on the headless benchmark host: it registers the trusted issuer, creates both participants in their Identity Hubs, requests the membership credentials, and stores the \gls{sts} secrets in Vault -- once per identity-enabled deployment, before and outside any measured window. A payload generator produces the sized files that the data-plane sweep serves.
+{\pagebreak}
+
+\begin{lstlisting}[numbers=none, basicstyle=\scriptsize\ttfamily, columns=fixed, caption={Layout of the k6 harness, identical in all three connector repositories.}, label=lst:harness-layout]
+k6-scripts/
+  lib/               protocol flow, HTTP helpers, polling, seeding, metrics
+  scenarios/         the seven load shapes
+  config/            <connector>.json - the only per-connector file
+  orchestration/     run.sh, run-matrix.sh, snapshot-prom.sh
+  tools/             verify-parity.sh, gen-payloads.sh
+  identity-setup.js  one-shot dataspace provisioning
+  Makefile
+\end{lstlisting}
+
+The per-connector configuration is the only file that differs between repositories; it holds the management and \gls{dsp} endpoints, the participant identifiers, the seed asset, and the Prometheus address. Everything above it is a byte-identical copy, and a parity checker (\texttt{tools/verify-parity.sh}) diffs \texttt{lib/} and \texttt{scenarios/} against the canonical copy and refuses a run on any drift -- without that guard the duplicated load driver could itself become a confound. One driver therefore exercises six deployments -- three connectors, each in two arms -- selected only by the target configuration and the identity-mode setting. The single exception is the BaSyx $G_2$ arm, whose raw-\gls{dsp} driver variant replaces the \gls{edc} management flow for the reasons given in \cref{subsec:mock-arm}, reproducing the same load shapes and metric definitions against the \gls{dsp} endpoints directly.
+
+\subsection{Deployment and Execution Workflow}\label{subsec:workflow}
+
+Each connector repository exposes the same two entry points next to its Compose files, so that the operating procedure is identical whichever connector is under test. \texttt{install.sh} takes the identity arm as its only argument, selects the matching Compose file, and brings the stack up with monitoring; \texttt{cleanup.sh} tears it down together with its volumes, so that the next run starts from an empty database rather than from inherited state, and with no argument it removes both arms. Because the three stacks deliberately share container names and run one at a time on the same host (\cref{subsec:hardware}), \texttt{install.sh} additionally performs a pre-flight check: it removes containers left behind by a previously benchmarked connector and refuses to start while another connector's stack is still running, which turns a silent cross-connector collision into an explicit error.
+
+The identity-enabled arms of Factory-X and BaSyx boot with empty Identity Hubs and must be provisioned once before any transaction can succeed -- registering the trusted issuer, creating both participants, requesting their membership credentials, and writing the \gls{sts} client secrets to Vault. That provisioning existed only as an interactive \gls{api} collection, which is unusable on a headless server, so it was ported to a one-shot k6 script requiring nothing beyond the k6 binary the scenarios already need. The Fraunhofer ISST arm instead ships pre-signed credentials alongside its static \gls{did} documents and needs no such step. \Cref{lst:run-workflow} shows the resulting lifecycle.
+
+\begin{lstlisting}[numbers=none, basicstyle=\scriptsize\ttfamily, columns=fixed, caption={Lifecycle of one benchmark arm, from deployment to teardown.}, label=lst:run-workflow]
+# 1  bring up one arm of one connector (stack + monitoring)
+./install.sh on                  # identity-enabled arm  (G1)
+./install.sh off                 # identity-disabled arm (G2)
+
+# 2  provision the dataspace once - identity-enabled arm only
+cd k6-scripts && k6 run identity-setup.js
+
+# 3  run one scenario: connector, arm and scenario are the only variables
+IDENTITY_MODE=on ./orchestration/run.sh factoryx steady
+RATE=10 DURATION=5m IDENTITY_MODE=on ./orchestration/run.sh factoryx steady
+
+# 4  or the whole matrix for this arm: every scenario, three repetitions
+IDENTITY_MODE=on ./orchestration/run-matrix.sh factoryx 3
+
+# 5  tear the arm down, volumes included
+./cleanup.sh
+\end{lstlisting}
+
+Three variables therefore determine any measurement -- the connector, the identity arm, and the scenario -- and each appears exactly once on the command line. The orchestration script wraps the k6 invocation in the measurement pipeline and the archiving described in \cref{subsec:orchestration}. A scenario's load parameters -- offered rate, duration, payload or catalog size, poll interval -- are environment overrides on the same command, so any deviation from the defaults of \cref{tab:k6-scenarios} is explicit at the call site and is recorded in the run's provenance file. A Makefile exposes the same targets under shorter names for interactive use, and a payload generator produces the sized files that the data-plane sweep serves.
 
 \subsection{Benchmark Scenarios}\label{subsec:scenarios}
 
 Seven scenarios cover the five recurring research questions of \cref{sec:gqm-decomposition}; \cref{tab:k6-scenarios} maps each scenario to its executor, load shape, and question. Identity is a factor, not a scenario: every scenario runs once against each arm of a connector with identical code and parameters, and each sample carries an \texttt{identity\_mode} tag, so the scenario set yields the paired measurements from which X1 is computed.
+
+{\pagebreak}
 
 \begin{table}[ht]
     \centering
@@ -202,19 +246,31 @@ Seven scenarios cover the five recurring research questions of \cref{sec:gqm-dec
         \textbf{Scenario} & \textbf{Executor (k6)} & \textbf{Load shape (defaults)} & \textbf{Question} \\
         \midrule
         \texttt{smoke} & \texttt{per-vu-\allowbreak iterations} & 1 user, 5 sequential transactions & gate \\
-        \texttt{steady} & \texttt{constant-\allowbreak arrival-\allowbreak rate} & 5\,tx/s held for 10\,min & $G_k.\text{RQ}1$ \\
-        \texttt{saturation-open} & \texttt{ramping-\allowbreak arrival-\allowbreak rate} & stages 2--5--10--20--40\,tx/s, then hold & $G_k.\text{RQ}2$ \\
-        \texttt{concurrency-closed} & \texttt{ramping-vus} & 10--50--100--200 concurrent users, then hold & $G_k.\text{RQ}2$ \\
-        \texttt{payload-sweep} & \texttt{constant-vus} & 4 users, 2\,min per payload size (1\,KB--100\,MB) & $G_k.\text{RQ}1$ \\
-        \texttt{soak} & \texttt{constant-\allowbreak arrival-\allowbreak rate} & 3\,tx/s held for 1\,h & $G_k.\text{RQ}3$ \\
-        \texttt{catalog-sweep} & \texttt{constant-vus} & 4 users, 2\,min per catalog size (1--1000 assets) & $G_k.\text{RQ}5$ \\
+        \texttt{steady} & \texttt{constant-\allowbreak arrival-\allowbreak rate} & 2\,tx/s held for 5\,min & $G_k.\text{RQ}1$ \\
+        \texttt{saturation-open} & \texttt{ramping-\allowbreak arrival-\allowbreak rate} & stages 1--2--3--5--8--12\,tx/s, 90\,s each, then hold & $G_k.\text{RQ}2$ \\
+        \texttt{concurrency-closed} & \texttt{ramping-vus} & 5--10--20--50 concurrent users, 90\,s each, then hold & $G_k.\text{RQ}2$ \\
+        \texttt{payload-sweep} & \texttt{constant-vus} & 4 users, 1\,min per payload size (1\,KB--100\,MB) & $G_k.\text{RQ}1$ \\
+        \texttt{soak} & \texttt{constant-\allowbreak arrival-\allowbreak rate} & 1\,tx/s held for 30\,min & $G_k.\text{RQ}3$ \\
+        \texttt{catalog-sweep} & \texttt{constant-vus} & 4 users, 90\,s per catalog size (1--1000 assets) & $G_k.\text{RQ}5$ \\
         \bottomrule
     \end{tabularx}
     \caption[Benchmark scenarios and their research questions]{The seven k6 scenarios with executor, default load shape, and the research question each answers under both goals. Resource profiles ($G_k.$RQ3) and the asynchronous cycle ($G_k.$RQ4) are additionally observed across all scenarios.}
     \label{tab:k6-scenarios}
 \end{table}
 
-\texttt{smoke} is the correctness gate and the uncontended baseline: a single user runs the full flow five times, and any failure fails the run outright, since without contention a failure indicates a broken stack rather than overload. Run against the $G_2$ arm, it doubles as a parity probe -- the transaction must succeed \emph{without} a valid credential, confirming that identity is genuinely bypassed. \texttt{steady} holds a fixed offered rate well below saturation and is the head-to-head comparison point for latency percentiles and sustained throughput; its open-model executor keeps the tail honest under the coordinated-omission argument above~\citep{schroeder2006open}. \texttt{saturation-open} sweeps the offered rate upward to trace the full latency-versus-load curve; its thresholds are abort-only guards, so the saturation knee and the failure onset are read from the curve rather than from a pass/fail gate, consistent with the capacity relationship of Little's law~\citep{little1961proof}. \texttt{concurrency-closed} ramps concurrent virtual users instead of the arrival rate; it maps directly onto the intuitive question of concurrent clients but, as a closed model, is reported only alongside the open-model result. \texttt{payload-sweep} negotiates one contract in setup and then varies only the payload size, isolating raw data-plane throughput from the control-plane handshake, following the one-factor-at-a-time workload construction principle~\citep{kistowski2015benchmark}; since identity work concentrates in the control plane, its expected X1 is near zero, making it the empirical check on the Factory-X data-plane caveat of \cref{subsec:mock-arm}. \texttt{soak} applies a gentle rate for an hour to expose heap drift, \gls{gc} degradation, and thread growth that short runs cannot reveal, observed through the \gls{jvm} series~\citep{gregg2012thinking}. \texttt{catalog-sweep} seeds the provider with a controlled number of assets and issues catalog-only requests, one run per catalog size; it requires management-\gls{api} seeding against SQL persistence and therefore targets the two \gls{edc} providers, with BaSyx catalog scaling treated separately.
+\texttt{smoke} \textbf{-- correctness gate and uncontended baseline.} A single user runs the full flow five times, and any failure fails the run outright, since without contention a failure indicates a broken stack rather than overload. Run against the $G_2$ arm it doubles as a parity probe: the transaction must succeed \emph{without} a valid credential, confirming that identity is genuinely bypassed.
+
+\texttt{steady} \textbf{-- the realistic operating point.} A fixed offered rate is held well below saturation, which makes this the head-to-head comparison point for latency percentiles and sustained throughput. Its open-model executor keeps the tail honest under the coordinated-omission argument of \cref{subsec:k6-harness}~\citep{schroeder2006open}.
+
+\texttt{saturation-open} \textbf{-- the scalability knee.} The offered rate is swept upward in stages to trace the full latency-versus-load curve. Its thresholds are abort-only guards, so the saturation knee and the onset of failure are read from the curve rather than from a pass/fail gate, consistent with the capacity relationship expressed by Little's law~\citep{little1961proof}.
+
+\texttt{concurrency-closed} \textbf{-- the concurrency companion.} Concurrent virtual users are ramped instead of the arrival rate. This maps directly onto the intuitive question of how a connector behaves as more clients transfer at once, but as a closed model it is subject to coordinated omission and is therefore reported only alongside the open-model result, never as the sole scalability claim.
+
+\texttt{payload-sweep} \textbf{-- data-plane throughput in isolation.} One contract is negotiated during setup, after which only the payload size varies. This isolates raw data-plane throughput from the control-plane handshake, following the one-factor-at-a-time principle of workload construction~\citep{kistowski2015benchmark}. Because identity work concentrates in the control plane, the expected identity overhead here is near zero, which makes this scenario the empirical check on the Factory-X data-plane caveat of \cref{subsec:mock-arm}.
+
+\texttt{soak} \textbf{-- endurance and resource drift.} A gentle rate is applied for one hour to expose heap drift, \gls{gc} degradation, and thread growth that short runs cannot reveal, observed through the \gls{jvm} series~\citep{gregg2012thinking}.
+
+\texttt{catalog-sweep} \textbf{-- control-plane scaling.} The provider is seeded with a controlled number of assets and each iteration issues a catalog-only request, with one run per catalog size. Seeding requires the management \gls{api} backed by SQL persistence, so this scenario targets the two \gls{edc} providers; BaSyx catalog scaling is treated separately.
 
 Scenario thresholds play two distinct roles. Gate thresholds (on \texttt{smoke}, \texttt{steady}, \texttt{soak}, and the sweeps) invalidate a run that violates them -- for example, a transaction-failure rate above 1\,\% in \texttt{steady} -- ensuring latency statistics are only reported over essentially successful runs. Abort-only thresholds (on the two ramping scenarios) merely stop a run that has degenerated far past its knee; they are diagnostic bounds, not claims.
 
@@ -255,7 +311,7 @@ A single orchestration script executes one experiment -- one connector, one scen
 
 Every run terminates in an immutable result folder whose provenance file records all parameters needed to reproduce or audit it -- connector, scenario, arm, poll interval, catalog size, start and end epochs, the k6 version and exit code, the load knobs, and the git commit of the harness:
 
-\begin{lstlisting}[caption={Per-run result folder produced by the orchestration script.},label=lst:result-folder]
+\begin{lstlisting}[numbers=none, basicstyle=\scriptsize\ttfamily, columns=fixed, caption={Per-run result folder produced by the orchestration script.}, label=lst:result-folder]
 results/<connector>/<scenario>/<UTC-timestamp>/
   run.log          k6 console output of the measured run
   k6-summary.json  client-side metrics (p50/p95/p99 per trend)
