@@ -1,16 +1,312 @@
 \chapter{Results and Evaluation}\label{chap:results-evaluation}
 
-\section{Throughput Analysis}\label{sec:results-throughput}
+This chapter answers the research questions of \cref{sec:gqm-decomposition} from the measurements produced by the campaign of \cref{chap:implementation}. Its structure follows the \gls{gqm} decomposition directly: \crefrange{sec:rq1}{sec:rq5} take the five recurring questions in the order of \cref{tab:research-questions}, and each answers its question for both goals at once. Because the same question is asked under each goal and differs only in the identity configuration, the identity-enabled ($G_1$) and identity-disabled ($G_2$) values of every metric appear in the same table, with their difference reported beside them. \Cref{sec:x1-overhead} then draws the cross-goal result X1 together across all five questions, \cref{sec:x2-architecture} accounts for the measured differences architecturally (X2), and \cref{sec:results-validity} states the threats to the validity of both.
 
-\section{Latency Analysis}\label{sec:results-latency}
+The statistics used throughout, the meaning of $\Delta$, and the rules by which runs are admitted or excluded are defined in \cref{sec:analysis-procedure}; they are applied uniformly to every connector and both arms, with no per-connector special-casing.
 
-\section{Resource Utilisation}\label{sec:results-resources}
+\section{RQ1 --- Latency and Throughput at the Operating Point}\label{sec:rq1}
 
-\section{Scalability under Concurrent Load}\label{sec:results-scalability}
+% G_k.RQ1: per-phase and end-to-end latency, and sustained throughput, at a realistic
+% operating point. Sources: rq1-steady.csv, rq1-payload.csv.
+% Phase decomposition is RQ4 (sec:rq4); this section reports the end-to-end figure.
+action latency and sustained throughput at the fixed operating point. This is the only load offered identically to every connector, and therefore the only basis on which a head-to-head comparison is legitimate; the saturation ladders of \cref{sec:rq2} are per-connector by construction and comparing across them would compare different offered loads.
 
-\section{Cross-Connector Comparison}\label{sec:results-comparison}
+\begin{table}[H]
+    \centering
+    \caption[Operating-point latency and throughput]{End-to-end latency and sustained throughput at the operating point, by connector and identity goal.}
+    \label{tab:rq1-steady}
+    \begin{threeparttable}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{llrrrrrr}
+        \toprule
+        Connector & Goal & $n$ & Median & p95 & p99 & tx/s & $\Delta$ \\
+        \midrule
+        \multirow{2}{*}{ISST \gls{edc}}   & $G_1$ & -- & -- & -- & -- & -- & -- \\
+                                          & $G_2$ & -- & -- & -- & -- & -- &    \\
+        \midrule
+        \multirow{2}{*}{Factory-X \gls{edc}} & $G_1$ & -- & -- & -- & -- & -- & -- \\
+                                          & $G_2$ & -- & -- & -- & -- & -- &    \\
+        \midrule
+        \multirow{2}{*}{DSP-Native BaSyx} & $G_1$ & -- & -- & -- & -- & -- & -- \\
+                                          & $G_2$ & -- & -- & -- & -- & -- &    \\
+        \bottomrule
+    \end{tabular}
+    \begin{tablenotes}\footnotesize
+        \item Latency columns in ms. Throughput is completed transactions per second over the measured window, not the rate the load generator was configured to offer.
+        \item $\Delta = \tilde{x}_{G_1} - \tilde{x}_{G_2}$ of the median, reported on the $G_1$ row (\cref{sec:analysis-procedure}).
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
 
-\section{Interpretation of Results}\label{sec:discussion-interp}
+% TODO: prose -- state what the table shows for each connector and each goal.
+% TODO: report the observed range and the relative range per cell, so the resolution
+%        of every comparison drawn from this table is visible.
 
-\section{Limitations}\label{sec:discussion-limitations}
+\Cref{tab:rq1-payload} reports data-plane capacity against payload size. This scenario negotiates once and then repeats only the transfer, so its unit of observation is a pull rather than a transaction. DSP-Native BaSyx collapses control and data plane into one process and has no separate data plane to exercise, so it is absent from this table by construction (\cref{sec:sut}).
 
+\begin{table}[H]
+    \centering
+    \caption[Data-plane throughput against payload size]{Data-plane throughput against payload size, by connector and identity goal.}
+    \label{tab:rq1-payload}
+    \begin{tabular}{llrrrr}
+        \toprule
+        Connector & Goal & Payload & Pull median (ms) & Throughput (MB/s) & $\Delta$ \\
+        \midrule
+        -- & -- & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% TODO: prose.
+
+\section{RQ2 --- Behaviour under Rising Load and Concurrency}\label{sec:rq2}
+
+% G_k.RQ2: latency and success rate as offered load and concurrency rise -- the
+% saturation knee and the onset of failure. Sources: rq2-saturation.csv,
+% rq2-concurrency.csv.
+
+\Cref{tab:rq2-saturation} reports the open-model saturation ladder for both goals. Offered load rather than client population is the controlled variable, which avoids the coordinated-omission bias to which a closed model is subject when the server slows~\citep{schroeder2006open}. The offered rate of each rung is the mean arrival rate over that stage rather than its nominal target, because the load generator interpolates linearly towards the target across the stage; comparing delivery against the nominal value understates it on every ramped rung~\citep{k6docs}.
+
+\begin{table}[H]
+    \centering
+    \caption[Offered against delivered transaction rate]{Offered against delivered transaction rate per ladder rung, by connector and identity goal.}
+    \label{tab:rq2-saturation}
+    \begin{threeparttable}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{llrrrrr}
+        \toprule
+        Connector & Goal & Rung & Offered & Delivered & Ratio & Failed (\%) \\
+        \midrule
+        -- & -- & -- & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabular}
+    \begin{tablenotes}\footnotesize
+        \item Offered and delivered rates in transactions per second. Delivered is a completion rate, not a success rate: a transaction abandoned at the poll deadline still completes its iteration. The failure column separates the two.
+        \item Latency percentiles past the knee are censored at the poll deadline and are lower bounds rather than measurements (\cref{sec:results-validity}).
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+% TODO: prose -- the knee per connector and per goal, and the onset of failure.
+
+\Cref{tab:rq2-concurrency} reports the closed-model ladder as an independent check on the same ceiling. Under a closed model a saturated server shows throughput flattening while residence time grows in proportion to the client population, which is the form Little's law takes at saturation~\citep{little1961proof}; agreement between the two workload models is what makes an observed ceiling a property of the connector rather than of one model.
+
+\begin{table}[H]
+    \centering
+    \caption[Throughput and implied latency against concurrency]{Throughput and implied latency against client concurrency, by connector and identity goal.}
+    \label{tab:rq2-concurrency}
+    \begin{tabular}{llrrr}
+        \toprule
+        Connector & Goal & Virtual users & Delivered (tx/s) & Implied latency (s) \\
+        \midrule
+        -- & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% TODO: prose.
+
+\section{RQ3 --- Resource Consumption}\label{sec:rq3}
+
+% G_k.RQ3: CPU, JVM heap, GC, threads under identical workloads, plus the host
+% ceiling. Sources: rq3-resources.csv, rq3-drift.csv.
+
+\Cref{tab:rq3-resources} reports host and \gls{jvm} resource consumption under the same workloads. Peaks are reported alongside medians because the question this data must answer is whether an observed throughput ceiling was imposed by the host or by the connector: a connector that saturates while the host retains headroom is limited by its own structure, which is an architectural finding rather than a hardware one~\citep{gregg2012thinking}.
+
+\begin{table}[H]
+    \centering
+    \caption[Host and JVM resource consumption]{Host and \gls{jvm} resource consumption under identical workloads, by connector and identity goal.}
+    \label{tab:rq3-resources}
+    \begin{threeparttable}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabular}{llrrrr}
+        \toprule
+        Connector & Goal & \gls{cpu} peak (\%) & \gls{cpu} median (\%) & Heap peak (MB) & $\Delta$ heap \\
+        \midrule
+        \multirow{2}{*}{ISST \gls{edc}}   & $G_1$ & -- & -- & -- & -- \\
+                                          & $G_2$ & -- & -- & -- &    \\
+        \midrule
+        \multirow{2}{*}{Factory-X \gls{edc}} & $G_1$ & -- & -- & -- & -- \\
+                                          & $G_2$ & -- & -- & -- &    \\
+        \midrule
+        \multirow{2}{*}{DSP-Native BaSyx} & $G_1$ & -- & -- & -- & -- \\
+                                          & $G_2$ & -- & -- & -- &    \\
+        \bottomrule
+    \end{tabular}
+    \begin{tablenotes}\footnotesize
+        \item \Gls{cpu} figures cover the whole host; only one connector was deployed at a time (\cref{subsec:hardware}).
+        \item Heap peak is the maximum across the connector's instrumented services.
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+% TODO: prose, including whether the host was ever the binding constraint.
+% TODO: GC activity and thread counts -- add a table or fold into the prose.
+
+\Cref{tab:rq3-drift} reports long-run stability from the soak scenario. A memory leak is a trend rather than a difference between two instants, so the fitted slope is the primary statistic; the first- and last-third medians are reported beside it because a slope alone cannot distinguish a stationary series from a linear one with a small coefficient.
+
+\begin{table}[H]
+    \centering
+    \caption[JVM heap trend over the soak run]{\Gls{jvm} heap trend over the soak run, by connector and identity goal.}
+    \label{tab:rq3-drift}
+    \begin{tabular}{lllrrr}
+        \toprule
+        Connector & Goal & Service & Slope (MB/h) & First third (MB) & Last third (MB) \\
+        \midrule
+        -- & -- & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% TODO: prose.
+
+\section{RQ4 --- The Asynchronous Cycle, Decomposed by Phase}\label{sec:rq4}
+
+% G_k.RQ4: the asynchronous negotiation and transfer cycle, decomposed by phase.
+% Source: rq4-phases.csv. This is where X1 is localised to a phase, which is the
+% input X2 needs.
+
+\Cref{tab:rq4-phases} decomposes the transaction into the phases of the \gls{dsp} cycle. Reporting both goals per phase localises the identity cost to a specific point in the protocol, which is the evidence the architectural explanation of \cref{sec:x2-architecture} rests on.
+
+\begin{table}[H]
+    \centering
+    \caption[Per-phase latency of the DSP transaction cycle]{Per-phase latency of the \gls{dsp} transaction cycle, by connector and identity goal.}
+    \label{tab:rq4-phases}
+    \begin{threeparttable}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabular}{lrrrrr}
+        \toprule
+        Phase & $G_1$ (ms) & $G_2$ (ms) & $\Delta$ (ms) & Ratio & Share (\%) \\
+        \midrule
+        Catalog request      & -- & -- & -- & -- & -- \\
+        Negotiation initiate & -- & -- & -- & -- & -- \\
+        Time to agreed       & -- & -- & -- & -- & -- \\
+        Transfer initiate    & -- & -- & -- & -- & -- \\
+        Time to \gls{edr}    & -- & -- & -- & -- & -- \\
+        Data pull            & -- & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabular}
+    \begin{tablenotes}\footnotesize
+        \item One such table per connector. Phases are listed in protocol order rather than by magnitude. \emph{Share} is the phase median as a percentage of the end-to-end median.
+        \item Medians are not additive: the median of a sum is not the sum of the medians, so the shares are an approximate decomposition rather than an exact time budget. The residual against the end-to-end median of \cref{tab:rq1-steady} is stated in the text.
+        \item Phase boundaries are observed by polling at a fixed interval, so each duration carries an upper-bound quantisation error of one poll interval (\cref{subsec:custom-metrics}).
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+% TODO: prose per connector, including the residual and the poll counts per
+%        transaction (the observer effect of the measurement itself).
+
+\section{RQ5 --- Catalog-Size Scaling}\label{sec:rq5}
+
+% G_k.RQ5: catalog-request latency against the number of offered assets.
+% Source: rq5-catalog.csv. This is the one question where X1 can be shown to be a
+% fixed offset rather than a proportional cost.
+
+\Cref{tab:rq5-catalog} reports catalog-request latency against the number of advertised assets. The sweep spans three orders of magnitude, so growth is reported as the local log--log slope between consecutive sizes: an exponent near zero means the cost is independent of catalog size, near one that it is proportional. The exponent is given per interval rather than as a single fit, because a change in the exponent across the sweep is itself the result. DSP-Native BaSyx exposes no provider management \gls{api} through which a catalog of controlled size can be seeded and is absent from this table by construction (\cref{sec:sut}).
+
+\begin{table}[H]
+    \centering
+    \caption[Catalog-request latency against catalog size]{Catalog-request latency against catalog size, by connector and identity goal.}
+    \label{tab:rq5-catalog}
+    \begin{threeparttable}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabular}{lrrrrrr}
+        \toprule
+        Connector & Assets & $G_1$ (ms) & $G_2$ (ms) & $\Delta$ (ms) & Ratio & Exponent \\
+        \midrule
+        -- & -- & -- & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabular}
+    \begin{tablenotes}\footnotesize
+        \item A catalog whose latency does not change across the sweep must be checked against the number of datasets the response actually carried: a paginated catalog served under a default page limit produces the same flat curve as a connector that scales perfectly, and the two are indistinguishable from latency alone.
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+% TODO: prose, including whether Delta is constant across sizes -- the evidence that
+%        identity is a fixed per-request cost rather than a proportional one.
+
+\section{X1 --- The Measured Cost of Identity}\label{sec:x1-overhead}
+
+% The headline cross-goal result (ch. 4: "the directly measured cost of running real
+% identity"). Every Delta above is collected here; nothing new is measured.
+% Source: x1-overhead.csv.
+
+The preceding sections report the difference between the two goals question by question. \Cref{tab:x1-overhead} collects those differences into one view, which is what permits the three claims this section has to settle: whether the identity layer charges a fixed cost per transaction or one proportional to the work, at which phase of the protocol that cost is incurred, and whether it extends to the data plane or is confined to the control plane.
+
+\begin{table}[H]
+    \centering
+    \caption[Identity overhead per connector and metric]{Identity overhead X1 per connector and metric, as the difference between the identity-enabled and identity-disabled goals.}
+    \label{tab:x1-overhead}
+    \begin{threeparttable}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabularx}{\linewidth}{@{}l X r r r r l@{}}
+        \toprule
+        Connector & Metric & $G_1$ & $G_2$ & $\Delta$ & Ratio & Separated \\
+        \midrule
+        -- & -- & -- & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabularx}
+    \begin{tablenotes}\footnotesize
+        \item Both the difference and the ratio are reported: a fixed offset is a large ratio on a cheap operation and a negligible one on an expensive one, so either number alone conceals whether the cost is constant or proportional.
+        \item \emph{Separated} records whether the two goals' observed ranges overlap. It is a weak criterion at this repetition count and is not a significance test (\cref{sec:analysis-procedure}).
+        \item The DSP-Native BaSyx identity-disabled arm uses a different load driver from its identity-enabled arm (\cref{subsec:mock-arm}), so its $\Delta$ confounds the identity layer with a harness difference and is not comparable with the other two connectors' (\cref{sec:results-validity}).
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+% TODO: prose -- is X1 a fixed per-transaction cost, a proportional one, or neither?
+% TODO: which phase carries it (from tab:rq4-phases).
+% TODO: control plane only, or does the data plane pay too (from tab:rq1-payload)?
+
+\section{X2 --- Architectural Explanation}\label{sec:x2-architecture}
+
+% Answers TRQ2. Explains both the size of each connector's X1 and the
+% connector-to-connector gaps measured under G1. This is the comparative summary:
+% it introduces no measurement that has not already been reported.
+
+\Cref{tab:x2-summary} consolidates the headline figures across connectors and goals; it introduces no measurement not already reported above. The remainder of the section accounts for the differences it shows in terms of the documented design differences between the three implementations (\cref{sec:sut,subsec:connector-versions}).
+
+\begin{table}[H]
+    \centering
+    \caption[Consolidated comparison across connectors and goals]{Consolidated comparison across connectors and identity goals.}
+    \label{tab:x2-summary}
+    \begin{tabular}{llrrr}
+        \toprule
+        Metric & Goal & ISST \gls{edc} & Factory-X \gls{edc} & DSP-Native BaSyx \\
+        \midrule
+        -- & -- & -- & -- & -- \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% TODO: which design differences account for the size of each connector's X1?
+%        (identity-stack design foremost -- full DCP vs. mock validator)
+% TODO: which account for the connector-to-connector gaps under G1?
+%        (symmetric two-EDC deployment vs. the asymmetric BaSyx shape;
+%         separate vs. collapsed data plane; per-hop wall time from traces)
+% TODO: where the host was not the binding constraint, what internal structure was?
+
+\section{Threats to Validity}\label{sec:results-validity}
+
+% Chapters 2, 3, 4 and 5 forward-reference this section; keep the label.
+
+% TODO: construct validity -- what the metrics do and do not capture; poll-interval
+%        quantisation of phase boundaries; latency right-censored at the poll
+%        deadline, so percentiles past the knee are lower bounds, not measurements.
+% TODO: internal validity -- repetition count and the resolution it permits; fixed
+%        rather than randomised scenario order; monitoring overhead; the DSP-Native
+%        BaSyx driver asymmetry, which changes the driver as well as the identity
+%        layer and so confounds that connector's X1.
+% TODO: external validity -- single host, single deployment topology, container
+%        networking rather than a wide-area link, one dataset shape, Tractus-X not
+%        instrumented.
+% TODO: conclusion validity -- no significance testing at this repetition count;
+%        range separation is a weak criterion and is labelled as such.

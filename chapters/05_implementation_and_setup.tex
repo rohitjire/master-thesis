@@ -1,6 +1,6 @@
 \chapter{Implementation and Test Setup}\label{chap:implementation}
 
-This chapter realises the benchmarking design of \cref{chap:methodology} as a concrete, reproducible deployment. Three connector implementations are deployed on a single dedicated benchmark host, each in two Docker Compose deployments -- an identity-enabled arm for goal $G_1$ and an identity-disabled arm for goal $G_2$ -- that are identical in every layer except the identity stack. A shared observability pipeline instruments every runtime with the same agent, and a single k6 load driver, byte-identical across all connector repositories, generates the workloads. \Cref{sec:sut} names the systems under test and their versions, \cref{sec:test-env} describes the hardware and the software substrate, \cref{sec:deployment} details the two deployment arms and the parity between them, \cref{sec:data-tools} presents the observability stack and the reasons for its composition, \cref{sec:workload-gen} describes the load generator, the benchmark scenarios, and the run orchestration, and \cref{sec:reproducibility} states what a replication of the study requires.
+This chapter realises the benchmarking design of \cref{chap:methodology} as a concrete, reproducible deployment. Three connector implementations are deployed on a single dedicated benchmark host, each in two Docker Compose deployments -- an identity-enabled arm for goal $G_1$ and an identity-disabled arm for goal $G_2$ -- that are identical in every layer except the identity stack. A shared observability pipeline instruments every runtime with the same agent, and a single k6 load driver, byte-identical across all connector repositories, generates the workloads. \Cref{sec:sut} names the systems under test and their versions, \cref{sec:test-env} describes the hardware and the software substrate, \cref{sec:deployment} details the two deployment arms and the parity between them, \cref{sec:data-tools} presents the observability stack and the reasons for its composition, \cref{sec:workload-gen} describes the load generator, the benchmark scenarios, and the run orchestration, \cref{sec:data-analysis} specifies how the archived measurements are reduced to the answers reported in \cref{chap:results-evaluation}, and \cref{sec:reproducibility} states what a replication of the study requires.
 
 
 \section{Systems Under Test}\label{sec:sut}
@@ -178,7 +178,7 @@ The same agent that produces metrics also emits spans for every instrumented ope
 
 \subsection{Host-Level Metrics}\label{subsec:host-metrics}
 
-The Prometheus node exporter publishes hardware and operating-system metrics of the benchmark host, of which the analysis uses CPU-busy time and available memory~\citep{prometheusNodeExporter}. Its role follows from the single-host design: when a latency knee appears in a saturation sweep, the host series decide whether the ceiling belongs to the connector or to the machine (\cref{subsec:hardware}). The stack deliberately omits a per-container metrics agent such as cAdvisor: the per-process resource view required by $G_k.\text{RQ}3$ -- heap occupancy, \gls{gc} pause rate, thread count -- is already delivered per runtime by the \gls{otel} agent's \gls{jvm} telemetry, and the host exporter bounds the total. Per run, eight server-side series are archived as CSV files: per-service heap, \gls{gc} rate, and thread count; per-service request throughput, 95th-percentile server latency, and error rate; and host CPU-busy and memory-used.
+The Prometheus node exporter publishes hardware and operating-system metrics of the benchmark host, of which the analysis uses CPU-busy time and available memory~\citep{prometheusNodeExporter}. Its role follows from the single-host design: when a latency knee appears in a saturation sweep, the host series decide whether the ceiling belongs to the connector or to the machine (\cref{subsec:hardware}). The stack deliberately omits a per-container metrics agent such as cAdvisor: the per-process resource view required by $G_k.\text{RQ}3$ -- heap occupancy, \gls{gc} pause rate, thread count -- is already delivered per runtime by the \gls{otel} agent's \gls{jvm} telemetry, and the host exporter bounds the total. Per run, ten server-side series are archived as CSV files: per-service heap, \gls{gc} rate, and thread count; per-service request throughput, 95th-percentile server latency, combined error rate, server-fault (5xx) rate, and a breakdown by response status code; and host CPU-busy and memory-used. The error rate is archived both combined and split because a merged series cannot distinguish a client-side rejection from a connector fault, and only the latter is a finding about the system under test.
 
 
 \section{Workload Generation}\label{sec:workload-gen}
@@ -191,14 +191,15 @@ The harness is maintained as a small software project rather than as a set of ad
 
 {\pagebreak}
 
-\begin{lstlisting}[numbers=none, basicstyle=\scriptsize\ttfamily, columns=fixed, caption={Layout of the k6 harness, identical in all three connector repositories.}, label=lst:harness-layout]
+\begin{lstlisting}[numbers=none, basicstyle=\scriptsize\ttfamily, columns=fixed, caption={Layout of the k6 harness. The lib/ and scenarios/ directories are byte-identical in all three connector repositories and are checked as such before every run.}, label=lst:harness-layout]
 k6-scripts/
   lib/               protocol flow, HTTP helpers, polling, seeding, metrics
   scenarios/         the seven load shapes
   config/            <connector>.json - the only per-connector file
-  orchestration/     run.sh, run-matrix.sh, snapshot-prom.sh
+  orchestration/     run.sh, run-matrix.sh, benchmark-{on,off}.sh,
+                     snapshot-prom.sh, export-panels.sh
   tools/             verify-parity.sh, gen-payloads.sh
-  identity-setup.js  one-shot dataspace provisioning
+  identity-setup.js  one-shot provisioning (Factory-X and BaSyx only)
   Makefile
 \end{lstlisting}
 
@@ -270,9 +271,9 @@ Seven scenarios cover the five recurring research questions of \cref{sec:gqm-dec
 
 \texttt{payload-sweep} \textbf{-- data-plane throughput in isolation.} One contract is negotiated during setup, after which only the payload size varies. This isolates raw data-plane throughput from the control-plane handshake, following the one-factor-at-a-time principle of workload construction~\citep{kistowski2015benchmark}. Because identity work concentrates in the control plane, the expected identity overhead here is near zero, which makes this scenario the empirical check on the Factory-X data-plane caveat of \cref{subsec:mock-arm}.
 
-\texttt{soak} \textbf{-- endurance and resource drift.} A gentle rate is applied for one hour to expose heap drift, \gls{gc} degradation, and thread growth that short runs cannot reveal, observed through the \gls{jvm} series~\citep{gregg2012thinking}.
+\texttt{soak} \textbf{-- endurance and resource drift.} A gentle rate is applied for thirty minutes to expose heap drift, \gls{gc} degradation, and thread growth that short runs cannot reveal, observed through the \gls{jvm} series~\citep{gregg2012thinking}. The window bounds what may be claimed from it: a trend fitted over half an hour can show that no component is growing fast enough to exhaust the heap on that timescale, but it cannot exclude a slow leak, and \cref{sec:results-validity} reports it on those terms.
 
-\texttt{catalog-sweep} \textbf{-- control-plane scaling.} The provider is seeded with a controlled number of assets and each iteration issues a catalog-only request, with one run per catalog size. Seeding requires the management \gls{api} backed by SQL persistence, so this scenario targets the two \gls{edc} providers; BaSyx catalog scaling is treated separately.
+\texttt{catalog-sweep} \textbf{-- control-plane scaling.} The provider is seeded with a controlled number of assets and each iteration issues a catalog-only request. Each of the four sizes is measured twice, since the scenario produces a curve and a single run per size would leave no way to separate a scaling effect from run-to-run noise. Seeding requires the management \gls{api} backed by SQL persistence, so this scenario targets the two \gls{edc} providers; BaSyx catalog scaling is treated separately.
 
 Scenario thresholds play two distinct roles. Gate thresholds (on \texttt{smoke}, \texttt{steady}, \texttt{soak}, and the sweeps) invalidate a run that violates them -- for example, a transaction-failure rate above 1\,\% in \texttt{steady} -- ensuring latency statistics are only reported over essentially successful runs. Abort-only thresholds (on the two ramping scenarios) merely stop a run that has degenerated far past its knee; they are diagnostic bounds, not claims.
 
@@ -314,21 +315,108 @@ A single orchestration script executes one experiment -- one connector, one scen
 Every run terminates in an immutable result folder whose provenance file records all parameters needed to reproduce or audit it -- connector, scenario, arm, poll interval, catalog size, start and end epochs, the k6 version and exit code, the load knobs, and the git commit of the harness:
 
 \begin{lstlisting}[numbers=none, basicstyle=\scriptsize\ttfamily, columns=fixed, caption={Per-run result folder produced by the orchestration script.}, label=lst:result-folder]
-results/<connector>/<scenario>/<UTC-timestamp>/
+results/<connector>/<arm>/<scenario>/<UTC-timestamp>/
   run.log          k6 console output of the measured run
   k6-summary.json  client-side metrics (p50/p95/p99 per trend)
-  *.csv            eight server-side series from Prometheus
+  *.csv            ten server-side series from Prometheus
+  logs/            per-container logs for the measured window
   meta.json        parameters, epochs, identity mode, git commit
 \end{lstlisting}
 
 A campaign script layers the repetition discipline on top and drives a complete arm unattended, so that the sequence, the spacing between scenarios, and the environment are fixed across all six connector--arm combinations instead of varying with the session in which they were executed. Repetition is allocated where it is informative rather than uniformly. The two scenarios whose values enter a comparison are executed twice: \texttt{steady}, which carries the head-to-head operating-point result, and \texttt{catalog-sweep}, which carries the scaling curve. The remainder are executed once, which their construction already justifies -- \texttt{smoke} is a pass/fail gate rather than a measurement, \texttt{payload-sweep} varies a factor across five sizes instead of repeating one condition, \texttt{soak} is itself a thirty-minute observation window from which a trend is fitted, and the two ramped scenarios each traverse seven load rungs whose mutual consistency substitutes for repeating the run as a whole.
 
-Two repetitions is a wall-clock compromise, and its cost is stated rather than absorbed: two values yield a median equal to their mean and no meaningful interquartile range, so no scenario reported here carries a variability claim on its own strength. Their spread is reported as the observed range and as the relative range defined in \cref{subsec:unit-of-replication}, which bounds the resolution of every comparison drawn from them; a difference smaller than that range is not interpreted. Raising the count is the only remedy, and \texttt{steady} is the cheapest scenario at which to buy it.
+Two repetitions is a wall-clock compromise, and its cost is stated rather than absorbed: two values yield a median equal to their mean and no meaningful interquartile range, so no scenario reported here carries a variability claim on its own strength. Their spread is reported as the observed range and as the relative range defined in \cref{subsec:analysis-statistics}, which bounds the resolution of every comparison drawn from them; a difference smaller than that range is not interpreted. Raising the count is the only remedy, and \texttt{steady} is the cheapest scenario at which to buy it.
 
 The scenario order within an arm is fixed rather than randomised, which forgoes the mitigation of ordering bias in exchange for removing a larger confound~\citep{jain1991art}. The scenarios are not independent of one another: the catalog sweep leaves up to a thousand assets in the provider, and the ramped scenarios overload the connector by design and leave transfers draining behind them. Under a randomised order a scenario's result would depend on which scenario happened to precede it in that particular arm, and the arms would no longer be comparable -- the condition on which the entire identity contrast rests. The fixed sequence therefore runs the undisturbed scenarios first, places the data-plane sweep ahead of the catalog sweep that would otherwise pollute it, and defers the overloading ramps to the end. A settling interval separates every scenario, and each run records the age of the stack it executed against (\cref{subsec:orchestration}), so that any residual order effect remains detectable after the fact rather than being assumed absent.
 
 Connector deployments are never run in parallel (\cref{subsec:hardware}). The complete matrix is three connectors $\times$ two arms $\times$ seven scenarios, executed one connector--arm at a time; expanded over the sweep sizes and the two repeated scenarios, one identity arm of an \gls{edc}-based connector comprises nineteen measured runs, and one arm of BaSyx six, since neither the catalog nor the payload sweep applies to it (\cref{subsec:parity}). Repetitions are aggregated to medians, with the spread reported as the observed range, before any figure in \cref{chap:results-evaluation} is drawn~\citep{jain1991art, hoefler2015scientific}.
 
+
+\section{Data Analysis}\label{sec:data-analysis}
+
+The preceding sections describe how measurements are produced and archived; this one describes how they are reduced to the answers of \cref{chap:results-evaluation}. The reduction is performed by a single program that reads the immutable result folders of \cref{lst:result-folder} and emits one table per results table, and it uses the Python standard library only, so that the analysis can be re-executed without an environment and read without one. The program contains one function per table in \cref{chap:results-evaluation}, each named after that table's cross-reference label and writing a comma-separated file of the same name; no number reported in this thesis originates anywhere else. The same functions are applied to every connector and both arms with no per-connector special-casing, which is what makes the cross-connector comparison a comparison of connectors rather than of analyses~\citep{kistowski2015benchmark}.
+
+Three sources feed it, and they are deliberately not interchangeable. The k6 summary carries the client's view of every measured window, aggregated per metric. The Prometheus snapshots carry the server's view of the same window, sampled every five seconds. The k6 console log carries the only time-resolved client record: k6 summarises a whole run as one set of statistics, so a ramped scenario cannot be read from the summary at all, whereas the console prints a cumulative completed-iteration count once per second, and differencing that recovers what each load rung actually delivered. Because the client and the server observe the same window through independent instruments, their agreement corroborates a figure and their disagreement is itself a finding~\citep{hasselbring2021benchmarking}.
+
+\subsection{Metrics Analysed per Research Question}\label{subsec:metrics-per-rq}
+
+\Cref{tab:analysis-per-rq} states, for each recurring research question, which scenario supplies the data, which quantity is extracted from it, and which statistic is computed. It is the operational form of the \gls{gqm} tree of \cref{tab:gqm-tree}: that table maps questions to metrics, this one maps metrics to the numbers that appear in the results.
+
+\begin{table}[ht]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}p{2.4cm} X >{\raggedright\arraybackslash}p{3.2cm}@{}}
+        \toprule
+        \textbf{Q} & \textbf{Scenario} & \textbf{Quantity extracted} & \textbf{Statistic} \\
+        \midrule
+        RQ1 & \texttt{steady} & End-to-end transaction latency & Median, p95, p99 \\
+        RQ1 & \texttt{steady} & Completed transactions over the measured window & Rate (tx/s) \\
+        RQ1 & \texttt{payload-\allowbreak sweep} & Pull latency and achieved data-plane rate per payload size & Median per size \\
+        \addlinespace
+        RQ2 & \texttt{saturation-\allowbreak open} & Delivered against offered rate, per load rung & Rate per stage \\
+        RQ2 & \texttt{concurrency-\allowbreak closed} & Delivered rate and implied residence time per client population & Rate; $N/X$ (Little's law) \\
+        \addlinespace
+        RQ3 & \texttt{steady}, \texttt{saturation-\allowbreak open} & Host \gls{cpu}, \gls{jvm} heap, \gls{gc} activity & Peak and median \\
+        RQ3 & \texttt{soak} & Heap occupancy over time, per service & Least-squares slope (MB/h) \\
+        \addlinespace
+        RQ4 & \texttt{steady} & The six phase durations of the \gls{dsp} cycle & Median; share of end-to-end \\
+        \addlinespace
+        RQ5 & \texttt{catalog-\allowbreak sweep} & Catalog-request latency per catalog size & Median per size; growth factor \\
+        \addlinespace
+        X1 & all of the above & Every quantity above, in both arms & Difference and ratio \\
+        \bottomrule
+    \end{tabularx}
+    \caption[Analysis performed per research question]{What is extracted and computed for each recurring research question. The client-side quantities are read from the per-run k6 summary, the per-rung rates from the console progress record, and the resource series from the time-aligned Prometheus snapshot, as described above.}
+    \label{tab:analysis-per-rq}
+\end{table}
+
+\subsection{Statistical Treatment}\label{subsec:analysis-statistics}
+
+The unit of replication is the \emph{run}, not the transaction. Two runs of one arm share a host, a \gls{jvm} just-in-time state, a database, and a connection pool, so the several hundred transactions inside a single run are not independent observations of the connector~\citep{jain1991art, hoefler2015scientific}. Counting them as independent would inflate the sample size by three orders of magnitude and claim a precision the design does not have. Every reported figure is therefore computed across runs, each run contributing the single value that summarises it, and the number of repetitions accompanies every result.
+
+Four statistics are computed and no others. \Cref{tab:analysis-statistics} gives each one with the reason it was chosen; the remainder of the analysis is reading values out of the archived files.
+
+\begin{table}[ht]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}p{3.5cm} X@{}}
+        \toprule
+        \textbf{Statistic} & \textbf{Computed as} & \textbf{Why this one} \\
+        \midrule
+        Median & Middle value across the repetitions of one cell & Response times are right-skewed, so the mean follows the slowest few observations and describes neither the typical transaction nor the tail~\citep{hoefler2015scientific, dean2013tail}. The tail is reported beside it as p95 and p99. The mean is retained only as the mean-to-median ratio, which shows per cell how much the choice mattered. \\
+        \addlinespace
+        Range & Smallest and largest of those repetitions, and the relative range $(\max-\min)/\tilde{x}$ & Two repetitions cannot support a standard deviation without implying a distribution that was never observed~\citep{hoefler2015scientific}. The relative range is the measured repeatability of the benchmark~\citep{kistowski2015benchmark} and the resolution below which no difference is interpreted. \\
+        \addlinespace
+        Difference and ratio & $\tilde{x}_{G_1}-\tilde{x}_{G_2}$ and $\tilde{x}_{G_1}/\tilde{x}_{G_2}$ & A fixed cost is a large ratio on a cheap operation and a negligible one on an expensive one. The difference alone hides how disproportionate it is on short operations; the ratio alone hides that it is the same absolute cost on all of them. \\
+        \addlinespace
+        Slope & Least-squares fit of heap occupancy against time, in MB/h & A leak is a trend and must be estimated from every sample. The gap between the first and last sample instead depends on where a garbage collection happened to fall~\citep{gregg2012thinking}. \\
+        \bottomrule
+    \end{tabularx}
+    \caption[Statistics used in the analysis]{The four statistics computed in the analysis, and the reason for each. All are applied across runs, never across the transactions within a run.}
+    \label{tab:analysis-statistics}
+\end{table}
+
+No significance test accompanies any comparison. A $p$-value or a confidence interval requires enough independent replicates to estimate variability, and at two runs per arm any such figure would be produced by the assumption used to compute it rather than by the data~\citep{hoefler2015scientific}. The range takes its place: where the two arms' observed ranges do not overlap, the difference between them exceeds the run-to-run variation of the arms themselves; where they overlap, the comparison is reported as inconclusive rather than as a small effect. This is a weak criterion and is labelled as one wherever it is used.
+
+Two quantities are not read directly from a summary. The delivered rate of each rung in the ramped scenarios is obtained by differencing the load generator's cumulative iteration count over that stage, because the per-run summary averages every rung into every other. That rate is then compared against the mean rate offered during the stage rather than against its nominal target: the generator ramps linearly towards the target, so the target is the rate reached at the end of a rung and not the rate offered across it, and comparing against it understates delivery on every ramped rung~\citep{k6docs}. Catalog scaling is expressed as two growth factors -- the catalog grew by one factor, the request latency by another -- in preference to a fitted exponent, since the plain statement answers $G_k.\text{RQ}5$ without asking the reader to interpret a log--log slope.
+
+\subsection{Which Runs Are Used}\label{subsec:runs-used}
+
+Not every run measures what it was meant to measure. A rule is therefore fixed in advance and applied to every connector and both arms alike, so that the decision to trust a run never depends on what that run happened to show. The rule is implemented in one place, which is what stops the audit and the results tables from disagreeing about it.
+
+A run is discounted if any of three conditions holds:
+
+\begin{enumerate}[leftmargin=*, itemsep=2pt, topsep=4pt]
+    \item \textbf{The load generator did not deliver the offered load.} Some iterations were never started, so the run describes the driver rather than the connector.
+    \item \textbf{More than five per cent of transactions missed the poll deadline.} The run then sat beyond its saturation point. A transaction abandoned at the deadline contributes the deadline to the statistics rather than the time it would really have taken, so the latency percentiles of such a run are lower bounds and not measurements.
+    \item \textbf{No transaction completed.} There is nothing to interpret.
+\end{enumerate}
+
+The two ramped scenarios are exempt from the first two conditions at their highest rungs, since reaching those conditions is what they exist to do (\cref{subsec:scenarios}).
+
+A discounted run is marked rather than deleted. Where it is the only observation available for a cell, deleting it would hide the very thing it shows: a connector that cannot sustain the operating point produces exactly this pattern, and an empty cell would present that as missing data instead of as a result. Every run and its verdict therefore appears in the audit table of \cref{chap:results-evaluation}, and every results table drawing on a marked run repeats the caveat. Reporting anomalous observations rather than removing them quietly is the expectation set by the empirical standard for benchmarking studies~\citep{Ralph2020}.
 
 \section{Reproducibility}\label{sec:reproducibility}
 
