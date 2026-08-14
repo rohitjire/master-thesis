@@ -95,48 +95,9 @@ so only its provider-side figures are directly comparable (\cref{subsec:tv-inter
 
 \section{Limitations}\label{sec:conclusion-limitations}
 
-The limits on how far the measurements themselves may be read are stated in
-\cref{sec:results-validity}. What follows is what the study did not attempt.
 
-Only three of the four connectors introduced in \cref{subsec:different-connectors} were
-measured; Tractus-X \gls{edc} could not be brought to instrumentation parity within the
-time available. The deployment is a single host with all components co-located, so no
-result speaks to behaviour across a wide-area link, under transport-layer encryption, or
-in a multi-tenant or federated-catalog topology. One asset type and one dataset shape were
-exercised, and the protocol coverage stops at the negotiate--transfer--pull cycle, leaving
-policy evaluation beyond the membership credential untested. Finally, the comparison rests
-on a single operating point: a connector that is fastest at 1\,tx/s is not necessarily
-fastest at every load, and \cref{sec:rq2} shows that the ordering does change as load
-rises.
 
 
 \section{Future Work}\label{sec:future-work}
 
-Four extensions follow directly from the limitations above.
 
-The most valuable is also the cheapest: \emph{raise the repetition count}. Five runs per
-arm support a range but not an interval estimate, and no scenario in this study can carry
-a significance test (\cref{subsec:tv-conclusion}). The harness runs unattended, so the
-cost is wall-clock time rather than effort.
-
-\emph{Extend the comparison to Tractus-X \gls{edc}}, restoring the four-connector scope
-the study set out with. The harness is connector-agnostic by construction; what is
-required is instrumentation parity, not new measurement code.
-
-\emph{Distribute the deployment across hosts.} Co-location removes network cost from every
-measurement and also removes contention between the components under test. Separating them
-would show how much of the measured latency survives a realistic network, and would test
-whether the capacity ceilings observed here are internal to each connector or artefacts of
-sharing a machine.
-
-\emph{Replace polling with callbacks in the measurement path.} The harness observes
-asynchronous state changes by asking repeatedly, which both rounds every phase duration up
-and generates roughly sixty per cent of the load the connectors serve
-(\cref{subsec:tv-construct}). The \gls{dsp} callback mechanism would remove both effects
-and yield exact transition timestamps; a receiver for it already exists in this study's
-tooling for one arm (\cref{subsec:mock-arm}).
-
-Beyond these, the identity axis itself invites extension. This study measured one identity
-design, the \gls{dcp} stack, against a mock. Comparing alternative trust architectures on
-the same harness would establish whether the fixed per-request cost observed here is a
-property of \gls{dcp} specifically or of credential verification generally.

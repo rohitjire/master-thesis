@@ -247,8 +247,11 @@ pdfpagelayout={SinglePage}
 \newpage
 
 
+% List of Abbreviations -- only acronyms actually used in the text are printed.
+% (The main glossary is not printed: it holds no used entries.)
+\clearpage
 \phantomsection
-\printglossaries
+\printglossary[type=\acronymtype, title={List of Abbreviations}, toctitle={List of Abbreviations}]
 \newpage
 % List of Tables
 %\clearpage
