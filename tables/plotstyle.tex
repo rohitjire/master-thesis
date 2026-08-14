@@ -1,0 +1,21 @@
+% Shared pgfplots style for every chapter-6 figure, so the six arms are keyed
+% identically everywhere: colour = connector, solid = G1, dashed = G2.
+\pgfplotsset{
+  compat=1.18,
+  thesisplot/.style={
+    width=0.92\textwidth, height=6.2cm,
+    grid=major, grid style={gray!25},
+    tick label style={font=\small}, label style={font=\small},
+    legend style={font=\footnotesize, cells={anchor=west}, draw=gray!50},
+    every axis plot/.append style={thick, mark size=1.6pt},
+  },
+}
+\definecolor{cISST}{RGB}{31,119,180}
+\definecolor{cFX}{RGB}{214,39,40}
+\definecolor{cBASYX}{RGB}{44,160,44}
+% solid + filled mark = identity-enabled (G1); dashed + open mark = disabled (G2)
+\pgfplotsset{
+  g1/.style={solid,  mark=*},
+  g2/.style={dashed, mark=o},
+  isst/.style={cISST}, fx/.style={cFX}, basyx/.style={cBASYX},
+}

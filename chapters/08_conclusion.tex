@@ -1,9 +1,142 @@
 \chapter{Conclusion}\label{chap:conclusion}
 
+This chapter restates what the study set out to do, what it found, what the findings
+answer, and what they do not. The evidence is in \cref{chap:results-evaluation}; nothing
+is re-derived here.
+
+
 \section{Summary of Findings}\label{sec:summary-findings}
 
-\section{Limitations}\label{sec:conclusion-limitations}
+Dataspace connectors are compared on features far more often than on performance, and the
+comparisons that do exist rarely hold the identity layer constant
+(\cref{sec:gap-analysis}). This thesis measured three \gls{dsp}-conformant connectors --
+the Fraunhofer ISST \gls{edc}, the Factory-X \gls{edc}, and DSP-Native BaSyx -- on a
+normalised single-host substrate, each deployed twice: once with its full \gls{dcp}
+identity stack running, and once with identity verification mocked. The difference between
+those two deployments is a direct measurement of what identity costs, rather than an
+inference from systems that differ in several respects at once.
+
+The campaign comprises 130 measured runs across eight scenarios and six connector--arm
+combinations. Four results stand out.
+
+\emph{The two \gls{edc} connectors are indistinguishable at the operating point, and
+DSP-Native BaSyx is faster.} With identity enabled, a complete transaction takes
+4672.5\,ms on the Fraunhofer ISST \gls{edc} and 4649.0\,ms on Factory-X -- a difference of
+0.5\,\%, well inside their own run-to-run variation -- against 2884.5\,ms on BaSyx.
+
+\emph{Identity costs a fixed amount per request, and only in the control plane.} Measured
+on the provider itself, it adds 30.0\,ms, 41.3\,ms and 44.7\,ms respectively. That cost
+does not grow with the work a request performs: across a thousandfold increase in catalog
+size it stays within a narrow band while the underlying latency rises, so its relative
+weight falls as requests get larger. The data plane shows no difference at all.
+
+\emph{The protocol, not the identity layer, sets the baseline.} Between 93 and 97\,\% of
+every transaction is spent waiting for the two asynchronous state machines to reach their
+terminal states. The synchronous steps -- initiating a negotiation, initiating a transfer,
+pulling the data -- together account for one to two per cent.
+
+\emph{Capacity differs sharply, and the host was never the limit.} All six arms track
+offered load to 2.5\,tx/s. Beyond that Factory-X delivers only half of what is offered,
+the Fraunhofer ISST \gls{edc} plateaus near 4\,tx/s, and BaSyx continues to climb. Host
+\gls{cpu} peaked between 32 and 48\,\% in every case, so each ceiling is a property of the
+connector rather than of the machine.
+
+Beyond the measurements, the study contributes the instrument that produced them: a
+parity-audited benchmark harness, byte-identical across three connector repositories, with
+a documented analysis pipeline in which every reported number is traceable to an immutable
+result folder (\cref{sec:data-analysis,sec:reproducibility}).
+
 
 \section{Answers to Research Questions}\label{sec:answers-rq}
 
+\textbf{TRQ1 -- How do current production-track \gls{edc} implementations compare in
+end-to-end performance under realistic dataspace data-exchange workloads?}
+
+They are closer than their differing origins suggest at a realistic operating point, and
+they diverge under load. At 1\,tx/s the two \gls{edc}-derived connectors are
+indistinguishable from each other, and DSP-Native BaSyx completes the same transaction in
+roughly 60\,\% of their time (\cref{sec:rq1}). Under rising load the ordering changes:
+Factory-X is the first to stop converting offered load into completed transactions, at
+about 2.5\,tx/s; the Fraunhofer ISST \gls{edc} sustains roughly 4\,tx/s before plateauing;
+and BaSyx continues to deliver at every rung tested (\cref{sec:rq2}). Resource consumption
+separates them further, with garbage-collection activity differing by nearly two orders of
+magnitude between the \gls{edc} connectors and BaSyx, while none of the three approached
+the host's capacity (\cref{sec:rq3}). No connector showed heap growth that would exhaust
+its container over a thirty-minute run.
+
+\textbf{TRQ2 -- Which architectural and implementation-level factors most strongly drive
+the observed performance differences?}
+
+Three factors account for most of what was measured, in decreasing order of effect.
+
+The dominant one is the \emph{asynchronous protocol design itself}, which is common to all
+three implementations and therefore explains the baseline rather than the differences
+between them: contract negotiation and transfer are state machines whose terminal states a
+client must wait for, and that waiting is 93--97\,\% of every transaction
+(\cref{sec:rq4}). No implementation choice within a connector can move a figure that is
+set by the protocol it implements.
+
+The second is \emph{where each implementation performs credential verification}. On both
+\gls{edc} connectors the identity cost concentrates almost entirely in the catalog request
+-- the first protected message of an exchange -- while the subsequent asynchronous waits
+are barely affected. On DSP-Native BaSyx the same cost appears inside those waits instead.
+This is consistent with the \gls{edc} stack verifying a presentation once per exchange and
+then proceeding against an established context, and with BaSyx validating per message
+(\cref{sec:x1-overhead}); the per-hop traces collected during the campaign are the
+evidence that would confirm it directly.
+
+The third is \emph{deployment shape}. DSP-Native BaSyx collapses control plane and data
+plane into a single process and serves the transfer synchronously, which is the most
+plausible account of both its lower baseline latency and its very different
+garbage-collection profile (\cref{sec:sut,sec:rq3}). That connector's comparison against
+the other two is, however, the weakest of the three: its two arms do not share a consumer,
+so only its provider-side figures are directly comparable (\cref{subsec:tv-internal}).
+
+
+\section{Limitations}\label{sec:conclusion-limitations}
+
+The limits on how far the measurements themselves may be read are stated in
+\cref{sec:results-validity}. What follows is what the study did not attempt.
+
+Only three of the four connectors introduced in \cref{subsec:different-connectors} were
+measured; Tractus-X \gls{edc} could not be brought to instrumentation parity within the
+time available. The deployment is a single host with all components co-located, so no
+result speaks to behaviour across a wide-area link, under transport-layer encryption, or
+in a multi-tenant or federated-catalog topology. One asset type and one dataset shape were
+exercised, and the protocol coverage stops at the negotiate--transfer--pull cycle, leaving
+policy evaluation beyond the membership credential untested. Finally, the comparison rests
+on a single operating point: a connector that is fastest at 1\,tx/s is not necessarily
+fastest at every load, and \cref{sec:rq2} shows that the ordering does change as load
+rises.
+
+
 \section{Future Work}\label{sec:future-work}
+
+Four extensions follow directly from the limitations above.
+
+The most valuable is also the cheapest: \emph{raise the repetition count}. Five runs per
+arm support a range but not an interval estimate, and no scenario in this study can carry
+a significance test (\cref{subsec:tv-conclusion}). The harness runs unattended, so the
+cost is wall-clock time rather than effort.
+
+\emph{Extend the comparison to Tractus-X \gls{edc}}, restoring the four-connector scope
+the study set out with. The harness is connector-agnostic by construction; what is
+required is instrumentation parity, not new measurement code.
+
+\emph{Distribute the deployment across hosts.} Co-location removes network cost from every
+measurement and also removes contention between the components under test. Separating them
+would show how much of the measured latency survives a realistic network, and would test
+whether the capacity ceilings observed here are internal to each connector or artefacts of
+sharing a machine.
+
+\emph{Replace polling with callbacks in the measurement path.} The harness observes
+asynchronous state changes by asking repeatedly, which both rounds every phase duration up
+and generates roughly sixty per cent of the load the connectors serve
+(\cref{subsec:tv-construct}). The \gls{dsp} callback mechanism would remove both effects
+and yield exact transition timestamps; a receiver for it already exists in this study's
+tooling for one arm (\cref{subsec:mock-arm}).
+
+Beyond these, the identity axis itself invites extension. This study measured one identity
+design, the \gls{dcp} stack, against a mock. Comparing alternative trust architectures on
+the same harness would establish whether the fixed per-request cost observed here is a
+property of \gls{dcp} specifically or of credential verification generally.

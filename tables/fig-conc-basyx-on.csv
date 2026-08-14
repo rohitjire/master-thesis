@@ -1,0 +1,6 @@
+virtual_users,delivered_tx_s,implied_latency_s
+5,0.89,2.82
+10,1.31,5.71
+20,2.39,6.27
+50,3.83,9.13
+50,5.28,9.47
