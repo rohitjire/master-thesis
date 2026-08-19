@@ -185,8 +185,6 @@ Four DSP-conformant implementations are in scope for the benchmarks reported in 
 
 \begin{table}[ht]
     \centering
-    \caption[Architectural profile of the four connector implementations]{Architectural profile of the four connector implementations evaluated in this thesis.}
-    \label{tab:connector-comparison}
     \small
     \setlength{\tabcolsep}{4pt}
     \begin{tabularx}{\textwidth}{@{}l l X X X@{}}
@@ -199,6 +197,8 @@ Four DSP-conformant implementations are in scope for the benchmarks reported in 
         Fraunhofer ISST EDC & 0.15.1      & DCP + IdentityHub    & PostgreSQL + Vault & Bundled IdentityHub + Issuer Service \\
         \bottomrule
     \end{tabularx}
+    \caption[Architectural profile of the four connector implementations]{Architectural profile of the four connector implementations evaluated in this thesis.}
+    \label{tab:connector-comparison}
 \end{table}
 
 The architectural diversity tabulated above is precisely why \Cref{chap:related-work} can identify only one prior cross-implementation performance study~\citep{evaluatingtheperformanceimpactofdatasovereignty}: the test surface is large and the implementations make non-trivially different design choices. \Cref{chap:methodology} defines the workload that exercises these four implementations under comparable conditions, \Cref{chap:implementation} describes the deployed configuration in full, and \Cref{chap:results-evaluation} reports the measured consequences of the architectural differences summarised here.

@@ -95,7 +95,41 @@ so only its provider-side figures are directly comparable (\cref{subsec:tv-inter
 
 \section{Limitations}\label{sec:conclusion-limitations}
 
+\Cref{sec:results-validity} states what the reported numbers measure and what could have
+biased the comparison between the two arms of a connector. This section states the limits
+of the study itself: how far its results carry beyond the setup that produced them, and
+what may be concluded from them.
 
+\subsection{How Far the Results Carry}\label{subsec:tv-external}
+
+Everything was measured on one machine, with every component running beside every other
+and communicating over a container network rather than a real one. Absolute latencies are
+therefore lower than a distributed deployment would show. What transfers is the
+\emph{ordering} of the connectors and the shape of their curves, not the millisecond
+values.
+
+The workload is also narrower than a production dataspace. One asset type and one dataset
+shape were used; the protocol coverage is the negotiate--transfer--pull cycle; and policy
+evaluation beyond the membership credential was never exercised. Tractus-X \gls{edc} could
+not be brought to instrumentation parity in the time available, so the comparison covers
+three of the four implementations introduced in \cref{subsec:different-connectors}.
+
+The observation window bounds the stability result in the same way. A trend fitted over
+thirty minutes is sufficient to show that no component grows fast enough to exhaust its
+heap on that timescale, and insufficient to exclude a slow leak; the heap slopes reported
+in \cref{sec:rq3} are to be read on those terms.
+
+\subsection{What May Be Concluded}\label{subsec:tv-conclusion}
+
+No significance test appears anywhere in \cref{chap:results-evaluation}. Five repetitions
+of a run whose internal transactions are not independent of one another cannot support
+one~\citep{hoefler2015scientific}, and a test computed anyway would be driven by its own
+assumptions rather than by the data.
+
+Differences are instead judged against the run-to-run range, and where the ranges of two
+arms overlap the result is reported as inconclusive rather than as a small effect. The
+\emph{separated} column of \cref{tab:x1-overhead} records only whether two observed ranges
+are disjoint. That is weak evidence, and it is not a claim of statistical significance.
 
 
 \section{Future Work}\label{sec:future-work}

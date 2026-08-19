@@ -2,10 +2,10 @@
 
 \subsection*{Abstract}
 
-The Dataspace ecosystem is growing as a reliable solution for organizations to securely and sovereignly share data within a decentralized framework, with connectors being the backbone of this system. However, performance analysis and benchmarking for these systems is still a gap. This thesis aims to conduct a systematic performance benchmark, focusing on four dataspace connector implementations -- three derived from the Eclipse Dataspace Components (EDC) and one (DSP-Native BaSyx) built on a different framework. Furthermore, the thesis will also analyze the results to identify bottlenecks and areas for improvement in connector implementations, providing insights for future research and development in this field.
+Dataspace connectors implement the Dataspace Protocol (DSP) and mediate every cross-organisational data exchange in a dataspace, yet they are compared on features and protocol compliance far more often than on performance. Where performance evidence exists, it rarely holds the identity and trust layer constant.
 
-The research will adapt the GQM (Goal--Question--Metric) approach to define the performance goals, formulate research questions, and identify relevant metrics for evaluation. The study will involve setting up a controlled environment to conduct experiments and collect data on various performance aspects of these connectors, such as latency, throughput, resource utilization, and scalability under different workloads and configurations.
+This thesis benchmarked three DSP-conformant connectors -- the Fraunhofer ISST EDC, the Factory-X EDC, and DSP-Native BaSyx -- on a normalised single-host substrate under a Goal--Question--Metric design. Each connector was deployed twice, identically in every layer except one: once with its full identity stack running, and once with identity verification mocked, so that the difference between the two deployments measures the cost of identity directly.
 
-The results of this thesis will contribute to the understanding of the performance characteristics of dataspace connectors and provide valuable insights for practitioners and researchers in the field of data exchange and integration.
+The two EDC-derived connectors performed alike at a realistic operating point, while DSP-Native BaSyx was faster. Identity added a fixed cost per request, confined to the control plane and independent of the work the request performed. The asynchronous protocol, rather than the identity layer, dominated end-to-end time in all three connectors, and each reached its throughput ceiling well before the host was exhausted. Alongside these findings the study contributes the benchmark harness and the analysis pipeline that produced them.
 
 \noindent  \\
