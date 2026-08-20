@@ -1,10 +1,10 @@
 \chapter{Results and Evaluation}\label{chap:results-evaluation}
 
-This chapter answers the research questions of \cref{sec:gqm-decomposition} from the measurements produced by the campaign of \cref{chap:implementation}. Its structure follows the \gls{gqm} decomposition directly: \crefrange{sec:rq1}{sec:rq5} take the five recurring questions in the order of \cref{tab:research-questions}, and each answers its question for both goals at once. Because the same question is asked under each goal and differs only in the identity configuration, the identity-enabled ($G_1$) and identity-disabled ($G_2$) values of every metric appear in the same table, with their difference reported beside them. \Cref{sec:x1-overhead} then draws the cross-goal result X1 together across all five questions and interprets it, together with the connector-to-connector differences, against the documented design of each implementation; \cref{sec:answers-rq} consolidates that interpretation into the answer to \textbf{TRQ2}. \Cref{sec:results-validity} states the threats to the validity of both, and \cref{sec:conclusion-limitations} states how far the results carry.
+This chapter reports the measurements that answer the research questions of \cref{sec:gqm-decomposition}. \Crefrange{sec:rq1}{sec:rq5} answer the five recurring questions, each under both identity goals, \cref{sec:x1-overhead} draws the cross-goal identity overhead X1 together across them, and \cref{sec:results-validity} states the threats to the validity of both.
 
 Dashboard panels rendered from the live monitoring stack during these runs are collected in \cref{app:panels}; they illustrate the instrument and the shapes over time that a summary statistic discards, and are not the source of any figure reported here.
 
-The statistics used throughout, the meaning of $\Delta$, and the rules by which runs are admitted or excluded are defined in \cref{subsec:analysis-statistics}; they are applied uniformly to every connector and both arms, with no per-connector special-casing.
+Every value reported here is a median across the repetitions of a run, with the smallest and largest of those repetitions given beside it as the measure of run-to-run repeatability. $\Delta$ is the difference between the identity-enabled ($G_1$) and identity-disabled ($G_2$) medians of a metric, $\tilde{x}_{G_1}-\tilde{x}_{G_2}$, reported together with their ratio on the $G_1$ row, so that both arms of a connector appear in the same table. Heap growth in the endurance runs is the one quantity reported differently, as a least-squares slope in MB/h. Why these statistics and no others, and the rule by which a run is admitted or excluded, are set out in \cref{subsec:analysis-statistics}; both apply uniformly to every connector and arm, with no per-connector special-casing.
 
 \section{RQ1 --- Latency and Throughput at the Operating Point}\label{sec:rq1}
 
@@ -413,25 +413,3 @@ of the comparison rather than something that varies by connector.
 the BaSyx identity-enabled consumer, up to 0.04\,\% on Factory-X, and none at all on the
 Fraunhofer ISST \gls{edc} across fifty runs. Almost all occur in the ramped scenarios,
 past the point where delivery had already broken down.
-
-
-\section{Summary}\label{sec:results-summary}
-
-This chapter reports the measurements that answer the five research questions of
-\cref{sec:gqm-decomposition}, together with the cross-goal result X1 that follows from
-them. At a realistic operating point the two \gls{edc} connectors were indistinguishable
-from one another and DSP-Native BaSyx completed the same transaction in roughly three
-fifths of their time. Under rising load the ordering changed: Factory-X was the first to
-stop converting offered load into completed transactions, the Fraunhofer ISST \gls{edc}
-plateaued, and BaSyx continued to deliver at every rung tested. None of the three
-approached the capacity of the host, so each ceiling is a property of the connector rather
-than of the machine.
-
-Decomposed by phase, between 93 and 97\,\% of every transaction was spent waiting for the
-two asynchronous state machines to reach their terminal states, which places the protocol
-rather than the identity layer at the baseline. Identity itself cost a fixed amount per
-request, confined to the control plane and independent of the work the request performed,
-but it landed in a different phase on the \gls{edc} connectors than on BaSyx. That
-difference is the observation \cref{sec:answers-rq} carries into the architectural
-interpretation, and \cref{sec:conclusion-limitations} states how far these results carry
-beyond the setup that produced them.
