@@ -76,14 +76,14 @@ Every value reported here is a median across the repetitions of a run, with the 
     \centering
     \begin{tikzpicture}
     \begin{axis}[thesisplot, xlabel={Offered rate (tx/s)}, ylabel={Delivered rate (tx/s)},
-                 xmin=0.5, xmax=6, ymin=0, legend pos=north west, legend columns=2]
+                 xmin=0.5, xmax=12.5, ymin=0, ymax=8, legend pos=north west, legend columns=2]
       \addplot[isst,g1]  table [x=offered_tx_s,y=delivered_tx_s,col sep=comma] {tables/fig-sat-dst-on.csv};
       \addplot[isst,g2]  table [x=offered_tx_s,y=delivered_tx_s,col sep=comma] {tables/fig-sat-dst-off.csv};
       \addplot[fx,g1]    table [x=offered_tx_s,y=delivered_tx_s,col sep=comma] {tables/fig-sat-factoryx-on.csv};
       \addplot[fx,g2]    table [x=offered_tx_s,y=delivered_tx_s,col sep=comma] {tables/fig-sat-factoryx-off.csv};
       \addplot[basyx,g1] table [x=offered_tx_s,y=delivered_tx_s,col sep=comma] {tables/fig-sat-basyx-on.csv};
       \addplot[basyx,g2] table [x=offered_tx_s,y=delivered_tx_s,col sep=comma] {tables/fig-sat-basyx-off.csv};
-      \addplot[gray,dotted,no marks,forget plot] coordinates {(0.5,0.5) (6,6)};
+      \addplot[gray,dotted,no marks,forget plot] coordinates {(0.5,0.5) (12.5,12.5)};
       \legend{ISST $G_1$, ISST $G_2$, Factory-X $G_1$, Factory-X $G_2$, BaSyx $G_1$, BaSyx $G_2$}
     \end{axis}
     \end{tikzpicture}
@@ -95,9 +95,9 @@ Every value reported here is a median across the repetitions of a run, with the 
     \label{fig:rq2-saturation}
 \end{figure}
 
-\textbf{Delivery tracks the offered rate to 2.5\,tx/s.} All six arms deliver between 89\,\% and 99\,\% of a mean offered rate through the first three rungs. The ladder separates them at the fourth rung, an offered mean of 4\,tx/s. There the two BaSyx arms and both Fraunhofer ISST arms still deliver 83--87\,\%, whereas Factory-X falls to 50--54\,\% in both arms -- it delivers 2.0--2.2\,tx/s while 4\,tx/s is offered, and does not exceed that figure at any higher rung. Factory-X identity-enabled is the only arm to breach the 90\,\% criterion earlier, at the third rung, with 89\,\%.
+\textbf{Delivery tracks the offered rate to 2.5\,tx/s.} All six arms deliver between 89\,\% and 99\,\% of a mean offered rate through the first three rungs. The ladder separates them at the fourth rung, an offered mean of 4\,tx/s. There the two BaSyx arms and both Fraunhofer ISST arms still deliver 83--87\,\%, whereas Factory-X falls to 50--54\,\% in both arms -- it delivers 2.0--2.2\,tx/s while 4\,tx/s is offered, which is less than it delivered at the preceding rung. Factory-X identity-enabled is the only arm to breach the 90\,\% criterion earlier, at the third rung, with 89\,\%.
 
-\textbf{Beyond the fourth rung the arms diverge in shape as well as level.} The Fraunhofer ISST \gls{edc} plateaus: delivered throughput settles at 3.9--4.1\,tx/s in both arms and does not rise further as the offered rate is increased to 12\,tx/s. DSP-Native BaSyx continues to climb, reaching 6.0\,tx/s identity-disabled and 5.9\,tx/s identity-enabled at the top rung, with the delivery ratio falling smoothly rather than abruptly. Factory-X shows neither pattern cleanly; its delivered rate at the highest rungs is non-monotonic, which \cref{sec:results-validity} addresses.
+\textbf{Beyond the fourth rung the arms diverge in shape as well as level.} The Fraunhofer ISST \gls{edc} plateaus across the middle of the ladder: delivered throughput holds at 3.9--4.1\,tx/s in both arms at an offered 6.5 and 10\,tx/s, and rises only to 4.6 and 5.2\,tx/s at the top rung of 12\,tx/s, by which point each arm converts under half of what is offered. DSP-Native BaSyx continues to climb, reaching 6.0\,tx/s identity-disabled and 5.9\,tx/s identity-enabled at the top rung, with the delivery ratio falling smoothly rather than abruptly. Factory-X shows neither pattern cleanly: its delivered rate dips at the fourth rung before recovering to 4.6--4.8\,tx/s at an offered 10\,tx/s, and its identity-enabled arm returned no measurement at the top rung, so that point is absent from the figure. \Cref{sec:results-validity} records that omission.
 
 \textbf{Delivery counts completions, not successes.} These figures therefore include transactions abandoned at the poll deadline. The proportion so abandoned over the whole ladder is 22--34\,\% for the Fraunhofer ISST and BaSyx arms and 50\,\% for both Factory-X arms.
 
@@ -141,9 +141,9 @@ Every value reported here is a median across the repetitions of a run, with the 
     \centering
     \begin{threeparttable}
     \small
-    \setlength{\tabcolsep}{5pt}
+    \setlength{\tabcolsep}{2pt}
     \input{tables/rq3-resources}
-    \begin{tablenotes}\footnotesize
+    \begin{tablenotes}[flushleft]\footnotesize
         \item \Gls{cpu} figures cover the whole host; only one connector was deployed at a time (\cref{subsec:hardware}).
         \item Heap peak is the maximum across the connector's instrumented services.
     \end{tablenotes}
@@ -405,6 +405,13 @@ is a further reason to prefer them when comparing connectors.
 \textbf{Some scenarios ran once.} The operating point was repeated five times per arm and
 the load ladder three times, but the concurrency ladder and the endurance run once each.
 Those two carry no variability estimate, and their figures are single observations.
+
+\textbf{One ladder point is missing.} The Factory-X identity-enabled arm returned no
+delivered-rate value at the top rung of the saturation ladder, so its series in
+\cref{fig:rq2-saturation} ends at an offered 10\,tx/s. That rung lies well beyond the
+point at which the arm stopped tracking offered load, so what the omission costs is the
+shape of its curve past saturation rather than the saturation point itself, which
+\cref{sec:rq2} locates at the fourth rung.
 
 \textbf{Scenarios always ran in the same order.} Randomising would have averaged out any
 carry-over between them, but it would also have let a connector's result depend on which

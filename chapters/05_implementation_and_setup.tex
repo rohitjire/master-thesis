@@ -135,7 +135,7 @@ The log level is held constant for a reason that is not obvious and that measure
     \centering
     \small
     \setlength{\tabcolsep}{4pt}
-    \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.35cm} X X >{\raggedright\arraybackslash}p{3.3cm}@{}}
+    \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.35cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.3cm}@{}}
         \toprule
         \textbf{Connector} & \textbf{$G_1$ arm (identity)} & \textbf{$G_2$ arm (identity)} & \textbf{Shared by both arms} \\
         \midrule
@@ -251,7 +251,7 @@ Eight scenarios cover the five recurring research questions of \cref{sec:gqm-dec
         \texttt{smoke} & \texttt{per-vu-\allowbreak iterations} & 1 user, 5 sequential transactions & gate \\
         \texttt{steady} & \texttt{constant-\allowbreak arrival-\allowbreak rate} & 1\,tx/s held for 5\,min & $G_k.\text{RQ}1$ \\
         \texttt{poll-sensitivity} & \texttt{constant-\allowbreak arrival-\allowbreak rate} & as \texttt{steady}, at two poll intervals (250 and 1000\,ms) & control \\
-        \texttt{saturation-open} & \texttt{ramping-\allowbreak arrival-\allowbreak rate} & stages 1--2--3--4--5--6\,tx/s, 90\,s each, then hold & $G_k.\text{RQ}2$ \\
+        \texttt{saturation-open} & \texttt{ramping-\allowbreak arrival-\allowbreak rate} & rungs 1--1.5--2.5--4--6.5--10--12\,tx/s, 90\,s each, then hold & $G_k.\text{RQ}2$ \\
         \texttt{concurrency-closed} & \texttt{ramping-vus} & 5--10--20--50 concurrent users, 90\,s each, then hold & $G_k.\text{RQ}2$ \\
         \texttt{payload-sweep} & \texttt{constant-vus} & 4 users, 1\,min per payload size (1\,KB--100\,MB) & $G_k.\text{RQ}1$ \\
         \texttt{soak} & \texttt{constant-\allowbreak arrival-\allowbreak rate} & 0.5\,tx/s held for 30\,min & $G_k.\text{RQ}3$ \\
