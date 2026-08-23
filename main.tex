@@ -211,6 +211,19 @@ pdfpagelayout={SinglePage}
 
 \usepackage{hyperref}
 
+% Float placement.
+% LaTeX's defaults reserve so much of each page for text that a full-width
+% table taller than 0.7\textheight can be placed neither "here" nor "top".
+% It then waits in the float queue, and because floats of one class keep
+% their order, every later table waits behind it until the next \clearpage.
+% Relaxing the fractions lets tall tables be placed where they are written.
+\renewcommand{\topfraction}{0.85}       % was 0.7  max page fraction for top floats
+\renewcommand{\bottomfraction}{0.7}     % was 0.3
+\renewcommand{\textfraction}{0.12}      % was 0.2  min page fraction reserved for text
+\renewcommand{\floatpagefraction}{0.7}  % was 0.5  min fill before a float page is used
+\setcounter{topnumber}{3}               % was 2    max floats at top of a page
+\setcounter{totalnumber}{4}             % was 3    max floats on a page
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %%% Document begin                                    %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 

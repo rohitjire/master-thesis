@@ -42,7 +42,7 @@ A benchmark is best understood, in the definition of \emph{Systems Benchmarking:
 
 Two further candidates are considered but not adopted as the organising spine. A purely hypothesis-driven design fixes the analysis before the exploratory measurements this thesis still requires, and a full factorial Design of Experiments multiplies the run matrix beyond what a one-connector-at-a-time schedule on a shared host can absorb~\citep{jain1991art}. Both inform the experiment design in \cref{chap:implementation} without dictating the structure of this chapter.
 
-\begin{table}[ht]
+\begin{table}[htbp]
     \centering
     \small
     \setlength{\tabcolsep}{3pt}
@@ -138,7 +138,7 @@ The second goal, \textbf{G2} (performance with identity disabled), is identical 
 
 \textbf{The recurring research questions.} The same five questions are asked under each goal; only the identity configuration differs. Reading $G_k$ as either goal, each question therefore exists in an identity-enabled form ($G_1.\text{RQ}x$) and an identity-disabled form ($G_2.\text{RQ}x$). They decompose \textbf{TRQ1} into measurable indicators, as listed in \cref{tab:research-questions}.
 
-\begin{table}[ht]
+\begin{table}[htbp]
     \centering
     \small
     \setlength{\tabcolsep}{6pt}
@@ -163,7 +163,7 @@ The second goal, \textbf{G2} (performance with identity disabled), is identical 
 
 \textbf{From questions to metrics.} \Cref{tab:gqm-tree} completes the decomposition, mapping each question to its metrics, units, and measurement source. Each metric is collected once per goal, so every row yields a pair of values whose difference is X1. The mapping to ISO/IEC~25010 justifies the choice of metrics: the latency series measure time behaviour, throughput and the saturation point measure capacity, and the CPU, heap, and \gls{gc} series measure resource utilisation~\citep{iso25010}. Tail percentiles are reported alongside medians because the mean conceals the tail that dominates user-perceived behaviour at scale~\citep{dean2013tail}.
 
-\begin{table}[ht]
+\begin{table}[htbp]
     \centering
     \small
     \setlength{\tabcolsep}{5pt}
@@ -200,7 +200,7 @@ Two phases of the cycle are asynchronous: the consumer initiates a request and t
 
 Secondary metrics capture resource utilisation under identical workloads. At the host level, a metrics exporter samples \gls{cpu} busy time and available memory, which establishes whether a measured ceiling belongs to the connector or to the host. At the process level, in-process instrumentation samples \gls{jvm} heap occupancy, \gls{gc} pause activity, and thread count for each connector runtime, together revealing memory pressure, collector overhead, and queuing under load. These map to the ISO/IEC~25010 resource-utilisation sub-characteristic~\citep{iso25010} and are interpreted through the \gls{use} method applied to each connector resource~\citep{gregg2012thinking}. Resource series are aligned to the measurement window so that a latency knee can be read against the CPU or heap behaviour that produced it.
 
-\begin{table}[ht]
+\begin{table}[htbp]
     \centering
     \small
     \setlength{\tabcolsep}{6pt}
