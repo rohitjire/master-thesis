@@ -1,5 +1,8 @@
 {
     "latex-workshop.latex.rootFile": "main.tex",
+    // Prefer the "latexmk" recipe: .latexmkrc teaches latexmk to run makeglossaries
+    // itself, so the List of Abbreviations is always built. The manual recipe below
+    // spells that step out explicitly for the same reason.
     "latex-workshop.latex.recipes": [
         {
             "name": "latexmk (pdflatex)",
@@ -8,10 +11,11 @@
             ]
         },
         {
-            "name": "pdflatex → bibtex → pdflatex × 2",
+            "name": "pdflatex → bibtex → makeglossaries → pdflatex × 2",
             "tools": [
                 "pdflatex",
                 "bibtex",
+                "makeglossaries",
                 "pdflatex",
                 "pdflatex"
             ]
@@ -43,7 +47,14 @@
             "args": [
                 "%DOCFILE%"
             ]
+        },
+        {
+            "name": "makeglossaries",
+            "command": "makeglossaries",
+            "args": [
+                "%DOCFILE%"
+            ]
         }
     ],
-    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.view.pdf.viewer": "tab"
 }
