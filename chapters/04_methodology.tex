@@ -42,8 +42,6 @@ A benchmark is best understood, in the definition of \emph{Systems Benchmarking:
 
 Two further candidates are considered but not adopted as the organising spine. A purely hypothesis-driven design fixes the analysis before the exploratory measurements this thesis still requires, and a full factorial Design of Experiments multiplies the run matrix beyond what a one-connector-at-a-time schedule on a shared host can absorb~\citep{jain1991art}. Both inform the experiment design in \cref{chap:implementation} without dictating the structure of this chapter.
 
-\Cref{tab:methodology-comparison} summarises the candidates and the gap each leaves.
-
 \begin{table}[ht]
     \centering
     \small
@@ -75,7 +73,7 @@ Two further candidates are considered but not adopted as the organising spine. A
     \label{tab:methodology-comparison}
 \end{table}
 
-\newpage
+\Cref{tab:methodology-comparison} summarises the candidates and the gap each leaves.
 
 \textbf{The combined method.} The table makes the complementarity explicit. The \gls{gqm} framework ties every metric to a research goal, but says nothing about execution or credibility~\citep{caldiera1994goal}. The procedure of \emph{The Art of Computer Systems Performance Analysis}, reinforced by the reporting discipline of \emph{Scientific Benchmarking of Parallel Computing Systems}, supplies the constructive half: factor control, a discarded warm-up, repetition, and percentile rather than mean analysis~\citep{jain1991art, hoefler2015scientific}. The ACM SIGSOFT Empirical Standard and the benchmark quality criteria supply the evaluative half, auditing whether the constructed benchmark is fair, reproducible, and verifiable~\citep{Ralph2020, empiricalStandardsBenchmarking, huppler2009art}. The benchmarking-specific methodologies shape the metric, workload, and measurement choices in between~\citep{kounev2020systems, bermbach2017cloud}, and ISO/IEC~25010 fixes the metric vocabulary~\citep{iso25010}. Neither half is sufficient alone: a benchmark built without an audit may be rigorous and still not be credible, and an audit with nothing built is a checklist with nothing to check. Together they form a build-then-audit pipeline. \Gls{gqm} states what to measure, the performance-analysis procedure builds the experiment, and the empirical standard verifies that the construction clears the bar a credible benchmark must meet.
 
