@@ -367,11 +367,11 @@ The preceding sections describe how measurements are produced and archived. This
 
 Three sources feed it, and they are deliberately not interchangeable. The k6 summary carries the client's view of every measured window, aggregated per metric. The Prometheus snapshots carry the server's view of the same window, sampled every five seconds. The k6 console log carries the only time-resolved client record. k6 summarises a whole run as one set of statistics, so a ramped scenario cannot be read from the summary at all. The console, by contrast, prints a cumulative completed-iteration count once per second, and differencing that recovers what each load rung actually delivered. Because the client and the server observe the same window through independent instruments, their agreement corroborates a figure and their disagreement is itself a finding~\citep{hasselbring2021benchmarking}.
 
-\subsection{Metrics Analysed per Research Question}\label{subsec:metrics-per-rq}
-
 \Cref{tab:analysis-per-rq} states, for each recurring research question, which scenario supplies the data, which quantity is extracted from it, and which statistic is computed. It is the operational form of the \gls{gqm} tree of \cref{tab:gqm-tree}: that table maps questions to metrics, this one maps metrics to the numbers that appear in the results.
 
-\begin{table}[ht]
+% [H]: pinned, not floating -- as a float this table drifted past the
+% \subsection below and was typeset under the wrong heading.
+\begin{table}[H]
     \centering
     \small
     \setlength{\tabcolsep}{4pt}

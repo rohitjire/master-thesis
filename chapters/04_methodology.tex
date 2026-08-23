@@ -163,7 +163,9 @@ The second goal, \textbf{G2} (performance with identity disabled), is identical 
 
 \textbf{From questions to metrics.} \Cref{tab:gqm-tree} completes the decomposition, mapping each question to its metrics, units, and measurement source. Each metric is collected once per goal, so every row yields a pair of values whose difference is X1. The mapping to ISO/IEC~25010 justifies the choice of metrics: the latency series measure time behaviour, throughput and the saturation point measure capacity, and the CPU, heap, and \gls{gc} series measure resource utilisation~\citep{iso25010}. Tail percentiles are reported alongside medians because the mean conceals the tail that dominates user-perceived behaviour at scale~\citep{dean2013tail}.
 
-\begin{table}[htbp]
+% [H]: pinned, not floating -- as a float this table drifted past the
+% \section below and was typeset under the wrong heading.
+\begin{table}[H]
     \centering
     \small
     \setlength{\tabcolsep}{5pt}
