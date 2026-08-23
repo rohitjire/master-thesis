@@ -13,7 +13,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 % G_k.RQ1: per-phase and end-to-end latency, and sustained throughput, at a realistic
 % operating point. Sources: rq1-steady.csv, rq1-payload.csv.
 % Phase decomposition is RQ4 (sec:rq4); this section reports the end-to-end figure.
-\Cref{tab:rq1-steady} reports end-to-end transaction latency and sustained throughput at the fixed operating point. This is the only load offered identically to every connector, and therefore the only basis on which a head-to-head comparison is legitimate; the saturation ladders of \cref{sec:rq2} are per-connector by construction and comparing across them would compare different offered loads.
+\Cref{tab:rq1-steady} reports end-to-end transaction latency and sustained throughput at the fixed operating point. That point is the \texttt{steady} scenario: a constant arrival rate of one transaction per second, held for five minutes and repeated five times per arm (\cref{subsec:scenarios}). This is the only load offered identically to every connector, and therefore the only basis on which a head-to-head comparison is legitimate; the saturation ladders of \cref{sec:rq2} are per-connector by construction and comparing across them would compare different offered loads.
 
 \begin{table}[H]
     \centering
@@ -36,7 +36,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 
 \textbf{Five repetitions bound the resolution of every comparison.} Run-to-run variation of the median, expressed as the relative range, is between 0.6\,\% and 9.2\,\%, and it is consistently smaller in the identity-disabled arms (0.6--2.6\,\%) than in the identity-enabled ones (4.8--9.2\,\%). Every comparison drawn from this table is bounded by those figures: the 23.5\,ms separating the two \gls{edc} connectors under $G_1$ is far below the 4.8--5.4\,\% variation of either, and is not interpreted as a difference. The ratio of mean to median lies between 0.97 and 1.01 in all six arms, so the distributions are close to symmetric at this load and the choice of median over mean changes nothing here; that choice earns its place under load rather than at the operating point (\cref{subsec:analysis-statistics}).
 
-\Cref{fig:rq1-payload} reports data-plane capacity against payload size. This scenario negotiates once and then repeats only the transfer, so its unit of observation is a pull rather than a transaction. DSP-Native BaSyx collapses control and data plane into one process and has no separate data plane to exercise, so it is absent from the figure by construction (\cref{sec:sut}).
+\Cref{fig:rq1-payload} reports data-plane capacity against payload size. The \texttt{payload-sweep} scenario holds four concurrent users against each of five payload sizes from 1\,KB to 100\,MB for one minute apiece. It negotiates once and then repeats only the transfer, so its unit of observation is a pull rather than a transaction. DSP-Native BaSyx collapses control and data plane into one process and has no separate data plane to exercise, so it is absent from the figure by construction (\cref{sec:sut}).
 
 \begin{figure}[ht]
     \centering
@@ -70,7 +70,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 % saturation knee and the onset of failure. Sources: rq2-saturation.csv,
 % rq2-concurrency.csv.
 
-\Cref{fig:rq2-saturation} reports the open-model saturation ladder for both goals. Offered load rather than client population is the controlled variable, which avoids the coordinated-omission bias to which a closed model is subject when the server slows~\citep{schroeder2006open}. The offered rate of each rung is the mean arrival rate over that stage rather than its nominal target, because the load generator interpolates linearly towards the target across the stage; comparing delivery against the nominal value understates it on every ramped rung~\citep{k6docs}.
+\Cref{fig:rq2-saturation} reports the open-model saturation ladder for both goals. The \texttt{saturation-open} scenario raises the offered arrival rate through seven rungs -- 1, 1.5, 2.5, 4, 6.5, 10 and 12\,tx/s -- holding each for ninety seconds, and was repeated three times per arm (\cref{subsec:scenarios}). Offered load rather than client population is the controlled variable, which avoids the coordinated-omission bias to which a closed model is subject when the server slows~\citep{schroeder2006open}. The offered rate of each rung is the mean arrival rate over that stage rather than its nominal target, because the load generator interpolates linearly towards the target across the stage; comparing delivery against the nominal value understates it on every ramped rung~\citep{k6docs}.
 
 \begin{figure}[ht]
     \centering
@@ -101,7 +101,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 
 \textbf{Delivery counts completions, not successes.} These figures therefore include transactions abandoned at the poll deadline. The proportion so abandoned over the whole ladder is 22--34\,\% for the Fraunhofer ISST and BaSyx arms and 50\,\% for both Factory-X arms.
 
-\Cref{fig:rq2-concurrency} reports the closed-model ladder as an independent check on the same ceiling. Under a closed model a saturated server shows throughput flattening while residence time grows in proportion to the client population, which is the form Little's law takes at saturation~\citep{little1961proof}; agreement between the two workload models is what makes an observed ceiling a property of the connector rather than of one model.
+\Cref{fig:rq2-concurrency} reports the closed-model ladder as an independent check on the same ceiling. The \texttt{concurrency-closed} scenario replaces the arrival rate with a fixed client population, stepping through 5, 10, 20 and 50 concurrent users at ninety seconds each, and ran once per arm. Under a closed model a saturated server shows throughput flattening while residence time grows in proportion to the client population, which is the form Little's law takes at saturation~\citep{little1961proof}; agreement between the two workload models is what makes an observed ceiling a property of the connector rather than of one model.
 
 \begin{figure}[ht]
     \centering
@@ -135,7 +135,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 % G_k.RQ3: CPU, JVM heap, GC, threads under identical workloads, plus the host
 % ceiling. Sources: rq3-resources.csv, rq3-drift.csv.
 
-\Cref{tab:rq3-resources} reports host and \gls{jvm} resource consumption under the same workloads. Peaks are reported alongside medians because the question this data must answer is whether an observed throughput ceiling was imposed by the host or by the connector: a connector that saturates while the host retains headroom is limited by its own structure, which is an architectural finding rather than a hardware one~\citep{gregg2012thinking}.
+\Cref{tab:rq3-resources} reports host and \gls{jvm} resource consumption under the same workloads. The processor, heap and collector figures are sampled during the \texttt{steady} and \texttt{saturation-open} runs already reported in \cref{sec:rq1,sec:rq2}, so no additional load was applied to obtain them. Peaks are reported alongside medians because the question this data must answer is whether an observed throughput ceiling was imposed by the host or by the connector: a connector that saturates while the host retains headroom is limited by its own structure, which is an architectural finding rather than a hardware one~\citep{gregg2012thinking}.
 
 \begin{table}[H]
     \centering
@@ -158,7 +158,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 
 \textbf{The identity layer's effect on memory is confined to one connector.} Peak heap differs between arms by 1.8\,\% for the Fraunhofer ISST \gls{edc} and 0.9\,\% for Factory-X, both within run-to-run variation, whereas BaSyx holds 665.9\,MB identity-enabled against 323.8\,MB identity-disabled, a factor of 2.06.
 
-\textbf{No service grows fast enough to threaten its container limit.} Long-run stability was measured over a thirty-minute endurance run per arm, with heap
+\textbf{No service grows fast enough to threaten its container limit.} Long-run stability was measured with the \texttt{soak} scenario, a gentle 0.5\,tx/s held for thirty minutes and run once per arm, with heap
 occupancy sampled every five seconds for each instrumented runtime and a least-squares
 trend fitted to each series. No service in any arm grows fast enough to threaten its
 container limit: the fastest-growing series is the Fraunhofer ISST \gls{edc} consumer
@@ -180,7 +180,7 @@ show that no component grows catastrophically, and insufficient to exclude a slo
 % Source: rq4-phases.csv. This is where X1 is localised to a phase, which is the
 % input the architectural interpretation needs.
 
-\Cref{tab:rq4-phases} decomposes the transaction into the phases of the \gls{dsp} cycle. Reporting both goals per phase localises the identity cost to a specific point in the protocol, which is the evidence the architectural interpretation of \cref{sec:x1-overhead} rests on.
+\Cref{tab:rq4-phases} decomposes the transaction into the phases of the \gls{dsp} cycle. The phase durations come from the same \texttt{steady} runs as \cref{sec:rq1}, so the end-to-end figure decomposed here is the one reported there. Reporting both goals per phase localises the identity cost to a specific point in the protocol, which is the evidence the architectural interpretation of \cref{sec:x1-overhead} rests on.
 
 \begin{table}[H]
     \centering
@@ -216,7 +216,7 @@ show that no component grows catastrophically, and insufficient to exclude a slo
 % Source: rq5-catalog.csv. This is the one question where X1 can be shown to be a
 % fixed offset rather than a proportional cost.
 
-\Cref{fig:rq5-catalog} reports catalog-request latency against the number of advertised assets. The sweep spans three orders of magnitude, and growth across it is reported as two factors -- the factor by which the catalog grows against the factor by which latency grows -- rather than as a fitted exponent (\cref{subsec:analysis-statistics}). DSP-Native BaSyx exposes no provider management \gls{api} through which a catalog of controlled size can be seeded and is absent from the figure by construction (\cref{sec:sut}).
+\Cref{fig:rq5-catalog} reports catalog-request latency against the number of advertised assets. The \texttt{catalog-sweep} scenario holds four concurrent users against catalogs of 1, 10, 100 and 1000 assets for ninety seconds each, with every size measured twice (\cref{subsec:scenarios}). The sweep spans three orders of magnitude, and growth across it is reported as two factors -- the factor by which the catalog grows against the factor by which latency grows -- rather than as a fitted exponent (\cref{subsec:analysis-statistics}). DSP-Native BaSyx exposes no provider management \gls{api} through which a catalog of controlled size can be seeded and is absent from the figure by construction (\cref{sec:sut}).
 
 \begin{figure}[ht]
     \centering
