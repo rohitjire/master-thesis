@@ -96,43 +96,65 @@ so only its provider-side figures are directly comparable (\cref{subsec:tv-inter
 
 \section{Limitations}\label{sec:conclusion-limitations}
 
-\Cref{sec:results-validity} states what the reported numbers measure and what could have
-biased the comparison between the two arms of a connector. This section states the limits
-of this thesis itself: how far its results carry beyond the setup that produced them, and
-what may be concluded from them.
-
-\subsection{How Far the Results Carry}\label{subsec:tv-external}
-
-Everything was measured on one machine, with every component running beside every other
-and communicating over a container network rather than a real one. Absolute latencies are
-therefore lower than a distributed deployment would show. What transfers is the
-\emph{ordering} of the connectors and the shape of their curves, not the millisecond
-values.
-
-The workload is also narrower than a production dataspace. One asset type and one dataset
-shape were used; the protocol coverage is the negotiate--transfer--pull cycle; and policy
-evaluation beyond the membership credential was never exercised. Tractus-X \gls{edc} could
-not be brought to instrumentation parity in the time available, so the comparison covers
-three of the four implementations introduced in \cref{subsec:different-connectors}.
-
-The observation window bounds the stability result in the same way. A trend fitted over
-thirty minutes is sufficient to show that no component grows fast enough to exhaust its
-heap on that timescale, and insufficient to exclude a slow leak; the heap slopes reported
-in \cref{sec:rq3} are to be read on those terms.
-
-\subsection{What May Be Concluded}\label{subsec:tv-conclusion}
-
-No significance test appears anywhere in \cref{chap:results-evaluation}. Five repetitions
-of a run whose internal transactions are not independent of one another cannot support
-one~\citep{hoefler2015scientific}, and a test computed anyway would be driven by its own
-assumptions rather than by the data.
-
-Differences are instead judged against the run-to-run range, and where the ranges of two
-arms overlap the result is reported as inconclusive rather than as a small effect. The
-\emph{separated} column of \cref{tab:x1-overhead} records only whether two observed ranges
-are disjoint. That is weak evidence, and it is not a claim of statistical significance.
+Five limits bound what these results support. Everything was measured on one machine, with
+the participants communicating over a container network rather than a real one, so the
+absolute latencies are lower than a distributed deployment would show; what carries beyond
+this setup is the ordering of the connectors and the shape of their curves, not the
+millisecond values. The workload is narrower than a production dataspace: one asset type,
+one dataset shape, the negotiate--transfer--pull cycle, and a single membership credential,
+so richer usage policies were never exercised. The comparison covers three of the four
+implementations introduced in \cref{subsec:different-connectors}, because Tractus-X
+\gls{edc} could not be brought to instrumentation parity in the time available. The
+thirty-minute endurance window is long enough to show that no component grows fast enough to
+exhaust its heap on that timescale, and too short to exclude a slow leak. And no
+significance test accompanies any comparison: five repetitions of a run whose internal
+transactions are not independent of one another cannot support
+one~\citep{hoefler2015scientific}, so differences are judged against the observed
+run-to-run range and reported as inconclusive wherever the ranges of two arms overlap.
+\Cref{sec:results-validity} states separately what the reported numbers measure and what
+could have biased the comparison between the two arms of a connector.
 
 
 \section{Future Work}\label{sec:future-work}
 
+The benchmark reported here runs in a controlled and deliberately simplified setting. Four
+extensions would move it closer to the conditions a dataspace actually operates in, and each
+is a change of experimental design rather than a further run of the present one.
 
+\textbf{Put the participants on separate hosts and separate networks.} A real dataspace is
+two organisations reaching each other across a wide-area network, each terminating TLS at its
+own boundary and resolving the other's \glspl{did} through infrastructure neither of them
+owns. Running the same design with the participants genuinely separated would show which of
+the differences reported here survive a real network and which come from co-location. It
+would also test the central finding directly: identity costs a fixed amount per request as
+long as a \gls{did} document is read from a neighbouring container, and fetching one across a
+network may not behave that way. The principles for reproducible measurement in distributed
+environments are already established~\citep{papadopoulos2021reproducible}.
+
+\textbf{Grow the number of participants, not only the catalog.} Every measurement here
+involved one consumer and one provider. A production dataspace has many of both, and the
+component that grows with that number is the catalog: \cref{sec:rq5} varied the assets
+advertised by one provider, never the number of providers a consumer must query. Federated
+catalog crawling is the operation that scales with participant count, and it already runs as
+a separate service in one of the implementations measured here
+(\cref{subsec:connector-versions}). Adding participants rather than assets would show whether
+connectors that sit close together at two-party scale stay close once discovery is federated.
+
+\textbf{Measure every form of data transfer, not one.} This benchmark moved bytes one way, as
+an HTTP pull from a provider endpoint. The \gls{dsp} governs the control plane only and states
+that data-plane ``interfaces and interaction patterns are not in scope''~\citep{datapsaceProtocol2025},
+so how fast a connector moves data is a property of the implementation rather than a guarantee
+of the protocol. The \gls{edc} ecosystem already carries data-plane implementations beyond
+HTTP in separate technology repositories~\citep{eclipseEdcTechnologyAws}, and push transfers
+reverse the direction of the movement entirely. Sweeping object storage, message brokers, push
+as well as pull, and streaming instead of request--response would show whether identity stays
+confined to the control plane when the data plane is not a single synchronous request.
+
+\textbf{Vary the usage policy.} Every negotiation here carried the same minimal policy, and
+nothing beyond a membership credential was evaluated. Usage control is what separates a
+dataspace connector from an ordinary transfer service, and the policies written in practice
+are considerably richer than the one used here~\citep{dam2023policypatterns}. Policy
+evaluation runs on the critical path of contract negotiation, which is where the identity cost
+concentrates on the two \gls{edc} connectors (\cref{sec:x1-overhead}), so policy complexity is
+a plausible second cost of the same shape. Holding the connector and the workload fixed while
+varying policy complexity reuses the two-arm design of \cref{sec:gqm-decomposition} directly.
