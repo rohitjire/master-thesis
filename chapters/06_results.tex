@@ -32,7 +32,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 
 \textbf{Throughput does not distinguish the connectors at the operating point.} Every arm delivered the offered load: completed transactions range from 0.915 to 0.950\,tx/s against an offered 1\,tx/s, a spread of under four per cent across all six arms. It is reported for completeness, not as a result. Capacity is the subject of \cref{sec:rq2}.
 
-\textbf{Latency does distinguish them.} Under $G_1$ the two \gls{edc} connectors are indistinguishable from one another: 4672.5\,ms for the Fraunhofer ISST \gls{edc} against 4649.0\,ms for Factory-X, a difference of 23.5\,ms, or 0.5\,\%. DSP-Native BaSyx completes the same transaction in 2884.5\,ms, some 38\,\% faster. Under $G_2$ the ordering is preserved but the separation widens: 4198.0\,ms and 4416.0\,ms for the \gls{edc} pair against 814.0\,ms for BaSyx, which is then roughly one fifth of either.
+\textbf{Latency does distinguish them.} Under $G_1$ the two \gls{edc} connectors are indistinguishable from one another: 4672.5\,ms for the \gls{dst} \gls{edc} against 4649.0\,ms for Factory-X, a difference of 23.5\,ms, or 0.5\,\%. DSP-Native BaSyx completes the same transaction in 2884.5\,ms, some 38\,\% faster. Under $G_2$ the ordering is preserved but the separation widens: 4198.0\,ms and 4416.0\,ms for the \gls{edc} pair against 814.0\,ms for BaSyx, which is then roughly one fifth of either.
 
 \textbf{Five repetitions bound the resolution of every comparison.} Run-to-run variation of the median, expressed as the relative range, is between 0.6\,\% and 9.2\,\%, and it is consistently smaller in the identity-disabled arms (0.6--2.6\,\%) than in the identity-enabled ones (4.8--9.2\,\%). Every comparison drawn from this table is bounded by those figures: the 23.5\,ms separating the two \gls{edc} connectors under $G_1$ is far below the 4.8--5.4\,\% variation of either, and is not interpreted as a difference. The ratio of mean to median lies between 0.97 and 1.01 in all six arms. The distributions are therefore close to symmetric at this load, and the choice of median over mean changes nothing here. That choice earns its place under load, not at the operating point (\cref{subsec:analysis-statistics}).
 
@@ -48,7 +48,7 @@ Every value reported here is a median across the repetitions of a run, with the 
       \addplot[isst,g2] table [x=bytes_per_pull,y=throughput_MB_s,col sep=comma] {tables/fig-pay-dst-off.csv};
       \addplot[fx,g1]   table [x=bytes_per_pull,y=throughput_MB_s,col sep=comma] {tables/fig-pay-factoryx-on.csv};
       \addplot[fx,g2]   table [x=bytes_per_pull,y=throughput_MB_s,col sep=comma] {tables/fig-pay-factoryx-off.csv};
-      \legend{ISST $G_1$, ISST $G_2$, Factory-X $G_1$, Factory-X $G_2$}
+      \legend{DST $G_1$, DST $G_2$, Factory-X $G_1$, Factory-X $G_2$}
     \end{axis}
     \end{tikzpicture}
     \caption[Data-plane rate against payload size]{Achieved data-plane transfer rate
@@ -58,7 +58,7 @@ Every value reported here is a median across the repetitions of a run, with the 
     \label{fig:rq1-payload}
 \end{figure}
 
-\textbf{Data-plane throughput rises monotonically with payload size and saturates at the largest transfers.} For the Fraunhofer ISST \gls{edc} it climbs from 0.27\,MB/s at 1\,KB to 515.1\,MB/s at 100\,MB, and for Factory-X from 0.26\,MB/s to 458.2\,MB/s. Per-request overhead dominates small payloads, not transfer time. A 1\,KB pull takes 3.7--3.9\,ms and a 100\,KB pull 4.0--4.3\,ms, so a hundredfold increase in payload costs under ten per cent in time. Beyond 1\,MB the pull duration grows in proportion to size.
+\textbf{Data-plane throughput rises monotonically with payload size and saturates at the largest transfers.} For the \gls{dst} \gls{edc} it climbs from 0.27\,MB/s at 1\,KB to 515.1\,MB/s at 100\,MB, and for Factory-X from 0.26\,MB/s to 458.2\,MB/s. Per-request overhead dominates small payloads, not transfer time. A 1\,KB pull takes 3.7--3.9\,ms and a 100\,KB pull 4.0--4.3\,ms, so a hundredfold increase in payload costs under ten per cent in time. Beyond 1\,MB the pull duration grows in proportion to size.
 
 \textbf{The identity arms are indistinguishable throughout.} Across all five sizes and both connectors the largest difference in pull latency between $G_1$ and $G_2$ is 7.5\,ms, on the 100\,MB transfer. The achieved rates differ by at most 3.7\,\%, which is within the run-to-run variation reported in \cref{tab:rq1-steady}. The verified byte counts confirm that each run transferred the asset its label names, ruling out a substituted asset as an explanation for the agreement.
 
@@ -84,7 +84,7 @@ Every value reported here is a median across the repetitions of a run, with the 
       \addplot[basyx,g1] table [x=offered_tx_s,y=delivered_tx_s,col sep=comma] {tables/fig-sat-basyx-on.csv};
       \addplot[basyx,g2] table [x=offered_tx_s,y=delivered_tx_s,col sep=comma] {tables/fig-sat-basyx-off.csv};
       \addplot[gray,dotted,no marks,forget plot] coordinates {(0.5,0.5) (12.5,12.5)};
-      \legend{ISST $G_1$, ISST $G_2$, Factory-X $G_1$, Factory-X $G_2$, BaSyx $G_1$, BaSyx $G_2$}
+      \legend{DST $G_1$, DST $G_2$, Factory-X $G_1$, Factory-X $G_2$, BaSyx $G_1$, BaSyx $G_2$}
     \end{axis}
     \end{tikzpicture}
     \caption[Delivered against offered transaction rate]{Delivered against offered
@@ -95,11 +95,11 @@ Every value reported here is a median across the repetitions of a run, with the 
     \label{fig:rq2-saturation}
 \end{figure}
 
-\textbf{Delivery tracks the offered rate to 2.5\,tx/s.} All six arms deliver between 89\,\% and 99\,\% of a mean offered rate through the first three rungs. The ladder separates them at the fourth rung, an offered mean of 4\,tx/s. There the two BaSyx arms and both Fraunhofer ISST arms still deliver 83--87\,\%, whereas Factory-X falls to 50--54\,\% in both arms. It delivers 2.0--2.2\,tx/s while 4\,tx/s is offered, which is less than it delivered at the preceding rung. Factory-X identity-enabled is the only arm to breach the 90\,\% criterion earlier, at the third rung, with 89\,\%.
+\textbf{Delivery tracks the offered rate to 2.5\,tx/s.} All six arms deliver between 89\,\% and 99\,\% of a mean offered rate through the first three rungs. The ladder separates them at the fourth rung, an offered mean of 4\,tx/s. There the two BaSyx arms and both \gls{dst} arms still deliver 83--87\,\%, whereas Factory-X falls to 50--54\,\% in both arms. It delivers 2.0--2.2\,tx/s while 4\,tx/s is offered, which is less than it delivered at the preceding rung. Factory-X identity-enabled is the only arm to breach the 90\,\% criterion earlier, at the third rung, with 89\,\%.
 
-\textbf{Beyond the fourth rung the arms diverge in shape as well as level.} The Fraunhofer ISST \gls{edc} plateaus across the middle of the ladder. Delivered throughput holds at 3.9--4.1\,tx/s in both arms at an offered 6.5 and 10\,tx/s, and rises only to 4.6 and 5.2\,tx/s at the top rung of 12\,tx/s. By that point each arm converts under half of what is offered. DSP-Native BaSyx continues to climb, reaching 6.0\,tx/s identity-disabled and 5.9\,tx/s identity-enabled at the top rung. Its delivery ratio falls smoothly, not abruptly. Factory-X shows neither pattern cleanly. Its delivered rate dips at the fourth rung before recovering to 4.6--4.8\,tx/s at an offered 10\,tx/s. Its identity-enabled arm returned no measurement at the top rung, so that point is absent from the figure. \Cref{sec:results-validity} records that omission.
+\textbf{Beyond the fourth rung the arms diverge in shape as well as level.} The \gls{dst} \gls{edc} plateaus across the middle of the ladder. Delivered throughput holds at 3.9--4.1\,tx/s in both arms at an offered 6.5 and 10\,tx/s, and rises only to 4.6 and 5.2\,tx/s at the top rung of 12\,tx/s. By that point each arm converts under half of what is offered. DSP-Native BaSyx continues to climb, reaching 6.0\,tx/s identity-disabled and 5.9\,tx/s identity-enabled at the top rung. Its delivery ratio falls smoothly, not abruptly. Factory-X shows neither pattern cleanly. Its delivered rate dips at the fourth rung before recovering to 4.6--4.8\,tx/s at an offered 10\,tx/s. Its identity-enabled arm returned no measurement at the top rung, so that point is absent from the figure. \Cref{sec:results-validity} records that omission.
 
-\textbf{Delivery counts completions, not successes.} These figures therefore include transactions abandoned at the poll deadline. The proportion so abandoned over the whole ladder is 22--34\,\% for the Fraunhofer ISST and BaSyx arms and 50\,\% for both Factory-X arms.
+\textbf{Delivery counts completions, not successes.} These figures therefore include transactions abandoned at the poll deadline. The proportion so abandoned over the whole ladder is 22--34\,\% for the \gls{dst} and BaSyx arms and 50\,\% for both Factory-X arms.
 
 \Cref{fig:rq2-concurrency} reports the closed-model ladder as an independent check on the same ceiling. The \texttt{concurrency-closed} scenario replaces the arrival rate with a fixed client population, stepping through 5, 10, 20 and 50 concurrent users at ninety seconds each. It ran once per arm. Under a closed model a saturated server shows throughput flattening while residence time grows in proportion to the client population, which is the form Little's law takes at saturation~\citep{little1961proof}. Agreement between the two workload models is what makes an observed ceiling a property of the connector rather than of one model.
 
@@ -114,7 +114,7 @@ Every value reported here is a median across the repetitions of a run, with the 
       \addplot[fx,g2]    table [x=virtual_users,y=delivered_tx_s,col sep=comma] {tables/fig-conc-factoryx-off.csv};
       \addplot[basyx,g1] table [x=virtual_users,y=delivered_tx_s,col sep=comma] {tables/fig-conc-basyx-on.csv};
       \addplot[basyx,g2] table [x=virtual_users,y=delivered_tx_s,col sep=comma] {tables/fig-conc-basyx-off.csv};
-      \legend{ISST $G_1$, ISST $G_2$, Factory-X $G_1$, Factory-X $G_2$, BaSyx $G_1$, BaSyx $G_2$}
+      \legend{DST $G_1$, DST $G_2$, Factory-X $G_1$, Factory-X $G_2$, BaSyx $G_1$, BaSyx $G_2$}
     \end{axis}
     \end{tikzpicture}
     \caption[Throughput against client concurrency]{Delivered transaction rate against
@@ -126,9 +126,9 @@ Every value reported here is a median across the repetitions of a run, with the 
 
 \textbf{The closed model agrees with the open one on which arms are saturated.} DSP-Native BaSyx identity-disabled scales close to linearly -- 3.05, 8.51, 17.49 and 39.49\,tx/s at 5, 10, 20 and 50 virtual users -- while its implied residence time stays flat between 0.82 and 0.90\,s. A client population that grows tenfold without lengthening the transaction is the signature of a server that is not the constraint.
 
-\textbf{Every other arm shows the opposite.} DSP-Native BaSyx identity-enabled delivers 0.89, 1.31, 2.39 and 3.83\,tx/s over the same ladder, while implied residence time rises from 2.82 to 9.13\,s. The Fraunhofer ISST identity-disabled arm delivers 0.51, 1.24 and 2.28\,tx/s, with residence time rising from 4.89 to 6.58\,s. Throughput growing more slowly than the client population, with residence time absorbing the difference, is the form Little's law takes at saturation~\citep{little1961proof}.
+\textbf{Every other arm shows the opposite.} DSP-Native BaSyx identity-enabled delivers 0.89, 1.31, 2.39 and 3.83\,tx/s over the same ladder, while implied residence time rises from 2.82 to 9.13\,s. The \gls{dst} identity-disabled arm delivers 0.51, 1.24 and 2.28\,tx/s, with residence time rising from 4.89 to 6.58\,s. Throughput growing more slowly than the client population, with residence time absorbing the difference, is the form Little's law takes at saturation~\citep{little1961proof}.
 
-\textbf{Answer to RQ2.} All six arms convert offered load into completed transactions up to 2.5\,tx/s. Beyond that they separate: Factory-X delivers about half of what is offered and rises no further, the Fraunhofer ISST \gls{edc} plateaus near 4\,tx/s, and DSP-Native BaSyx continues to climb at every rung tested. The closed-model ladder agrees with the open one on which arms are saturated, so the ordering is a property of the connectors and not of the load model.
+\textbf{Answer to RQ2.} All six arms convert offered load into completed transactions up to 2.5\,tx/s. Beyond that they separate: Factory-X delivers about half of what is offered and rises no further, the \gls{dst} \gls{edc} plateaus near 4\,tx/s, and DSP-Native BaSyx continues to climb at every rung tested. The closed-model ladder agrees with the open one on which arms are saturated, so the ordering is a property of the connectors and not of the load model.
 
 \section{RQ3 --- Resource Consumption}\label{sec:rq3}
 
@@ -153,21 +153,24 @@ Every value reported here is a median across the repetitions of a run, with the 
     \label{tab:rq3-resources}
 \end{table}
 
-\textbf{Host \gls{cpu} never approached exhaustion.} Peak busy time across the measured windows is 48.1\,\% for the Fraunhofer ISST identity-enabled arm, 42.7\,\% for Factory-X and 31.6\,\% for BaSyx, with medians between 2.3\,\% and 16.9\,\%. Since every arm reached its delivered-throughput ceiling within these runs (\cref{sec:rq2}), the ceiling is not the host: at the point where each connector stopped converting offered load into completed transactions, at least half of the machine remained idle.
+\textbf{Host \gls{cpu} never approached exhaustion.} Peak busy time across the measured windows is 48.1\,\% for the \gls{dst} identity-enabled arm, 42.7\,\% for Factory-X and 31.6\,\% for BaSyx, with medians between 2.3\,\% and 16.9\,\%. Since every arm reached its delivered-throughput ceiling within these runs (\cref{sec:rq2}), the ceiling is not the host: at the point where each connector stopped converting offered load into completed transactions, at least half of the machine remained idle.
 
-\textbf{The connectors differ in memory and collector behaviour rather than in processor demand.} Peak heap is 725.2\,MB for Factory-X, 665.9\,MB for BaSyx identity-enabled and 508.3\,MB for the Fraunhofer ISST \gls{edc}. Garbage-collection activity separates them more sharply: the highest value observed on any one instrumented runtime is 0.605\,s/s for Factory-X and 0.320\,s/s for the Fraunhofer ISST \gls{edc}, against 0.011\,s/s for BaSyx -- a difference of nearly two orders of magnitude.
+\textbf{The connectors differ in memory and collector behaviour rather than in processor demand.} Peak heap is 725.2\,MB for Factory-X, 665.9\,MB for BaSyx identity-enabled and 508.3\,MB for the \gls{dst} \gls{edc}. Garbage-collection activity separates them more sharply: the highest value observed on any one instrumented runtime is 0.605\,s/s for Factory-X and 0.320\,s/s for the \gls{dst} \gls{edc}, against 0.011\,s/s for BaSyx -- a difference of nearly two orders of magnitude.
 
-\textbf{The identity layer's effect on memory is confined to one connector.} Peak heap differs between arms by 1.8\,\% for the Fraunhofer ISST \gls{edc} and 0.9\,\% for Factory-X, both within run-to-run variation, whereas BaSyx holds 665.9\,MB identity-enabled against 323.8\,MB identity-disabled, a factor of 2.06.
+\textbf{The identity layer's effect on memory is confined to one connector.} Peak heap differs between arms by 1.8\,\% for the \gls{dst} \gls{edc} and 0.9\,\% for Factory-X, both within run-to-run variation, whereas BaSyx holds 665.9\,MB identity-enabled against 323.8\,MB identity-disabled, a factor of 2.06.
 
-\textbf{No service grows fast enough to threaten its container limit.} Long-run stability was measured with the \texttt{soak} scenario, a gentle 0.5\,tx/s held for thirty minutes and run once per arm, with heap
-occupancy sampled every five seconds for each instrumented runtime and a least-squares
-trend fitted to each series. No service in any arm grows fast enough to threaten its
-container limit. The fastest-growing series is the Fraunhofer ISST \gls{edc} consumer
-control plane under $G_1$ at 19.2\,MB/h, followed by the DSP-Native BaSyx provider at
-10.3\,MB/h. The two Factory-X arms reach only 7.0 and 1.8\,MB/h, and every series
-in the BaSyx identity-disabled arm is flat or falling. Against heaps bounded at 768\,MB
-and observed occupancies between 40 and 190\,MB, none of these rates would exhaust the
-available memory during the observation window or soon after it.
+\textbf{No service grows fast enough to threaten its container limit.} Long-run
+stability was measured with the \texttt{soak} scenario, a gentle 0.5\,tx/s held for
+thirty minutes and run once per arm, with heap occupancy sampled every five seconds and
+a least-squares trend fitted to each series. The individual rates are not reported,
+because the run cannot resolve them: heap occupancy rises and falls between garbage
+collections by more than any drift underneath it, and eighteen of the twenty-one fitted
+series have a slope too small to be distinguished from no growth at
+all~\citep{hoefler2015scientific}. The result is therefore a bound rather than a set of
+rates. Growth slower than roughly 30\,MB/h is not detectable on a run of this length,
+and no series exceeds it. Against heaps bounded at 768\,MB and observed occupancies
+between 40 and 190\,MB, even growth at that limit would take some nineteen hours to
+exhaust the smallest headroom in the set.
 
 \textbf{The window bounds the claim rather than the measurement.} Thirty minutes is sufficient to
 show that no component grows catastrophically, and insufficient to exclude a slow leak;
@@ -203,11 +206,11 @@ show that no component grows catastrophically, and insufficient to exclude a slo
 
 \textbf{The two asynchronous waits dominate every arm of every connector.} Time-to-agreed accounts for 54.8--61.7\,\% of the end-to-end median and time-to-\gls{edr} for a further 35.3--38.3\,\%; together they are between 93 and 97\,\% of the transaction. The synchronous steps are negligible by comparison: negotiation initiation, transfer initiation and the data pull together account for 1.0--1.7\,\%, and the catalog request for 1.9--2.3\,\%. This holds identically for the two \gls{edc} connectors and for the architecturally different BaSyx provider.
 
-\textbf{Where the identity layer's cost falls differs sharply between connectors.} On the two \gls{edc} connectors it concentrates in the catalog request. That request rises from 8.3 to 101.9\,ms on the Fraunhofer ISST \gls{edc} (a factor of 12.2) and from 9.6 to 86.8\,ms on Factory-X (a factor of 9.1), while the two asynchronous waits change by 0.2--10\,\%. On BaSyx the pattern is inverted: the catalog request rises by 47.9\,ms, but time-to-agreed rises from 254 to 1781\,ms and time-to-\gls{edr} from 253 to 1017\,ms, so the cost falls almost entirely inside the asynchronous waits.
+\textbf{Where the identity layer's cost falls differs sharply between connectors.} On the two \gls{edc} connectors it concentrates in the catalog request. That request rises from 8.3 to 101.9\,ms on the \gls{dst} \gls{edc} (a factor of 12.2) and from 9.6 to 86.8\,ms on Factory-X (a factor of 9.1), while the two asynchronous waits change by 0.2--10\,\%. On BaSyx the pattern is inverted: the catalog request rises by 47.9\,ms, but time-to-agreed rises from 254 to 1781\,ms and time-to-\gls{edr} from 253 to 1017\,ms, so the cost falls almost entirely inside the asynchronous waits.
 
-\textbf{One phase is consistently faster with identity enabled than without it.} Negotiation initiation takes 6.2\,ms against 50.1\,ms on the Fraunhofer ISST \gls{edc} and 7.0\,ms against 45.8\,ms on Factory-X -- ratios of 0.12 and 0.15 -- and 6.8\,ms against 10.4\,ms on BaSyx. The measurement is reported as observed; \cref{sec:x1-overhead} considers what would account for it.
+\textbf{One phase is consistently faster with identity enabled than without it.} Negotiation initiation takes 6.2\,ms against 50.1\,ms on the \gls{dst} \gls{edc} and 7.0\,ms against 45.8\,ms on Factory-X -- ratios of 0.12 and 0.15 -- and 6.8\,ms against 10.4\,ms on BaSyx. The measurement is reported as observed; \cref{sec:x1-overhead} considers what would account for it.
 
-\textbf{The phase budget reconciles with the end-to-end median.} The residuals are $-1$\,ms for BaSyx, $-77$\,ms for the Fraunhofer ISST \gls{edc} and $+41$\,ms for Factory-X. Each is under two per cent of the end-to-end figure, so the shares above may be read as a time budget and not only as an ordering. The polling that produced these boundaries cost 10--13 negotiation polls and 6--10 \gls{edr} polls per transaction. This is the observer effect the figures must be read net of, and \cref{sec:results-validity} quantifies it directly.
+\textbf{The phase budget reconciles with the end-to-end median.} The residuals are $-1$\,ms for BaSyx, $-77$\,ms for the \gls{dst} \gls{edc} and $+41$\,ms for Factory-X. Each is under two per cent of the end-to-end figure, so the shares above may be read as a time budget and not only as an ordering. The polling that produced these boundaries cost 10--13 negotiation polls and 6--10 \gls{edr} polls per transaction. This is the observer effect the figures must be read net of, and \cref{sec:results-validity} quantifies it directly.
 
 \textbf{Answer to RQ4.} The transaction is almost entirely waiting. Between 93 and 97\,\% of it is spent waiting for the two asynchronous state machines to reach their terminal states, in every arm of every connector. The synchronous steps together account for one to two per cent. Identity's cost lands in different places: in the catalog request on the two \gls{edc} connectors, and inside the asynchronous waits on BaSyx. \Cref{sec:x1-overhead} builds its architectural reading on that observation.
 
@@ -229,7 +232,7 @@ show that no component grows catastrophically, and insufficient to exclude a slo
       \addplot[isst,g2] table [x=assets,y=G2_ms,col sep=comma] {tables/fig-cat-dst.csv};
       \addplot[fx,g1]   table [x=assets,y=G1_ms,col sep=comma] {tables/fig-cat-factoryx.csv};
       \addplot[fx,g2]   table [x=assets,y=G2_ms,col sep=comma] {tables/fig-cat-factoryx.csv};
-      \legend{ISST $G_1$, ISST $G_2$, Factory-X $G_1$, Factory-X $G_2$}
+      \legend{DST $G_1$, DST $G_2$, Factory-X $G_1$, Factory-X $G_2$}
     \end{axis}
     \end{tikzpicture}
     \caption[Catalog latency against catalog size]{Catalog-request latency against the
@@ -239,9 +242,9 @@ show that no component grows catastrophically, and insufficient to exclude a slo
     \label{fig:rq5-catalog}
 \end{figure}
 
-\textbf{Catalog latency is insensitive to catalog size until the largest level.} On the Fraunhofer ISST \gls{edc} the identity-enabled median moves from 426.2\,ms at one asset to 415.0 and 418.3\,ms at ten and one hundred, then to 697.0\,ms at one thousand. Factory-X follows the same shape, from 654.5 through 655.1 and 679.6 to 1153.6\,ms. Over a thousandfold increase in catalog size, request latency grows by a factor of 1.64 and 1.76 respectively.
+\textbf{Catalog latency is insensitive to catalog size until the largest level.} On the \gls{dst} \gls{edc} the identity-enabled median moves from 426.2\,ms at one asset to 415.0 and 418.3\,ms at ten and one hundred, then to 697.0\,ms at one thousand. Factory-X follows the same shape, from 654.5 through 655.1 and 679.6 to 1153.6\,ms. Over a thousandfold increase in catalog size, request latency grows by a factor of 1.64 and 1.76 respectively.
 
-\textbf{The identity cost across that sweep is close to constant in absolute terms.} For the Fraunhofer ISST \gls{edc} it is 135.8, 124.0, 105.8 and 131.4\,ms at the four sizes, and for Factory-X 92.0, 108.8, 72.3 and 36.1\,ms. Because the underlying latency grows while the difference does not, the same cost expressed as a ratio falls with catalog size: from 1.47 to 1.23 for the Fraunhofer ISST \gls{edc} and from 1.16 to 1.03 for Factory-X.
+\textbf{The identity cost across that sweep is close to constant in absolute terms.} For the \gls{dst} \gls{edc} it is 135.8, 124.0, 105.8 and 131.4\,ms at the four sizes, and for Factory-X 92.0, 108.8, 72.3 and 36.1\,ms. Because the underlying latency grows while the difference does not, the same cost expressed as a ratio falls with catalog size: from 1.47 to 1.23 for the \gls{dst} \gls{edc} and from 1.16 to 1.03 for Factory-X.
 
 \textbf{Answer to RQ5.} Catalog-request latency is insensitive to catalog size across three of the four levels and rises only at the largest, by a factor of 1.64 and 1.76 over a thousandfold increase in advertised assets. The identity cost across the same sweep is near-constant in absolute terms, so its relative weight falls as the catalog grows.
 
@@ -299,7 +302,7 @@ difference to the work done per request.
     \label{tab:x1-provider}
 \end{table}
 
-Measured end to end, the identity layer costs the Fraunhofer ISST \gls{edc} 474.5\,ms per
+Measured end to end, the identity layer costs the \gls{dst} \gls{edc} 474.5\,ms per
 transaction (a factor of 1.11) and Factory-X 233.0\,ms (1.05). Sustained throughput is
 unaffected in both: the arms deliver the same rate to within one per cent, because at an
 operating point below saturation the offered rate, not the connector, determines
@@ -316,7 +319,7 @@ which is the credential verification itself.
 \textbf{The cost is fixed per request, not proportional to the work.} The catalog sweep
 separates the two possibilities, because it varies the work while holding the identity
 operation constant. Across a thousandfold increase in catalog size the difference stays
-within a narrow band: 135.8, 124.0, 105.8 and 131.4\,ms for the Fraunhofer ISST
+within a narrow band: 135.8, 124.0, 105.8 and 131.4\,ms for the \gls{dst}
 \gls{edc}, and 92.0, 108.8, 72.3 and 36.1\,ms for Factory-X. The underlying
 latency meanwhile grows by factors of 1.64 and 1.76. Expressed as a ratio the same cost therefore
 falls as the catalog grows, from 1.47 to 1.23 and from 1.16 to 1.03. A verification
@@ -346,7 +349,7 @@ designs~\citep{dcpSpec, dspProtocolLib}, and the traces of \cref{subsec:tracing}
 evidence that would confirm or refute them directly. % TODO: needs source -- confirm against the EDC DCP implementation whether verification is per-exchange or per-message.
 
 One measurement resists this account. Negotiation initiation is consistently \emph{faster}
-with identity enabled than without it -- 6.2\,ms against 50.1\,ms on the Fraunhofer ISST
+with identity enabled than without it -- 6.2\,ms against 50.1\,ms on the \gls{dst}
 \gls{edc}, 7.0\,ms against 45.8\,ms on Factory-X, and 6.8\,ms against 10.4\,ms on BaSyx.
 The effect is large, consistent across connectors and outside run-to-run variation, so it
 is not noise. It is reported here as observed rather than explained. The identity-disabled
@@ -432,5 +435,5 @@ of the comparison rather than something that varies by connector.
 
 \textbf{Server errors occurred, and were rare.} They account for 0.18\,\% of requests on
 the BaSyx identity-enabled consumer, up to 0.04\,\% on Factory-X, and none at all on the
-Fraunhofer ISST \gls{edc} across fifty runs. Almost all occur in the ramped scenarios,
+\gls{dst} \gls{edc} across fifty runs. Almost all occur in the ramped scenarios,
 past the point where delivery had already broken down.

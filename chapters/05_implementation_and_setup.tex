@@ -13,7 +13,7 @@ The three systems divide into two deployment shapes. The Factory-X and Fraunhofe
 
 \Cref{tab:connector-versions} summarises the exact versions and building blocks; all version numbers are taken from the build files and Compose manifests on the audited branch (\cref{sec:reproducibility}).
 
-The \textbf{Fraunhofer ISST \gls{edc}} deployment builds the DST-EDC components, version~2.4.0, on Eclipse \gls{edc}~0.15.1~\citep{fraunhoferIsstDst, eclipseEdcProject}. Its runtimes are assembled from the upstream \gls{edc} bill-of-materials artefacts: a control plane with PostgreSQL persistence and HashiCorp Vault secret storage, an HTTP data plane, an Identity Hub, an issuer service, and a federated catalog. Two control-plane assemblies exist side by side in the repository. \texttt{controlplane-persistence-dcp} carries the full \gls{dcp} identity stack; \texttt{controlplane-persistence} retains the stock \texttt{iam-mock} identity extension bundled in the upstream base runtime. This pair realises the two goals for this connector (\cref{subsec:mock-arm}).
+The \textbf{Fraunhofer ISST \gls{edc}} deployment builds the \gls{dst}-EDC components, version~2.4.0, on Eclipse \gls{edc}~0.15.1~\citep{fraunhoferIsstDst, eclipseEdcProject}. Its runtimes are assembled from the upstream \gls{edc} bill-of-materials artefacts: a control plane with PostgreSQL persistence and HashiCorp Vault secret storage, an HTTP data plane, an Identity Hub, an issuer service, and a federated catalog. Two control-plane assemblies exist side by side in the repository. \texttt{controlplane-persistence-dcp} carries the full \gls{dcp} identity stack; \texttt{controlplane-persistence} retains the stock \texttt{iam-mock} identity extension bundled in the upstream base runtime. This pair realises the two goals for this connector (\cref{subsec:mock-arm}).
 
 The \textbf{Factory-X \gls{edc}}, version 0.3.0, derives from Tractus-X \gls{edc}~0.11.0 on Eclipse \gls{edc}~0.14.0~\citep{factoryxEdc, tractusxEdc}. The deployed distributions are the \texttt{edc-controlplane-\allowbreak postgresql-\allowbreak hashicorp-\allowbreak vault} control plane and the \texttt{edc-dataplane-\allowbreak hashicorp-\allowbreak vault} data plane, together with the project's Identity Hub and issuer-service runtimes for the identity-enabled arm. For the identity-disabled arm, this work adds a benchmark-specific control-plane assembly, described in \cref{subsec:mock-arm}.
 
@@ -27,7 +27,7 @@ The \textbf{Factory-X \gls{edc}}, version 0.3.0, derives from Tractus-X \gls{edc
         \toprule
         \textbf{Connector} & \textbf{Version} & \textbf{Base stack} & \textbf{Persistence / secrets} \\
         \midrule
-        Fraunhofer ISST \gls{edc} & DST-EDC 2.4.0 & Eclipse \gls{edc} 0.15.1; control plane, HTTP data plane, Identity Hub, issuer, federated catalog & PostgreSQL; HashiCorp Vault \\
+        Fraunhofer ISST \gls{edc} & \gls{dst}-EDC 2.4.0 & Eclipse \gls{edc} 0.15.1; control plane, HTTP data plane, Identity Hub, issuer, federated catalog & PostgreSQL; HashiCorp Vault \\
         \addlinespace
         Factory-X \gls{edc} & 0.3.0 & Tractus-X \gls{edc} 0.11.0 on Eclipse \gls{edc} 0.14.0; control plane, data plane, Identity Hub, issuer & PostgreSQL 16.4; HashiCorp Vault 1.13.3 \\
         \addlinespace
