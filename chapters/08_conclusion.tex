@@ -10,8 +10,7 @@ evidence is in \cref{chap:results-evaluation}; nothing is re-derived here.
 
 Dataspace connectors are compared on features far more often than on performance, and the
 comparisons that do exist rarely hold the identity layer constant
-(\cref{sec:gap-analysis}). This thesis measured three \gls{dsp}-conformant connectors --
-the Fraunhofer ISST \gls{edc}, the Factory-X \gls{edc}, and DSP-Native BaSyx -- on a
+(\cref{sec:gap-analysis}). This thesis measured three \gls{dsp}-conformant connectors (the Fraunhofer ISST \gls{edc}, the Factory-X \gls{edc}, and DSP-Native BaSyx) on a
 normalised single-host substrate, each deployed twice: once with its full \gls{dcp}
 identity stack running, and once with identity verification mocked. The difference between
 those two deployments is a direct measurement of what identity costs, rather than an
@@ -22,8 +21,7 @@ combinations. Four results stand out.
 
 \emph{The two \gls{edc} connectors are indistinguishable at the operating point, and
 DSP-Native BaSyx is faster.} With identity enabled, a complete transaction takes
-4672.5\,ms on the Fraunhofer ISST \gls{edc} and 4649.0\,ms on Factory-X -- a difference of
-0.5\,\%, well inside their own run-to-run variation -- against 2884.5\,ms on BaSyx.
+4672.5\,ms on the Fraunhofer ISST \gls{edc} and 4649.0\,ms on Factory-X, a difference of 0.5\,\% that sits well inside their own run-to-run variation, against 2884.5\,ms on BaSyx.
 
 \emph{Identity costs a fixed amount per request, and only in the control plane.} Measured
 on the provider itself, it adds 30.0\,ms, 41.3\,ms and 44.7\,ms respectively. That cost
@@ -33,8 +31,7 @@ weight falls as requests get larger. The data plane shows no difference at all.
 
 \emph{The protocol, not the identity layer, sets the baseline.} Between 93 and 97\,\% of
 every transaction is spent waiting for the two asynchronous state machines to reach their
-terminal states. The synchronous steps -- initiating a negotiation, initiating a transfer,
-pulling the data -- together account for one to two per cent.
+terminal states. The synchronous steps of initiating a negotiation, initiating a transfer, and pulling the data together account for one to two per cent.
 
 \emph{Capacity differs sharply, and the host was never the limit.} All six arms track
 offered load to 2.5\,tx/s. Beyond that Factory-X delivers only half of what is offered,
@@ -50,7 +47,7 @@ result folder (\cref{sec:data-analysis,sec:reproducibility}).
 
 \section{Answers to Research Questions}\label{sec:answers-rq}
 
-\textbf{TRQ1 -- How do current production-track \gls{edc} implementations compare in
+\textbf{TRQ1: How do current production-track \gls{edc} implementations compare in
 end-to-end performance under realistic dataspace data-exchange workloads?}
 
 They are closer than their differing origins suggest at a realistic operating point, and
@@ -65,7 +62,7 @@ magnitude between the \gls{edc} connectors and BaSyx, while none of the three ap
 the host's capacity (\cref{sec:rq3}). No connector showed heap growth that would exhaust
 its container over a thirty-minute run.
 
-\textbf{TRQ2 -- Which architectural and implementation-level factors most strongly drive
+\textbf{TRQ2: Which architectural and implementation-level factors most strongly drive
 the observed performance differences?}
 
 Three factors account for most of what was measured, in decreasing order of effect.
@@ -77,8 +74,7 @@ must wait for, and that waiting is 93--97\,\% of every transaction (\cref{sec:rq
 set by the protocol it implements.
 
 The second is \emph{where each implementation performs credential verification}. On both
-\gls{edc} connectors the identity cost concentrates almost entirely in the catalog request
--- the first protected message of an exchange -- while the subsequent asynchronous waits
+\gls{edc} connectors the identity cost concentrates almost entirely in the catalog request, the first protected message of an exchange, while the subsequent asynchronous waits
 are barely affected. On DSP-Native BaSyx the same cost appears inside those waits instead.
 This is consistent with the \gls{edc} stack verifying a presentation once per exchange and
 then proceeding against an established context, and with BaSyx validating per message

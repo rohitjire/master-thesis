@@ -4,11 +4,11 @@ This chapter reports the measurements that answer the research questions of \cre
 
 Every connector was measured twice under conditions identical in every respect but one. In the identity-enabled arm, written $G_1$, the connector runs its real \gls{dcp} identity stack; in the identity-disabled arm, $G_2$, verification is short-circuited by a mock that issues and accepts a trivial token (\cref{subsec:mock-arm}). One connector in one of those two states is an \emph{arm}, so the three connectors give six arms, and every table below reports both arms of a connector together. X1 is the difference between them on the same metric: the measured cost of running real identity, and the one quantity no single run produces.
 
-The \emph{operating point} is the fixed load at which the connectors are compared head to head -- one transaction per second, held for five minutes and offered identically to every arm (\cref{subsec:scenarios}). \Cref{sec:rq1,sec:rq4} report measurements taken there. The remaining sections each vary one thing. \Cref{sec:rq2} raises the offered load in rungs until delivery breaks down, \cref{sec:rq3} adds a thirty-minute endurance run, and \cref{sec:rq5} varies catalog size instead of load. Each says so where it departs from the operating point.
+The \emph{operating point} is the fixed load at which the connectors are compared head to head: one transaction per second, held for five minutes and offered identically to every arm (\cref{subsec:scenarios}). \Cref{sec:rq1,sec:rq4} report measurements taken there. The remaining sections each vary one thing. \Cref{sec:rq2} raises the offered load in rungs until delivery breaks down, \cref{sec:rq3} adds a thirty-minute endurance run, and \cref{sec:rq5} varies catalog size instead of load. Each says so where it departs from the operating point.
 
 Every value reported here is a median across the repetitions of a run, with the smallest and largest of those repetitions given beside it as the measure of run-to-run repeatability. $\Delta$ is the difference between the identity-enabled ($G_1$) and identity-disabled ($G_2$) medians of a metric, $\tilde{x}_{G_1}-\tilde{x}_{G_2}$. It is reported together with their ratio on the $G_1$ row, so that both arms of a connector appear in the same table. Heap growth in the endurance runs is the one quantity reported differently, as a least-squares slope in MB/h. \Cref{subsec:analysis-statistics} sets out why these statistics and no others, and the rule by which a run is admitted or excluded. Both apply uniformly to every connector and arm, with no per-connector special-casing.
 
-\section{RQ1 --- Latency and Throughput at the Operating Point}\label{sec:rq1}
+\section{RQ1: Latency and Throughput at the Operating Point}\label{sec:rq1}
 
 % G_k.RQ1: per-phase and end-to-end latency, and sustained throughput, at a realistic
 % operating point. Sources: rq1-steady.csv, rq1-payload.csv.
@@ -51,10 +51,7 @@ Every value reported here is a median across the repetitions of a run, with the 
       \legend{DST $G_1$, DST $G_2$, Factory-X $G_1$, Factory-X $G_2$}
     \end{axis}
     \end{tikzpicture}
-    \caption[Data-plane rate against payload size]{Achieved data-plane transfer rate
-    against payload size, by connector and identity goal. Both axes are logarithmic. The
-    four series are close to coincident, which is the data-plane form of the identity
-    result reported in \cref{sec:x1-overhead}.}
+    \caption[Data-plane rate against payload size]{Achieved data-plane transfer rate against payload size, by connector and identity goal. Both axes are logarithmic.}
     \label{fig:rq1-payload}
 \end{figure}
 
@@ -64,7 +61,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 
 \textbf{Answer to RQ1.} At the operating point throughput is the same in every arm and carries no information. Latency separates the connectors. With identity enabled the two \gls{edc} connectors are indistinguishable from one another, and DSP-Native BaSyx completes the same transaction in roughly three fifths of their time. The data plane behaves alike in all arms across every payload size, so the whole of the difference sits in the control plane.
 
-\section{RQ2 --- Behaviour under Rising Load and Concurrency}\label{sec:rq2}
+\section{RQ2: Behaviour under Rising Load and Concurrency}\label{sec:rq2}
 
 % G_k.RQ2: latency and success rate as offered load and concurrency rise -- the
 % saturation knee and the onset of failure. Sources: rq2-saturation.csv,
@@ -87,11 +84,7 @@ Every value reported here is a median across the repetitions of a run, with the 
       \legend{DST $G_1$, DST $G_2$, Factory-X $G_1$, Factory-X $G_2$, BaSyx $G_1$, BaSyx $G_2$}
     \end{axis}
     \end{tikzpicture}
-    \caption[Delivered against offered transaction rate]{Delivered against offered
-    transaction rate per ladder rung, by connector and identity goal. Each point is the
-    median across three repetitions. The dotted diagonal is perfect delivery; departure
-    from it locates the saturation point. Delivered counts completions, not
-    successes, so transactions abandoned at the poll deadline are included.}
+    \caption[Delivered against offered transaction rate]{Delivered against offered transaction rate per ladder rung, by connector and identity goal. Each point is the median across three repetitions; the dotted diagonal is perfect delivery.}
     \label{fig:rq2-saturation}
 \end{figure}
 
@@ -117,20 +110,17 @@ Every value reported here is a median across the repetitions of a run, with the 
       \legend{DST $G_1$, DST $G_2$, Factory-X $G_1$, Factory-X $G_2$, BaSyx $G_1$, BaSyx $G_2$}
     \end{axis}
     \end{tikzpicture}
-    \caption[Throughput against client concurrency]{Delivered transaction rate against
-    client concurrency (closed model), by connector and identity goal. A series that
-    continues to rise is not yet the constraint; one that flattens while the client
-    population grows is saturated, with the difference absorbed by residence time.}
+    \caption[Throughput against client concurrency]{Delivered transaction rate against client concurrency (closed model), by connector and identity goal.}
     \label{fig:rq2-concurrency}
 \end{figure}
 
-\textbf{The closed model agrees with the open one on which arms are saturated.} DSP-Native BaSyx identity-disabled scales close to linearly -- 3.05, 8.51, 17.49 and 39.49\,tx/s at 5, 10, 20 and 50 virtual users -- while its implied residence time stays flat between 0.82 and 0.90\,s. A client population that grows tenfold without lengthening the transaction is the signature of a server that is not the constraint.
+\textbf{The closed model agrees with the open one on which arms are saturated.} DSP-Native BaSyx identity-disabled scales close to linearly, delivering 3.05, 8.51, 17.49 and 39.49\,tx/s at 5, 10, 20 and 50 virtual users, while its implied residence time stays flat between 0.82 and 0.90\,s. A client population that grows tenfold without lengthening the transaction is the signature of a server that is not the constraint.
 
 \textbf{Every other arm shows the opposite.} DSP-Native BaSyx identity-enabled delivers 0.89, 1.31, 2.39 and 3.83\,tx/s over the same ladder, while implied residence time rises from 2.82 to 9.13\,s. The \gls{dst} identity-disabled arm delivers 0.51, 1.24 and 2.28\,tx/s, with residence time rising from 4.89 to 6.58\,s. Throughput growing more slowly than the client population, with residence time absorbing the difference, is the form Little's law takes at saturation~\citep{little1961proof}.
 
 \textbf{Answer to RQ2.} All six arms convert offered load into completed transactions up to 2.5\,tx/s. Beyond that they separate: Factory-X delivers about half of what is offered and rises no further, the \gls{dst} \gls{edc} plateaus near 4\,tx/s, and DSP-Native BaSyx continues to climb at every rung tested. The closed-model ladder agrees with the open one on which arms are saturated, so the ordering is a property of the connectors and not of the load model.
 
-\section{RQ3 --- Resource Consumption}\label{sec:rq3}
+\section{RQ3: Resource Consumption}\label{sec:rq3}
 
 % G_k.RQ3: CPU, JVM heap, GC, threads under identical workloads, plus the host
 % ceiling. Sources: rq3-resources.csv, rq3-drift.csv.
@@ -155,7 +145,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 
 \textbf{Host \gls{cpu} never approached exhaustion.} Peak busy time across the measured windows is 48.1\,\% for the \gls{dst} identity-enabled arm, 42.7\,\% for Factory-X and 31.6\,\% for BaSyx, with medians between 2.3\,\% and 16.9\,\%. Since every arm reached its delivered-throughput ceiling within these runs (\cref{sec:rq2}), the ceiling is not the host: at the point where each connector stopped converting offered load into completed transactions, at least half of the machine remained idle.
 
-\textbf{The connectors differ in memory and collector behaviour rather than in processor demand.} Peak heap is 725.2\,MB for Factory-X, 665.9\,MB for BaSyx identity-enabled and 508.3\,MB for the \gls{dst} \gls{edc}. Garbage-collection activity separates them more sharply: the highest value observed on any one instrumented runtime is 0.605\,s/s for Factory-X and 0.320\,s/s for the \gls{dst} \gls{edc}, against 0.011\,s/s for BaSyx -- a difference of nearly two orders of magnitude.
+\textbf{The connectors differ in memory and collector behaviour rather than in processor demand.} Peak heap is 725.2\,MB for Factory-X, 665.9\,MB for BaSyx identity-enabled and 508.3\,MB for the \gls{dst} \gls{edc}. Garbage-collection activity separates them more sharply: the highest value observed on any one instrumented runtime is 0.605\,s/s for Factory-X and 0.320\,s/s for the \gls{dst} \gls{edc}, against 0.011\,s/s for BaSyx, a difference of nearly two orders of magnitude.
 
 \textbf{The identity layer's effect on memory is confined to one connector.} Peak heap differs between arms by 1.8\,\% for the \gls{dst} \gls{edc} and 0.9\,\% for Factory-X, both within run-to-run variation, whereas BaSyx holds 665.9\,MB identity-enabled against 323.8\,MB identity-disabled, a factor of 2.06.
 
@@ -178,7 +168,7 @@ show that no component grows catastrophically, and insufficient to exclude a slo
 
 \textbf{Answer to RQ3.} Processor demand neither separates the connectors nor limits them. Host \gls{cpu} peaked below half in every arm. What separates them is memory and collector behaviour, where garbage-collection activity differs by nearly two orders of magnitude between the \gls{edc} connectors and BaSyx. No service in any arm grows fast enough to exhaust its heap within the observation window.
 
-\section{RQ4 --- The Asynchronous Cycle, Decomposed by Phase}\label{sec:rq4}
+\section{RQ4: The Asynchronous Cycle, Decomposed by Phase}\label{sec:rq4}
 
 % G_k.RQ4: the asynchronous negotiation and transfer cycle, decomposed by phase.
 % Source: rq4-phases.csv. This is where X1 is localised to a phase, which is the
@@ -208,19 +198,19 @@ show that no component grows catastrophically, and insufficient to exclude a slo
 
 \textbf{Where the identity layer's cost falls differs sharply between connectors.} On the two \gls{edc} connectors it concentrates in the catalog request. That request rises from 8.3 to 101.9\,ms on the \gls{dst} \gls{edc} (a factor of 12.2) and from 9.6 to 86.8\,ms on Factory-X (a factor of 9.1), while the two asynchronous waits change by 0.2--10\,\%. On BaSyx the pattern is inverted: the catalog request rises by 47.9\,ms, but time-to-agreed rises from 254 to 1781\,ms and time-to-\gls{edr} from 253 to 1017\,ms, so the cost falls almost entirely inside the asynchronous waits.
 
-\textbf{One phase is consistently faster with identity enabled than without it.} Negotiation initiation takes 6.2\,ms against 50.1\,ms on the \gls{dst} \gls{edc} and 7.0\,ms against 45.8\,ms on Factory-X -- ratios of 0.12 and 0.15 -- and 6.8\,ms against 10.4\,ms on BaSyx. The measurement is reported as observed; \cref{sec:x1-overhead} considers what would account for it.
+\textbf{One phase is consistently faster with identity enabled than without it.} Negotiation initiation takes 6.2\,ms against 50.1\,ms on the \gls{dst} \gls{edc} and 7.0\,ms against 45.8\,ms on Factory-X (ratios of 0.12 and 0.15), and 6.8\,ms against 10.4\,ms on BaSyx. The measurement is reported as observed; \cref{sec:x1-overhead} considers what would account for it.
 
 \textbf{The phase budget reconciles with the end-to-end median.} The residuals are $-1$\,ms for BaSyx, $-77$\,ms for the \gls{dst} \gls{edc} and $+41$\,ms for Factory-X. Each is under two per cent of the end-to-end figure, so the shares above may be read as a time budget and not only as an ordering. The polling that produced these boundaries cost 10--13 negotiation polls and 6--10 \gls{edr} polls per transaction. This is the observer effect the figures must be read net of, and \cref{sec:results-validity} quantifies it directly.
 
 \textbf{Answer to RQ4.} The transaction is almost entirely waiting. Between 93 and 97\,\% of it is spent waiting for the two asynchronous state machines to reach their terminal states, in every arm of every connector. The synchronous steps together account for one to two per cent. Identity's cost lands in different places: in the catalog request on the two \gls{edc} connectors, and inside the asynchronous waits on BaSyx. \Cref{sec:x1-overhead} builds its architectural reading on that observation.
 
-\section{RQ5 --- Catalog-Size Scaling}\label{sec:rq5}
+\section{RQ5: Catalog-Size Scaling}\label{sec:rq5}
 
 % G_k.RQ5: catalog-request latency against the number of offered assets.
 % Source: rq5-catalog.csv. This is the one question where X1 can be shown to be a
 % fixed offset rather than a proportional cost.
 
-\Cref{fig:rq5-catalog} reports catalog-request latency against the number of advertised assets. The \texttt{catalog-sweep} scenario holds four concurrent users against catalogs of 1, 10, 100 and 1000 assets for ninety seconds each, with every size measured twice (\cref{subsec:scenarios}). The sweep spans three orders of magnitude, and growth across it is reported as two factors -- the factor by which the catalog grows against the factor by which latency grows -- rather than as a fitted exponent (\cref{subsec:analysis-statistics}). DSP-Native BaSyx exposes no provider management \gls{api} through which a catalog of controlled size can be seeded and is absent from the figure by construction (\cref{sec:sut}).
+\Cref{fig:rq5-catalog} reports catalog-request latency against the number of advertised assets. The \texttt{catalog-sweep} scenario holds four concurrent users against catalogs of 1, 10, 100 and 1000 assets for ninety seconds each, with every size measured twice (\cref{subsec:scenarios}). The sweep spans three orders of magnitude, and growth across it is reported as two factors, the factor by which the catalog grows against the factor by which latency grows, rather than as a fitted exponent (\cref{subsec:analysis-statistics}). DSP-Native BaSyx exposes no provider management \gls{api} through which a catalog of controlled size can be seeded and is absent from the figure by construction (\cref{sec:sut}).
 
 \begin{figure}[ht]
     \centering
@@ -235,10 +225,7 @@ show that no component grows catastrophically, and insufficient to exclude a slo
       \legend{DST $G_1$, DST $G_2$, Factory-X $G_1$, Factory-X $G_2$}
     \end{axis}
     \end{tikzpicture}
-    \caption[Catalog latency against catalog size]{Catalog-request latency against the
-    number of advertised assets, by connector and identity goal. The horizontal axis is
-    logarithmic. DSP-Native BaSyx exposes no provider management \gls{api} through which
-    a catalog of controlled size can be seeded and is absent.}
+    \caption[Catalog latency against catalog size]{Catalog-request latency against the number of advertised assets, by connector and identity goal. The horizontal axis is logarithmic.}
     \label{fig:rq5-catalog}
 \end{figure}
 
@@ -248,7 +235,7 @@ show that no component grows catastrophically, and insufficient to exclude a slo
 
 \textbf{Answer to RQ5.} Catalog-request latency is insensitive to catalog size across three of the four levels and rises only at the largest, by a factor of 1.64 and 1.76 over a thousandfold increase in advertised assets. The identity cost across the same sweep is near-constant in absolute terms, so its relative weight falls as the catalog grows.
 
-\section{X1 --- The Measured Cost of Identity}\label{sec:x1-overhead}
+\section{X1: The Measured Cost of Identity}\label{sec:x1-overhead}
 
 % The headline cross-goal result (ch. 4: "the directly measured cost of running real
 % identity"). Every Delta above is collected here; nothing new is measured.
@@ -349,7 +336,7 @@ designs~\citep{dcpSpec, dspProtocolLib}, and the traces of \cref{subsec:tracing}
 evidence that would confirm or refute them directly. % TODO: needs source -- confirm against the EDC DCP implementation whether verification is per-exchange or per-message.
 
 One measurement resists this account. Negotiation initiation is consistently \emph{faster}
-with identity enabled than without it -- 6.2\,ms against 50.1\,ms on the \gls{dst}
+with identity enabled than without it: 6.2\,ms against 50.1\,ms on the \gls{dst}
 \gls{edc}, 7.0\,ms against 45.8\,ms on Factory-X, and 6.8\,ms against 10.4\,ms on BaSyx.
 The effect is large, consistent across connectors and outside run-to-run variation, so it
 is not noise. It is reported here as observed rather than explained. The identity-disabled
@@ -365,8 +352,7 @@ different load generator (\cref{subsec:mock-arm}), so the client-side difference
 2070.5\,ms mixes the identity layer with an entirely different consumer stack. The
 provider-side figure of 44.7\,ms is the one that may be compared, and it is measured on
 the same component by the same agent in both arms. The ratio of 2.90 remains the largest
-of the three connectors, but the absolute cost -- 44.7\,ms against 30.0 and 41.3\,ms --
-places all three connectors within the same order of magnitude once the comparison is made
+of the three connectors, but the absolute cost of 44.7\,ms against 30.0 and 41.3\,ms places all three connectors within the same order of magnitude once the comparison is made
 on equal terms.
 
 \section{Threats to Validity}\label{sec:results-validity}
@@ -387,7 +373,7 @@ interval.
 
 The size of that error was measured rather than assumed. Repeating the operating point at
 a 1000\,ms interval lengthened the reported end-to-end median by 11--15\,\% on the
-\gls{edc} connectors -- close to what half an interval per polled phase predicts. At the
+\gls{edc} connectors, close to what half an interval per polled phase predicts. At the
 250\,ms interval used throughout, the overstatement is a few hundred milliseconds on a
 transaction of four to five seconds. It applies equally to every arm, so it inflates the
 absolute latencies without biasing any comparison between them.
