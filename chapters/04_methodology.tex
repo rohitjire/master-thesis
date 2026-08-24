@@ -5,7 +5,7 @@ This chapter turns the thesis-level research questions of \cref{sec:research-que
 
 \section{Research Methodology}\label{sec:research-methodology}
 
-The objective stated in \cref{sec:research-objective} -- a systematic and reproducible performance comparison of four \gls{dsp} connector implementations -- is pursued here through a controlled benchmarking experiment. \textbf{TRQ1} and \textbf{TRQ2} are stated above the level of operational metrics by design. This chapter refines them into measurable questions and indicators using the \gls{gqm} framework~\citep{caldiera1994goal}. \Gls{gqm} derives every metric from an explicit measurement goal, so that no goal is left unmeasured and no metric is collected without a goal to justify it~\citep{minhas2023gqm}.
+The objective stated in \cref{sec:research-objective} -- a systematic and reproducible performance comparison of three \gls{dsp} connector implementations -- is pursued here through a controlled benchmarking experiment. \textbf{TRQ1} and \textbf{TRQ2} are stated above the level of operational metrics by design. This chapter refines them into measurable questions and indicators using the \gls{gqm} framework~\citep{caldiera1994goal}. \Gls{gqm} derives every metric from an explicit measurement goal, so that no goal is left unmeasured and no metric is collected without a goal to justify it~\citep{minhas2023gqm}.
 
 No single methodology covers the full path from a research goal to a credible result. This thesis therefore combines four established methods, each filling a gap the others leave:
 
@@ -19,7 +19,7 @@ No single methodology covers the full path from a research goal to a credible re
 
 Two design commitments shape everything downstream, and each answers a specific threat to the comparison.
 
-The first is that every connector is benchmarked twice: once with its real identity and trust stack enabled, and once with identity verification mocked. The reason is that the four implementations differ most in exactly this layer, ranging from a full \gls{dcp} stack to a non-EDC validation service (\cref{subsec:different-connectors}). A single identity-enabled measurement per connector would therefore fold the cost of the identity stack together with every other architectural difference between the connectors, leaving the identity cost obtainable only by inference across implementations that differ in many respects at once. Measuring the same connector twice, with the identity layer as the only changed factor, replaces that inference with a within-connector difference in which host, workload, instrumentation, and connector build are held constant across the pair.
+The first is that every connector is benchmarked twice: once with its real identity and trust stack enabled, and once with identity verification mocked. The reason is that the three implementations differ most in exactly this layer, ranging from a full \gls{dcp} stack to a non-EDC validation service (\cref{subsec:different-connectors}). A single identity-enabled measurement per connector would therefore fold the cost of the identity stack together with every other architectural difference between the connectors, leaving the identity cost obtainable only by inference across implementations that differ in many respects at once. Measuring the same connector twice, with the identity layer as the only changed factor, replaces that inference with a within-connector difference in which host, workload, instrumentation, and connector build are held constant across the pair.
 
 The second is that the connectors are measured one at a time on a normalised substrate. A shared host and a shared monitoring backend would let the load of one connector contaminate the measurements of another, and any observed connector-to-connector gap would then be unattributable. Sequential measurement costs wall-clock time, but it keeps the host a controlled factor instead of a variable shared between systems under test.
 
@@ -89,10 +89,10 @@ The benchmark carries two measurement goals that differ along a single axis -- t
     \item[Purpose] to characterise and compare;
     \item[Focus] time behaviour, capacity, and resource utilisation -- the performance-efficiency sub-characteristics of ISO/IEC~25010~\citep{iso25010};
     \item[Viewpoint] a connector operator or integrator;
-    \item[Environment] four interoperable \gls{dsp} connector implementations -- Tractus-X EDC, Factory-X EDC, the Fraunhofer ISST \gls{edc}, and DSP-Native BaSyx -- each running its full \gls{dcp} identity stack on a normalised substrate.
+    \item[Environment] three interoperable \gls{dsp} connector implementations -- Factory-X EDC, the Fraunhofer ISST \gls{edc}, and DSP-Native BaSyx -- each running its full \gls{dcp} identity stack on a normalised substrate.
 \end{description}
 
-The second goal, \textbf{G2} (performance with identity disabled), is identical in every clause except the environment: each connector runs with identity verification mocked. Identity disabled means verification is short-circuited, not removed. A mock identity service still issues and accepts a trivial token, but the cryptographic work of the \gls{dcp} no longer runs: secure-token exchange, DID-document resolution, and verifiable-credential presentation and verification~\citep{eclipseEdcIdentityHub}. The four implementations disagree most on exactly this layer, ranging from a full \gls{dcp} stack to a non-EDC validation service. Isolating it cleanly is what the rest of the thesis relies on. The set also spans more than the EDC core: DSP-Native BaSyx is an \gls{aas} application with native \gls{dsp} support, not an EDC build. The neutral term \emph{\gls{dsp} connector implementations} is therefore used when all four are meant~\citep{dam2024surveydataspaceconnectorimplementations}.
+The second goal, \textbf{G2} (performance with identity disabled), is identical in every clause except the environment: each connector runs with identity verification mocked. Identity disabled means verification is short-circuited, not removed. A mock identity service still issues and accepts a trivial token, but the cryptographic work of the \gls{dcp} no longer runs: secure-token exchange, DID-document resolution, and verifiable-credential presentation and verification~\citep{eclipseEdcIdentityHub}. The three implementations disagree most on exactly this layer, ranging from a full \gls{dcp} stack to a non-EDC validation service. Isolating it cleanly is what the rest of the thesis relies on. The set also spans more than the EDC core: DSP-Native BaSyx is an \gls{aas} application with native \gls{dsp} support, not an EDC build. The neutral term \emph{\gls{dsp} connector implementations} is therefore used when all three are meant~\citep{dam2024surveydataspaceconnectorimplementations}.
 
 \Cref{fig:gqm-overview} summarises the resulting design, and reads from top to bottom. The top box is the population. Every connector in the benchmark passes through the whole diagram, so the figure states the design once instead of repeating it per connector. The middle row is the only place the two arms differ. $G_1$ runs the real \gls{dcp} identity stack; $G_2$ runs a mock validator, drawn dashed to mark it as the counterfactual arm. Both arms then converge on a single band of research questions, scenarios, metrics, and offered load. That shared band is what makes the two arms comparable, since anything varying between them other than identity would end up inside the difference. The bottom box is the one quantity that no single run produces, the per-connector, per-metric difference $G_1 - G_2$ reported as the identity overhead X1.
 
@@ -108,7 +108,7 @@ The second goal, \textbf{G2} (performance with identity disabled), is identical 
         % Population: every connector is benchmarked twice
         \node[wide, fill=black!8] (A) at (0,0)
             {\textbf{Each connector benchmarked twice}\\[1pt]
-             {\scriptsize Tractus-X EDC, Factory-X EDC, Fraunhofer ISST EDC, DSP-Native BaSyx}};
+             {\scriptsize Factory-X EDC, Fraunhofer ISST EDC, DSP-Native BaSyx}};
         % The two identity arms -- the only factor that differs
         \node[arm, fill=black!4] (G1) at (-2.95,-2.15)
             {\textbf{$G_1$ -- identity enabled}\\[1pt]
@@ -132,7 +132,7 @@ The second goal, \textbf{G2} (performance with identity disabled), is identical 
         \draw[flow] (G2) -- (Q);
         \draw[flow] (Q) -- (X1);
     \end{tikzpicture}
-    \caption[The two-goal, identity-axis benchmarking design]{The benchmarking design, generalised across the four connectors: each connector is measured twice under identical conditions except for the identity layer ($G_1$ identity enabled, $G_2$ identity disabled), answering the same five research questions with the same scenarios and metrics. The per-connector difference $G_1 - G_2$ yields the identity overhead~(X1), which is interpreted against the connectors' documented architectural differences to answer \textbf{TRQ2}.}
+    \caption[The two-goal, identity-axis benchmarking design]{The benchmarking design, generalised across the three connectors: each connector is measured twice under identical conditions except for the identity layer ($G_1$ identity enabled, $G_2$ identity disabled), answering the same five research questions with the same scenarios and metrics. The per-connector difference $G_1 - G_2$ yields the identity overhead~(X1), which is interpreted against the connectors' documented architectural differences to answer \textbf{TRQ2}.}
     \label{fig:gqm-overview}
 \end{figure}
 

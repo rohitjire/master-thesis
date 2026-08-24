@@ -5,7 +5,7 @@ This chapter realises the benchmarking design of \cref{chap:methodology} as a co
 
 \section{Systems Under Test}\label{sec:sut}
 
-Of the four connector implementations introduced in \cref{subsec:different-connectors}, three are realised in the experimental setup: the Factory-X \gls{edc}, the Fraunhofer ISST \gls{edc}, and DSP-Native BaSyx. Tractus-X \gls{edc} could not be brought to instrumentation parity with the other three within the time frame of this work and is therefore excluded from the deployed setup; the comparison in the remainder of the thesis covers the three instrumented implementations.
+The three connector implementations introduced in \cref{subsec:different-connectors} are all realised in the experimental setup: the Factory-X \gls{edc}, the Fraunhofer ISST \gls{edc}, and DSP-Native BaSyx.
 
 The three systems divide into two deployment shapes. The Factory-X and Fraunhofer ISST deployments are symmetric two-participant dataspaces: a consumer and a provider, each consisting of an \gls{edc} control plane and data plane, exchange catalog, negotiation, and transfer messages over the \gls{dsp}~\citep{datapsaceProtocol2025}. DSP-Native BaSyx is asymmetric by construction. Its provider is a single Spring Boot application that embeds the \gls{aas} repository and speaks \gls{dsp} natively, so control plane and data plane collapse into one process. The data transfer is then a synchronous request against the \gls{aas} \gls{api}~\citep{dspNativeBasyx}. Its consumer side, in the identity-enabled arm, is a Factory-X \gls{edc} control plane. This structural asymmetry is not a defect of the setup but a property of the system under test, and it becomes explanatory input for the architectural interpretation reported in \cref{sec:x1-overhead}.
 

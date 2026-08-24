@@ -101,9 +101,7 @@ absolute latencies are therefore lower than a distributed deployment would show.
 carries beyond this setup is the ordering of the connectors and the shape of their curves,
 not the millisecond values. The workload is narrower than a production dataspace: one asset type,
 one dataset shape, the negotiate--transfer--pull cycle, and a single membership credential,
-so richer usage policies were never exercised. The comparison covers three of the four
-implementations introduced in \cref{subsec:different-connectors}, because Tractus-X
-\gls{edc} could not be brought to instrumentation parity in the time available. The
+so richer usage policies were never exercised. The
 thirty-minute endurance window is long enough to show that no component grows fast enough to
 exhaust its heap on that timescale, and too short to exclude a slow leak. And no
 significance test accompanies any comparison. Five repetitions of a run whose internal
