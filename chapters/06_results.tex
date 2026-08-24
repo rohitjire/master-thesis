@@ -146,6 +146,7 @@ Every value reported here is a median across the repetitions of a run, with the 
     \begin{tablenotes}[flushleft]\footnotesize
         \item \Gls{cpu} figures cover the whole host; only one connector was deployed at a time (\cref{subsec:hardware}).
         \item Heap peak is the maximum across the connector's instrumented services.
+        \item \Gls{gc} activity is in seconds of collector time per second of wall-clock time.
     \end{tablenotes}
     \end{threeparttable}
     \caption[Host and JVM resource consumption]{Host and \gls{jvm} resource consumption under identical workloads, by connector and identity goal.}
@@ -154,7 +155,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 
 \textbf{Host \gls{cpu} never approached exhaustion.} Peak busy time across the measured windows is 48.1\,\% for the Fraunhofer ISST identity-enabled arm, 42.7\,\% for Factory-X and 31.6\,\% for BaSyx, with medians between 2.3\,\% and 16.9\,\%. Since every arm reached its delivered-throughput ceiling within these runs (\cref{sec:rq2}), the ceiling is not the host: at the point where each connector stopped converting offered load into completed transactions, at least half of the machine remained idle.
 
-\textbf{The connectors differ in memory and collector behaviour rather than in processor demand.} Peak heap is 725.2\,MB for Factory-X, 665.9\,MB for BaSyx identity-enabled and 508.3\,MB for the Fraunhofer ISST \gls{edc}. Garbage-collection activity separates them more sharply: aggregated across instrumented runtimes it peaks at 0.605\,s/s for Factory-X and 0.320\,s/s for the Fraunhofer ISST \gls{edc}, against 0.011\,s/s for BaSyx -- a difference of nearly two orders of magnitude.
+\textbf{The connectors differ in memory and collector behaviour rather than in processor demand.} Peak heap is 725.2\,MB for Factory-X, 665.9\,MB for BaSyx identity-enabled and 508.3\,MB for the Fraunhofer ISST \gls{edc}. Garbage-collection activity separates them more sharply: the highest value observed on any one instrumented runtime is 0.605\,s/s for Factory-X and 0.320\,s/s for the Fraunhofer ISST \gls{edc}, against 0.011\,s/s for BaSyx -- a difference of nearly two orders of magnitude.
 
 \textbf{The identity layer's effect on memory is confined to one connector.} Peak heap differs between arms by 1.8\,\% for the Fraunhofer ISST \gls{edc} and 0.9\,\% for Factory-X, both within run-to-run variation, whereas BaSyx holds 665.9\,MB identity-enabled against 323.8\,MB identity-disabled, a factor of 2.06.
 
