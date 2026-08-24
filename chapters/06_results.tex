@@ -135,7 +135,7 @@ Every value reported here is a median across the repetitions of a run, with the 
 % G_k.RQ3: CPU, JVM heap, GC, threads under identical workloads, plus the host
 % ceiling. Sources: rq3-resources.csv, rq3-drift.csv.
 
-\Cref{tab:rq3-resources} reports host and \gls{jvm} resource consumption under the same workloads. The processor, heap and collector figures are sampled during the \texttt{steady} and \texttt{saturation-open} runs already reported in \cref{sec:rq1,sec:rq2}, so no additional load was applied to obtain them. Peaks are reported alongside medians because of the question this data must answer: was an observed throughput ceiling imposed by the host or by the connector? A connector that saturates while the host retains headroom is limited by its own structure. That is an architectural finding, not a hardware one~\citep{gregg2012thinking}.
+\Cref{tab:rq3-resources} reports host and \gls{jvm} resource consumption under the same workloads. The processor, heap and collector figures are sampled during the \texttt{steady} and \texttt{saturation-open} runs already reported in \cref{sec:rq1,sec:rq2}, so no additional load was applied to obtain them. Peaks are reported alongside medians because of the question this data must answer: was an observed throughput ceiling imposed by the host or by the connector. A connector that saturates while the host retains headroom is limited by its own structure. That is an architectural finding, not a hardware one~\citep{gregg2012thinking}.
 
 \begin{table}[H]
     \centering
