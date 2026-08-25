@@ -17,27 +17,43 @@ those two deployments is a direct measurement of what identity costs, rather tha
 inference from systems that differ in several respects at once.
 
 The campaign comprises 130 measured runs across eight scenarios and six connector--arm
-combinations. Four results stand out.
+combinations. Five results stand out.
 
-\emph{The two \gls{edc} connectors are indistinguishable at the operating point, and
-DSP-Native BaSyx is faster.} With identity enabled, a complete transaction takes
-4672.5\,ms on the Fraunhofer ISST \gls{edc} and 4649.0\,ms on Factory-X, a difference of 0.5\,\% that sits well inside their own run-to-run variation, against 2884.5\,ms on BaSyx.
+The two \gls{edc} connectors are indistinguishable at the operating point. With identity
+enabled a complete transaction takes 4672.5\,ms on the Fraunhofer ISST \gls{edc} and
+4649.0\,ms on Factory-X. The 0.5\,\% between them sits well inside their own run-to-run
+variation, so it is not read as a difference. DSP-Native BaSyx completes the same
+transaction in 2884.5\,ms.
 
-\emph{Identity costs a fixed amount per request, and only in the control plane.} Measured
-on the provider itself, it adds 30.0\,ms, 41.3\,ms and 44.7\,ms respectively. That cost
-does not grow with the work a request performs: across a thousandfold increase in catalog
-size it stays within a narrow band while the underlying latency rises, so its relative
-weight falls as requests get larger. The data plane shows no difference at all.
+Identity costs a fixed amount per request, and only in the control plane. Measured on the
+provider itself it adds 30.0\,ms, 41.3\,ms, and 44.7\,ms. The cost does not grow with the
+work a request performs: across a thousandfold increase in catalog size it stays inside a
+narrow band while the underlying latency rises, so its relative weight falls as requests
+get larger. The data plane shows no difference at all.
 
-\emph{The protocol, not the identity layer, sets the baseline.} Between 93 and 97\,\% of
-every transaction is spent waiting for the two asynchronous state machines to reach their
-terminal states. The synchronous steps of initiating a negotiation, initiating a transfer, and pulling the data together account for one to two per cent.
+The protocol sets the baseline, not the identity layer. Between 93 and 97\,\% of every
+transaction is spent waiting for the two asynchronous state machines to reach their
+terminal states. Initiating a negotiation, initiating a transfer, and pulling the data
+together account for one to two per cent.
 
-\emph{Capacity differs sharply, and the host was never the limit.} All six arms track
-offered load to 2.5\,tx/s. Beyond that Factory-X delivers only half of what is offered,
-the Fraunhofer ISST \gls{edc} plateaus near 4\,tx/s, and BaSyx continues to climb. Host
-\gls{cpu} peaked between 32 and 48\,\% in every case, so each ceiling is a property of the
-connector rather than of the machine.
+Capacity differs sharply, and the host was never the limit. All six arms track offered
+load to 2.5\,tx/s. Beyond that Factory-X delivers about half of what is offered, the
+Fraunhofer ISST \gls{edc} plateaus near 4\,tx/s, and BaSyx keeps climbing. Host \gls{cpu}
+peaked between 32 and 48\,\%, so each ceiling belongs to the connector and not to the
+machine.
+
+The best-looking arm in the campaign is the one that cannot be compared. DSP-Native BaSyx
+with identity disabled leads every measurement taken: 814.0\,ms end to end against
+4198.0 and 4416.0\,ms for the two \gls{edc} connectors, 39.49\,tx/s at fifty concurrent
+clients against 3.34 and 2.24, and the lowest processor, heap, and collector figures of
+any arm. That result belongs to the setup rather than to the connector. Its mock validator
+accepts a token an \gls{edc} consumer cannot produce, so this arm runs without an \gls{edc}
+consumer at all: k6 speaks \gls{dsp} to the provider directly and a callback sink absorbs
+the asynchronous replies (\cref{subsec:mock-arm}). A consumer control plane, its database,
+and its status polling are therefore absent from the measurement, and those are most of
+what the other five arms spend their time on. The comparison that survives is the
+provider's own latency, where identity costs 44.7\,ms against 30.0 and 41.3\,ms and all
+three connectors sit in the same order of magnitude.
 
 Beyond the measurements, this thesis contributes the instrument that produced them: a
 parity-audited benchmark harness, byte-identical across three connector repositories, with
@@ -67,13 +83,13 @@ the observed performance differences?}
 
 Three factors account for most of what was measured, in decreasing order of effect.
 
-The dominant one is the \emph{asynchronous protocol design itself}. It is common to all
+The dominant one is the asynchronous protocol design itself. It is common to all
 three implementations, so it explains the baseline rather than the differences between
 them. Contract negotiation and transfer are state machines whose terminal states a client
 must wait for, and that waiting is 93--97\,\% of every transaction (\cref{sec:rq4}). No implementation choice within a connector can move a figure that is
 set by the protocol it implements.
 
-The second is \emph{where each implementation performs credential verification}. On both
+The second is where each implementation performs credential verification. On both
 \gls{edc} connectors the identity cost concentrates almost entirely in the catalog request, the first protected message of an exchange, while the subsequent asynchronous waits
 are barely affected. On DSP-Native BaSyx the same cost appears inside those waits instead.
 This is consistent with the \gls{edc} stack verifying a presentation once per exchange and
@@ -81,7 +97,7 @@ then proceeding against an established context, and with BaSyx validating per me
 (\cref{sec:x1-overhead}); the per-hop traces collected during the campaign are the
 evidence that would confirm it directly.
 
-The third is \emph{deployment shape}. DSP-Native BaSyx collapses control plane and data
+The third is deployment shape. DSP-Native BaSyx collapses control plane and data
 plane into a single process and serves the transfer synchronously, which is the most
 plausible account of both its lower baseline latency and its very different
 garbage-collection profile (\cref{sec:sut,sec:rq3}). That connector's comparison against

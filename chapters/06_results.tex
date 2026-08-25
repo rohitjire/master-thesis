@@ -2,12 +2,6 @@
 
 This chapter reports the measurements that answer the research questions of \cref{sec:gqm-decomposition}. \Crefrange{sec:rq1}{sec:rq5} answer the five recurring questions, each under both identity goals, \cref{sec:x1-overhead} draws the cross-goal identity overhead X1 together across them, and \cref{sec:results-validity} states the threats to the validity of both.
 
-Every connector was measured twice under conditions identical in every respect but one. In the identity-enabled arm, written $G_1$, the connector runs its real \gls{dcp} identity stack; in the identity-disabled arm, $G_2$, verification is short-circuited by a mock that issues and accepts a trivial token (\cref{subsec:mock-arm}). One connector in one of those two states is an \emph{arm}, so the three connectors give six arms, and every table below reports both arms of a connector together. X1 is the difference between them on the same metric: the measured cost of running real identity, and the one quantity no single run produces.
-
-The \emph{operating point} is the fixed load at which the connectors are compared head to head: one transaction per second, held for five minutes and offered identically to every arm (\cref{subsec:scenarios}). \Cref{sec:rq1,sec:rq4} report measurements taken there. The remaining sections each vary one thing. \Cref{sec:rq2} raises the offered load in rungs until delivery breaks down, \cref{sec:rq3} adds a thirty-minute endurance run, and \cref{sec:rq5} varies catalog size instead of load. Each says so where it departs from the operating point.
-
-Every value reported here is a median across the repetitions of a run, with the smallest and largest of those repetitions given beside it as the measure of run-to-run repeatability. $\Delta$ is the difference between the identity-enabled ($G_1$) and identity-disabled ($G_2$) medians of a metric, $\tilde{x}_{G_1}-\tilde{x}_{G_2}$. It is reported together with their ratio on the $G_1$ row, so that both arms of a connector appear in the same table. Heap growth in the endurance runs is the one quantity reported differently, as a least-squares slope in MB/h. \Cref{subsec:analysis-statistics} sets out why these statistics and no others, and the rule by which a run is admitted or excluded. Both apply uniformly to every connector and arm, with no per-connector special-casing.
-
 \section{RQ1: Latency and Throughput at the Operating Point}\label{sec:rq1}
 
 % G_k.RQ1: per-phase and end-to-end latency, and sustained throughput, at a realistic
@@ -335,7 +329,7 @@ would produce. Both readings are consistent with the respective documented
 designs~\citep{dcpSpec, dspProtocolLib}, and the traces of \cref{subsec:tracing} are the
 evidence that would confirm or refute them directly. % TODO: needs source -- confirm against the EDC DCP implementation whether verification is per-exchange or per-message.
 
-One measurement resists this account. Negotiation initiation is consistently \emph{faster}
+One measurement resists this account. Negotiation initiation is consistently faster
 with identity enabled than without it: 6.2\,ms against 50.1\,ms on the \gls{dst}
 \gls{edc}, 7.0\,ms against 45.8\,ms on Factory-X, and 6.8\,ms against 10.4\,ms on BaSyx.
 The effect is large, consistent across connectors and outside run-to-run variation, so it
@@ -383,7 +377,7 @@ unfinished after 30\,s is abandoned, and contributes that 30\,s rather than howe
 it would really have taken. Percentiles from a run with failures are therefore lower
 bounds. The operating-point figures in \cref{sec:rq1} come from runs with no failures at
 all; the ladder in \cref{sec:rq2} does contain them, which is why it is read as evidence
-of \emph{where} delivery breaks down and not as a latency measurement.
+of where delivery breaks down and not as a latency measurement.
 
 \textbf{Measuring costs the connector something.} About sixty per cent of the requests
 each connector answered at the operating point were the harness asking whether a phase had

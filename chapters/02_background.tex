@@ -4,14 +4,15 @@ The rest of the thesis assumes a technical and conceptual vocabulary, and this c
 
 \section{Data Spaces and the IDS Initiative}\label{sec:data-spaces-ids}
 
-A dataspace is, in the standardised formulation of ISO/IEC~FDIS~20151-1, ``an environment enabling trusted data sharing between participating parties, based on agreed governance framework, along with agreed set of policies, semantic models, standardised protocols, processes, and facilitating services''~\citep{isoiec20151, idsaknowledgebase}. The definition is deliberately negative as much as positive: it tells implementers what a dataspace is \emph{not}. It is not a data lake, in which storage is consolidated; not a data warehouse, in which schemas are imposed top-down; and not a hyperscaler platform, in which a single operator controls the substrate~\citep{designingdataspace}. The dataspace pattern instead distributes storage and authority across independent participants who exchange data peer-to-peer under shared rules~\citep{idsaknowledgebase, IDS4.0}. The European data strategy frames this distribution as a precondition for a single market for data in which participants retain sovereignty over what they share, with whom, and under what terms~\citep{europeancommission2020}.
+A dataspace is, in the standardised formulation of ISO/IEC~FDIS~20151-1, ``an environment enabling trusted data sharing between participating parties, based on agreed governance framework, along with agreed set of policies, semantic models, standardised protocols, processes, and facilitating services''~\citep{isoiec20151, idsaknowledgebase}. The definition is deliberately negative as much as positive: it tells implementers what a dataspace is not. It is not a data lake, in which storage is consolidated; not a data warehouse, in which schemas are imposed top-down; and not a hyperscaler platform, in which a single operator controls the substrate~\citep{designingdataspace}. The dataspace pattern instead distributes storage and authority across independent participants who exchange data peer-to-peer under shared rules~\citep{idsaknowledgebase, IDS4.0}. The European data strategy frames this distribution as a precondition for a single market for data in which participants retain sovereignty over what they share, with whom, and under what terms~\citep{europeancommission2020}.
 
 Three structural elements recur in every operational dataspace and provide the vocabulary for the rest of this thesis. \emph{Participants} are organisations that produce or consume data and that ``follow common rules defined in the data space's governance framework''~\citep{idsaknowledgebase}. A \emph{Data Space Governance Authority} establishes, governs, and enforces those rules; the authority ``may be provided by one or more parties, in a centralized or decentralized manner''~\citep{idsaknowledgebase}. Each participant is technically represented by a \emph{connector}, a software agent that ``acts on behalf of [the] organization in the data space'' and exposes the \gls{api} endpoints for discovery, contract negotiation, and data exchange~\citep{idsaknowledgebase}. \Cref{fig:dataspace-overview} sketches these elements inside a single dataspace, together with the supporting services for identity, vocabularies, and observability.
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\linewidth]{figures/dataspace_overview.png}
-    \caption[Structural elements of a single dataspace]{Structural elements of a single dataspace: participants, connectors, the Data Space Governance Authority, and the supporting services for identity, vocabularies, and observability. Figure source: International Data Spaces Association.}
+    \caption[Structural elements of a single dataspace]{Structural elements of a single dataspace 
+    Figure source: International Data Spaces Association.}
     \label{fig:dataspace-overview}
 \end{figure}
 
@@ -27,16 +28,14 @@ The International Data Spaces Association (IDSA) is the standards organisation t
 The last principle makes this thesis possible. Multiple connector implementations claim conformance to the same specification, so their relative performance is a meaningful research question. IDSA realises these principles through two specifications used throughout this thesis: the IDS Reference Architecture Model~\citep{IDS4.0} and, jointly with the Eclipse Dataspace Working Group, the Dataspace Protocol~\citep{datapsaceProtocol2025}.
 
 
-\subsection{International Data Spaces Reference Architecture}\label{subsec:ids-ram}
-
-The \emph{IDS Reference Architecture Model} (IDS-RAM)\glsadd{idsram}, currently in its fourth edition, is an abstract architecture rather than an implementation~\citep{IDS4.0}. It resides at a higher abstraction level than common architecture models of concrete software solutions and is meant to be instantiated by independent implementers~\citep{IDS4.0, otto2019ids}. 
+The IDS Reference Architecture Model (IDS-RAM)\glsadd{idsram}, currently in its fourth edition, is an abstract architecture rather than an implementation~\citep{IDS4.0}. It resides at a higher abstraction level than common architecture models of concrete software solutions and is meant to be instantiated by independent implementers~\citep{IDS4.0, otto2019ids}. 
 
 The model is organised as five horizontal layers crossed by three cross-cutting perspectives, as shown in \Cref{fig:ids-ram-overview}; this structure recurs verbatim in the documentation of every connector evaluated in \Cref{chap:results-evaluation}.
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.78\linewidth]{figures/ids_ram_overview.png}
-    \caption[Overview of the IDS Reference Architecture Model]{Overview of the IDS Reference Architecture Model: five horizontal layers (Business, Functional, Process, Information, System) cross-cut by three perspectives (Security, Certification, Governance). Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
+    \caption[Overview of the IDS Reference Architecture Model]{Overview of the IDS Reference Architecture Model: five horizontal layers cross-cut by three perspectives. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}}
     \label{fig:ids-ram-overview}
 \end{figure}
 
@@ -58,32 +57,11 @@ The Business Layer further enumerates roles that recur in the source code of eve
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.95\linewidth]{figures/ids_ram_roles_interactions.png}
-    \caption[Roles and interactions in the International Data Spaces]{Roles and interactions in the International Data Spaces. Solid arrows are data flow, dashed metadata, thick software; node shape distinguishes Core Participants from Intermediaries. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
+    \caption[Roles and interactions in the International Data Spaces]{Roles and interactions in the International Data Spaces. Solid arrows are data flow, dashed metadata, thick software; node shape distinguishes Core Participants from Intermediaries. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}}
     \label{fig:ids-ram-roles}
 \end{figure}
 
 The thesis-level consequence of this structure is straightforward. All three connectors in scope are System-Layer realisations of the same RAM. Their differences live primarily in how they instantiate the Functional Layer (identity provider, policy engine, transfer extensions) and how their System-Layer extensions are composed. The differences in measured throughput, latency, and resource consumption that \Cref{chap:results-evaluation} reports are therefore best read as the performance consequences of System- and Functional-Layer choices over a fixed Business- and Process-Layer specification.
-
-
-\subsection{Gaia-X and Federated Data Ecosystems}\label{subsec:gaia-x}
-
-\emph{Gaia-X} occupies a position adjacent to IDS rather than within it. Its stated mission is to become ``the \emph{de facto} standard to enable federated and/or decentralized and trusted data and infrastructure ecosystems''~\citep{gaiaxArchitecture}. Where IDSA specifies what a dataspace \emph{is} and how its participants exchange data, Gaia-X specifies the trust framework under which any participant, dataspace-affiliated or not, can be verified as compliant with a declared set of rules. The Gaia-X Architecture Document is explicit about this division: Gaia-X and IDSA ``deliver complementary technical frameworks'', with Gaia-X providing ``the decentralized digital trust framework'' and IDSA providing ``the Dataspace Protocol and the specific design concepts for data spaces''~\citep{gaiaxArchitecture}. Both align on the ISO/IEC~20151 dataspace definition introduced above~\citep{gaiaxArchitecture, isoiec20151}.
-
-Federation in Gaia-X is achieved through two mechanisms rather than through a central authority~\citep{gaiaxArchitecture}. Ecosystems use ``the same language for specifying their trust model'', a shared and extensible ontology that the Architecture Document calls a ``\emph{lingua franca}''. They also agree on ``a common set of trusted ecosystem services'' such as identity providers, notaries, and assessment bodies. No single ecosystem owns these services; multiple ecosystems can adopt the same services voluntarily, and federation emerges from the overlap rather than from delegation. 
-
-
-This is the architectural basis on which two distinct dataspaces, each with its own governance authority, can negotiate data exchange across their boundary, as sketched in \Cref{fig:cross-dataspace}.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.85\linewidth]{figures/data_sharing_across_dataspaces.png}
-    \caption[Cross-dataspace exchange between two dataspaces]{Cross-dataspace exchange: participants in Data Space~A and Data Space~B enter agreements mediated by their respective connectors, without consolidating storage in either dataspace. Figure source: International Data Spaces Association.}
-    \label{fig:cross-dataspace}
-\end{figure}
-
-The trust framework is operationalised through machine-verifiable artefacts~\citep{GaiaXTrustFramework2024}. Participants, service offerings, and resources publish \emph{Self-Descriptions} that follow the W3C Verifiable Credentials Data Model, are ``cryptographically signed, preventing tampering with its content'', and are checked against computable rules that govern serialisation, signature validity, attribute consistency, and attribute veracity~\citep{GaiaXTrustFramework2024}. Compliance is therefore automated rather than negotiated case by case, which is what makes the framework scalable to multiple ecosystems with overlapping participants.
-
-For the connectors evaluated in this thesis, the Gaia-X layer is not optional in production deployments. The Catena-X automotive dataspace and the Factory-X discrete-manufacturing dataspace both embed Gaia-X-aligned compliance into their participant onboarding and connector configuration~\citep{catenaxDocumentation}. In benchmarking terms this matters because a production-realistic connector deployment carries Gaia-X identity overhead in addition to DSP control-plane overhead, and the two cannot be cleanly separated without changing what is being measured. \Cref{chap:methodology} returns to this point when defining the measured workload, and \Cref{chap:results-evaluation} returns to it when interpreting the resource-consumption results.
 
 
 \section{The Dataspace Protocol}\label{sec:dsp}
@@ -93,25 +71,25 @@ The \emph{Dataspace Protocol} (DSP) is ``a set of specifications designed to fac
 That boundary follows a wider split of the dataspace stack into three planes, shown in \cref{fig:dsp-planes}~\citep{niisXRoadDataspaceStack}:
 
 \begin{itemize}[leftmargin=*, itemsep=2pt, topsep=4pt]
-    \item a \textbf{Trust Plane} responsible for identity and trust management, delegated to frameworks such as Gaia-X or X-Road;
-    \item a \textbf{Control Plane} responsible for service discovery, contract negotiation, and transfer-process coordination, standardised by DSP itself;
-    \item one or more \textbf{Data Planes} responsible for the actual byte movement, using existing data-exchange protocols such as REST, SOAP, and publish/subscribe.
+    \item \textbf{Trust Plane} responsible for identity and trust management, delegated to frameworks such as Gaia-X or X-Road;
+    \item \textbf{Control Plane} responsible for service discovery, contract negotiation, and transfer-process coordination, standardised by DSP itself;
+    \item \textbf{Data Planes} responsible for the actual byte movement, using existing data-exchange protocols such as REST, SOAP, and publish/subscribe.
 \end{itemize}
  The split lets one DSP work with different trust frameworks above it and different data-plane technologies beneath it. A benchmark has to respect it too: a single end-to-end measurement that mixes the three planes cannot say whether a cost belongs to the control plane or to the data plane.
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.6\linewidth]{figures/dataspace_protocol_layers.png}
-    \caption[The three-plane dataspace stack]{The three-plane dataspace stack: a Trust Plane for identity, a Control Plane standardised by the Dataspace Protocol, and one or more Data Planes that carry the bytes. Figure adapted from~\citep{niisXRoadDataspaceStack}.}
+    \caption[The three-plane dataspace stack]{The three-plane dataspace stack Figure adapted from~\citep{niisXRoadDataspaceStack}.}
     \label{fig:dsp-planes}
 \end{figure}
 
-DSP began under IDSA stewardship, where it reached its 2024-1 release, and governance then moved to the Eclipse Dataspace Working Group. This thesis tracks the 2025-1 release, maintained as an Eclipse Specification project~\citep{datapsaceProtocol2025}. In December 2025 the Eclipse Foundation announced that DSP and the Decentralized Claims Protocol would be submitted for international standardisation through the ISO/IEC~JTC~1 Publicly Available Specification (PAS) process~\citep{eclipseDspPasSubmission}. The specification is bound to HTTPS for transport and to JSON-LD for message serialisation; each message type is a JSON-LD document POSTed to a well-known endpoint on a peer connector. The specification itself is organised as four documents: \emph{Catalog}, \emph{Contract Negotiation}, and \emph{Transfer Process} cover the three protocol areas, and a \emph{Common} specification covers cross-cutting concerns such as version declaration and the error model. \Cref{fig:dsp-overview} shows how the three protocol areas compose at runtime: two connectors interact directly for cataloging, contract negotiation, and data transfer, with an Identity Provider sitting outside both and serving identity claims to each. The remainder of this section walks through the three protocol areas in the order they execute at runtime: discovery first, then negotiation, then transfer.
+DSP began under IDSA stewardship, where it reached its 2024-1 release, and governance then moved to the Eclipse Dataspace Working Group. This thesis tracks the 2025-1 release, maintained as an Eclipse Specification project~\citep{datapsaceProtocol2025}. In December 2025 the Eclipse Foundation announced that DSP and the Decentralized Claims Protocol would be submitted for international standardisation through the ISO/IEC~JTC~1 Publicly Available Specification (PAS) process~\citep{eclipseDspPasSubmission}. The specification is bound to HTTPS for transport and to JSON-LD for message serialisation; each message type is a JSON-LD document posted to a well-known endpoint on a peer connector. The specification itself is organised as four documents: \emph{Catalog}, \emph{Contract Negotiation}, and \emph{Transfer Process} cover the three protocol areas, and a \emph{Common} specification covers cross-cutting concerns such as version declaration and the error model. \Cref{fig:dsp-overview} shows how the three protocol areas compose at runtime: two connectors interact directly for cataloging, contract negotiation, and data transfer, with an Identity Provider sitting outside both and serving identity claims to each. The remainder of this section walks through the three protocol areas in the order they execute at runtime: discovery first, then negotiation, then transfer.
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\linewidth]{figures/dsp_protocol_overview.png}
-    \caption[Dataspace Protocol overview]{Dataspace Protocol overview: two connectors and an external Identity Provider, exchanging catalog, contract-negotiation, and transfer messages. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}, licensed under Apache~2.0.}
+    \caption[Dataspace Protocol overview]{Dataspace Protocol overview: two connectors and an external Identity Provider, exchanging catalog, contract-negotiation, and transfer messages. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}}
     \label{fig:dsp-overview}
 \end{figure}
 
@@ -137,7 +115,7 @@ At any point either party may send a \emph{Contract Negotiation Termination Mess
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.6\linewidth]{figures/dsp_cn_state_machine.png}
-    \caption[Contract Negotiation state machine in DSP 2025-1]{Contract Negotiation state machine in DSP 2025-1. Transitions labelled \texttt{C} are sent by the Consumer, \texttt{P} by the Provider, and \texttt{C/P} by either. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}, licensed under Apache~2.0.}
+    \caption[Contract Negotiation state machine in DSP 2025-1]{Contract Negotiation state machine in DSP 2025-1. Transitions labelled \texttt{C} are sent by the Consumer, \texttt{P} by the Provider, and \texttt{C/P} by either. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}}
     \label{fig:dsp-cn}
 \end{figure}
 
@@ -150,7 +128,7 @@ The happy path is short. The Consumer opens the process with a \emph{Transfer Re
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.5\linewidth]{figures/dsp_tp_state_machine.png}
-    \caption[Transfer Process state machine in DSP 2025-1]{Transfer Process state machine in DSP 2025-1. \textsc{completed} and \textsc{terminated} are terminal; \textsc{suspended} may return to \textsc{started}. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}, licensed under Apache~2.0.}
+    \caption[Transfer Process state machine in DSP 2025-1]{Transfer Process state machine in DSP 2025-1. \textsc{completed} and \textsc{terminated} are terminal; \textsc{suspended} may return to \textsc{started}. Figure from the Dataspace Protocol specification~\citep{datapsaceProtocol2025}}
     \label{fig:dsp-tp}
 \end{figure}
 
@@ -165,7 +143,7 @@ The Dataspace Protocol specified in \Cref{sec:dsp} defines what two connectors s
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\linewidth]{figures/ids_ram_system_components.png}
-    \caption[Standard runtime environment of a dataspace connector]{Standard runtime environment of a dataspace connector as defined by the IDS-RAM, with the provider and consumer connectors at the centre and the four intermediary services around them. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
+    \caption[Standard runtime environment of a dataspace connector]{Standard runtime environment of a dataspace connector as defined by the IDS-RAM, with the provider and consumer connectors at the centre and the four intermediary services around them. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}}
     \label{fig:ids-ram-system-components}
 \end{figure}
 
@@ -174,7 +152,7 @@ The Dataspace Protocol specified in \Cref{sec:dsp} defines what two connectors s
 
 The \emph{Eclipse Dataspace Components} (EDC) project is the open-source framework that has become the de-facto reference implementation of the dataspace connector role described above~\citep{eclipseEdcProject, dam2024surveydataspaceconnectorimplementations}. EDC is governed by the \emph{Eclipse Dataspace Working Group}, launched in December~2023 under the Eclipse Foundation AISBL with founding members including Amadeus, Fraunhofer, IDSA, iSHARE, Microsoft, and T-Systems~\citep{eclipseDswg}. The project itself sits in the Eclipse Technology top-level project and is released under the Apache~2.0 licence~\citep{eclipseEdcProject}. EDC implements the IDS Reference Architecture Model and the Dataspace Protocol introduced in \Cref{sec:data-spaces-ids,sec:dsp}, and is the source from which two of the three implementations evaluated in \Cref{subsec:different-connectors} are derived~\citep{eclipseEdcDocumentation, dam2024surveydataspaceconnectorimplementations}.
 
-Architecturally, EDC realises the abstract IDS connector as three loosely coupled subsystems~\citep{eclipseEdcDocumentation, IDS4.0}. \Cref{fig:ids-ram-connector-functional} shows that connector as the IDS-RAM specifies it.
+Architecturally, EDC realises the abstract IDS connector as three loosely coupled subsystems~\citep{eclipseEdcDocumentation, IDS4.0}.
 
 \begin{description}
     \item[Control Plane.] Owns the state machines of \Cref{sec:dsp}: it handles catalog requests, drives contract negotiation, evaluates usage policies, and coordinates each transfer process from initiation to its terminal state.
@@ -185,20 +163,14 @@ Architecturally, EDC realises the abstract IDS connector as three loosely couple
 The codebase is correspondingly partitioned into four modules~\citep{eclipseEdcDocumentation}:
 
 \begin{itemize}
-    \item the \emph{Service Provider Interface (SPI)} module, which defines the extension points;
-    \item the \emph{Core} module, which provides the default state-machine and policy engines;
-    \item a set of \emph{Extensions} for specific technologies (databases, object stores, vaults);
-    \item the \emph{Data Protocols} module, which contains the DSP binding itself.
+    \item The \emph{Service Provider Interface (SPI)} module, which defines the extension points;
+    \item The \emph{Core} module, which provides the default state-machine and policy engines;
+    \item A set of \emph{Extensions} for specific technologies (databases, object stores, vaults);
+    \item The \emph{Data Protocols} module, which contains the DSP binding itself.
 \end{itemize}
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.95\linewidth]{figures/ids_ram_connector_functional_view.png}
-    \caption[Functional view of an IDS connector]{Functional view of an IDS connector as defined by the IDS-RAM: the internal management components, the IDS Protocol engine, and the external identity, broker, and clearing services it calls. Figure from the IDS-RAM~4 documentation~\citep{IDS4.0}, licensed under CC BY~4.0.}
-    \label{fig:ids-ram-connector-functional}
-\end{figure}
 
-The composition of an EDC runtime is determined entirely by the set of \emph{ServiceExtensions} loaded at startup~\citep{eclipseEdcDocumentation}. Every feature of a running connector comes from an extension: the persistence backend, the identity provider, the data-plane transport, the policy evaluator, and the telemetry sink. Each extension implements the \texttt{ServiceExtension} interface and declares its dependencies through the \texttt{@Inject} annotation. The runtime resolves these declarations and drives all extensions through a five-phase lifecycle: \texttt{inject}, \texttt{initialize}, \texttt{provide}, \texttt{prepare}, \texttt{start}~\citep{eclipseEdcDocumentation}. This architectural choice has one direct consequence for the present thesis. An EDC distribution is not a single binary but a curated bundle of extensions. Most of the variation across the implementations profiled in \cref{subsec:different-connectors} therefore lies in \emph{which} extensions each variant bundles, and \emph{which} EDC core version it bundles against.
+The composition of an EDC runtime is determined entirely by the set of \emph{ServiceExtensions} loaded at startup~\citep{eclipseEdcDocumentation}. Every feature of a running connector comes from an extension: the persistence backend, the identity provider, the data-plane transport, the policy evaluator, and the telemetry sink. Each extension implements the \texttt{ServiceExtension} interface and declares its dependencies through the \texttt{@Inject} annotation. The runtime resolves these declarations and drives all extensions through a five-phase lifecycle: \texttt{inject}, \texttt{initialize}, \texttt{provide}, \texttt{prepare}, \texttt{start}~\citep{eclipseEdcDocumentation}. This architectural choice has one direct consequence for the present thesis. An EDC distribution is not a single binary but a curated bundle of extensions. Most of the variation across the implementations profiled in \cref{subsec:different-connectors} therefore lies in which extensions each variant bundles, and which EDC core version it bundles against.
 
 For the Trust Plane introduced in \Cref{sec:dsp}, EDC has moved away from the original IDS-era \emph{Dynamic Attribute Provisioning Service} (DAPS), which the project now explicitly discourages on the grounds of its centralised trust anchor~\citep{eclipseEdcDocumentation}. The currently recommended identity layer is the \emph{Decentralized Claims Protocol} (DCP), carried forward by the Eclipse DSWG. The specification describes it as ``an interoperable overlay to the Dataspace Protocol (DSP) Specifications for conveying organizational identities and establishing trust in a way that preserves privacy and limits the possibility of network disruption''~\citep{dcpSpec}. DCP relies on W3C Decentralized Identifiers and Verifiable Credentials. Two concrete wallet components realise it, both evaluated in \cref{subsec:different-connectors}: the \emph{EDC IdentityHub}, an EDC-native DCP wallet implementation~\citep{eclipseEdcIdentityHub}, and the \emph{Decentralized Identity Management} (DIM) service used in the Catena-X dataspace.
 
@@ -211,11 +183,11 @@ Three architectural choices together explain why a single Eclipse project has sp
 
 Three DSP-conformant implementations are in scope for the benchmarks reported in \Cref{chap:results-evaluation}: \emph{Factory-X EDC}, \emph{DSP-Native BaSyx}, and the \emph{Fraunhofer ISST EDC}. Two of the three are EDC distributions in the sense of \cref{subsec:edc}, that is, bundles of EDC core plus chosen extensions. The third is an architectural outlier built on a different framework entirely. The three differ along four axes that recur in the comparison: (a) the EDC core version they track, where applicable; (b) the identity stack they integrate; (c) the persistence and deployment topology they ship; and (d) the consortium and use case they target. \Cref{tab:connector-comparison} at the end of this subsection summarises the result. \emph{A Survey of Dataspace Connector Implementations} covers features and protocol compliance but explicitly defers performance evaluation~\citep{dam2024surveydataspaceconnectorimplementations}; the per-connector profiles below provide the architectural background against which the measured differences in \Cref{chap:results-evaluation} can be interpreted.
 
-\paragraph{Factory-X EDC.} The \emph{Factory-X EDC} is a downstream profile of the Tractus-X EDC, the Eclipse connector distribution for the Catena-X automotive dataspace~\citep{tractusxEdc}, adapted for the discrete-manufacturing dataspace operated by the Factory-X consortium~\citep{factoryxEdc, factoryxConsortium}. Siemens and SAP co-chair the consortium, with roughly fifty additional commercial and research partners. The EDC repository is explicit about its proof-of-concept status: ``Factory-X has not yet agreed on any normative specifications, an operating model, an identity stack or a security architecture. This repository is a contribution to that conversation demonstrating the feasibility of the Dataspace Protocol and the Decentralized Claims Protocol as common protocol foundation''~\citep{factoryxEdc}. The benchmarked configuration pins EDC core version~0.14.0. It differs from that upstream profile in three load-bearing places. First, it replaces the upstream JSON-LD and Dataspace Protocol modules with Factory-X-specific implementations. Second, it adds a custom \gls{mqtt} transport for the Data Plane alongside the standard HTTP transports. Third, it terminates Data Plane traffic over mutual TLS instead of the more common bearer-token authorisation introduced in \cref{sec:dsp}. Its identity stack is DCP with custom DID validation.
+\paragraph{Factory-X EDC.} The Factory-X EDC is a downstream profile of the Tractus-X EDC, the Eclipse connector distribution for the Catena-X automotive dataspace~\citep{tractusxEdc}, adapted for the discrete-manufacturing dataspace operated by the Factory-X consortium~\citep{factoryxEdc, factoryxConsortium}. Siemens and SAP co-chair the consortium, with roughly fifty additional commercial and research partners. The EDC repository is explicit about its proof-of-concept status: ``Factory-X has not yet agreed on any normative specifications, an operating model, an identity stack or a security architecture. This repository is a contribution to that conversation demonstrating the feasibility of the Dataspace Protocol and the Decentralized Claims Protocol as common protocol foundation''~\citep{factoryxEdc}. The benchmarked configuration pins EDC core version~0.14.0. It differs from that upstream profile in three load-bearing places. First, it replaces the upstream JSON-LD and Dataspace Protocol modules with Factory-X-specific implementations. Second, it adds a custom \gls{mqtt} transport for the Data Plane alongside the standard HTTP transports. Third, it terminates Data Plane traffic over mutual TLS instead of the more common bearer-token authorisation introduced in \cref{sec:dsp}. Its identity stack is DCP with custom DID validation.
 
-\paragraph{DSP-Native BaSyx.} The \emph{DSP-Native BaSyx} connector is the architectural outlier in the comparison: it is not an EDC distribution. The repository describes it as ``a DSP-native variant of the Eclipse BaSyx Asset Administration Shell (AAS) system, built on the Spring Boot framework. It integrates the Dataspace Protocol (DSP) library along with selected components from the Eclipse BaSyx framework''~\citep{dspNativeBasyx}.\glsadd{aas} Architecturally, the runtime is a Spring Boot application embedding two components: Eclipse BaSyx~2.0.0~\citep{eclipseBasyxDocs} for Asset Administration Shell representation, and the separate \texttt{dataspace-protocol-lib} library in its MongoDB-backed variant~\citep{dspProtocolLib} for the DSP message exchange itself. Together they replace the entire EDC runtime stack described in \cref{subsec:edc}. Persistence is MongoDB, not PostgreSQL. Identity in the benchmarked development stack is a Keycloak-issued \gls{jwt}, not a DCP credential, and asynchronous events use an embedded Eclipse Mosquitto \gls{mqtt} broker. The counterparty in the bundled deployment is itself an EDC connector, Factory-X EDC. That makes the DSP-Native BaSyx versus EDC comparison directly observable inside a single docker-compose stand-up. Its target use case is exposing Industry~4.0 asset descriptions natively over DSP.
+\paragraph{DSP-Native BaSyx.} The DSP-Native BaSyx connector is the architectural outlier in the comparison: it is not an EDC distribution. The repository describes it as ``a DSP-native variant of the Eclipse BaSyx Asset Administration Shell (AAS) system, built on the Spring Boot framework. It integrates the Dataspace Protocol (DSP) library along with selected components from the Eclipse BaSyx framework''~\citep{dspNativeBasyx}.\glsadd{aas} Architecturally, the runtime is a Spring Boot application embedding two components: Eclipse BaSyx~2.0.0~\citep{eclipseBasyxDocs} for Asset Administration Shell representation, and the separate \texttt{dataspace-protocol-lib} library in its MongoDB-backed variant~\citep{dspProtocolLib} for the DSP message exchange itself. Together they replace the entire EDC runtime stack described in \cref{subsec:edc}. Persistence is MongoDB, not PostgreSQL. Identity in the benchmarked development stack is a Keycloak-issued \gls{jwt}, not a DCP credential, and asynchronous events use an embedded Eclipse Mosquitto \gls{mqtt} broker. The counterparty in the bundled deployment is itself an EDC connector, Factory-X EDC. That makes the DSP-Native BaSyx versus EDC comparison directly observable inside a single docker-compose stand-up. Its target use case is exposing Industry~4.0 asset descriptions natively over DSP.
 
-\paragraph{Fraunhofer ISST EDC.} The \emph{Fraunhofer ISST EDC} is the EDC extensions and runtime distribution maintained by the \gls{dst} department of Fraunhofer ISST~\citep{fraunhoferIsstDst}. The repository describes itself as the source of ``all EDC extensions and runtimes from the DST department''. Its version numbers take the form \texttt{<DST-Version>-<EDC-Version>}, recording both its own iteration and the EDC core baseline the extensions are built against. The benchmarked configuration tracks EDC core version~0.15.1. Its distinguishing architectural choice is the depth of its identity integration. Factory-X integrates DCP at the connector boundary plus a custom DID validator. The Fraunhofer ISST distribution goes further: it bundles the full EDC identity stack as separate runtimes alongside the connector itself. These are an \texttt{identity-hub-persistence} runtime instantiating the EDC IdentityHub~\citep{eclipseEdcIdentityHub}, and an \texttt{issuer-service-persistence} runtime that issues the verifiable credentials the IdentityHub then presents. DCP is wired through all three EDC subsystems, Control Plane, Data Plane, and Federated Catalog, and not only at the connector boundary. This distribution should not be confused with the unrelated and now-archived \texttt{FraunhoferISST/DataspaceConnector} project of 2022, which is an IDS-native connector predating the Dataspace Protocol and is not part of this thesis.
+\paragraph{Fraunhofer ISST EDC.} The Fraunhofer ISST EDC is the EDC extensions and runtime distribution maintained by the \gls{dst} department of Fraunhofer ISST~\citep{fraunhoferIsstDst}. The repository describes itself as the source of ``all EDC extensions and runtimes from the DST department''. Its version numbers take the form \texttt{<DST-Version>-<EDC-Version>}, recording both its own iteration and the EDC core baseline the extensions are built against. The benchmarked configuration tracks EDC core version~0.15.1. Its distinguishing architectural choice is the depth of its identity integration. Factory-X integrates DCP at the connector boundary plus a custom DID validator. The Fraunhofer ISST distribution goes further: it bundles the full EDC identity stack as separate runtimes alongside the connector itself. These are an \texttt{identity-hub-persistence} runtime instantiating the EDC IdentityHub~\citep{eclipseEdcIdentityHub}, and an \texttt{issuer-service-persistence} runtime that issues the verifiable credentials the IdentityHub then presents. DCP is wired through all three EDC subsystems, Control Plane, Data Plane, and Federated Catalog, and not only at the connector boundary. This distribution should not be confused with the unrelated and now-archived \texttt{FraunhoferISST/DataspaceConnector} project of 2022, which is an IDS-native connector predating the Dataspace Protocol and is not part of this thesis.
 
 \begin{table}[ht]
     \centering
@@ -321,7 +293,7 @@ Comparing the three implementations of \cref{sec:connectors} requires performanc
 
 \section{Benchmarking Fundamentals}\label{sec:benchmarking-fundamentals}
 
-\Cref{sec:performance-concepts} defines \emph{what} to measure; this section establishes \emph{how} to measure it so that the three implementations of \Cref{sec:connectors} can be compared on equal terms. The instrument for such a comparison is a benchmark.
+\Cref{sec:performance-concepts} defines what to measure; this section establishes how to measure it so that the three implementations of \Cref{sec:connectors} can be compared on equal terms. The instrument for such a comparison is a benchmark.
 
 \paragraph{Benchmarking as systematic performance evaluation.} A benchmark is a standard tool for ``competitively evaluating and comparing'' methods, techniques, or systems with respect to a quality of interest such as performance~\citep{empiricalStandardsBenchmarking}. Benchmarking is therefore not a single measurement but a method. \emph{The Art of Computer Systems Performance Analysis} sets performance evaluation out as a systematic procedure: the analyst first fixes the goal and the system boundary, then selects metrics, workloads, and an evaluation technique, and only then measures. Each choice is made deliberately, not by default~\citep{jain1991art}. The performance metrics of \Cref{sec:performance-concepts} (latency percentiles, throughput, resource utilisation) are the first of these choices; the remainder of this section concerns the others and the standards that govern them.
 
