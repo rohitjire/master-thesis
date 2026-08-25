@@ -15,17 +15,34 @@ Its provider is a single Spring Boot application that embeds the \gls{aas} repos
 
 \subsection{Connector Versions and Components}\label{subsec:connector-versions}
 
-\Cref{tab:connector-versions} summarises the exact versions and building blocks; all version numbers are taken from the build files and Compose manifests on the audited branch (\cref{sec:reproducibility}).
+\Cref{tab:connector-versions} gives the versions and building blocks of the three systems
+under test. All version numbers are taken from the build files and Compose manifests on the
+audited branch (\cref{sec:reproducibility}). Three details do not fit the table and matter
+for what follows.
 
-The \textbf{Fraunhofer ISST \gls{edc}} deployment builds the \gls{dst}-EDC components, version~2.4.0, on Eclipse \gls{edc}~0.15.1~\citep{fraunhoferIsstDst, eclipseEdcProject}. Its runtimes are assembled from the upstream \gls{edc} bill-of-materials artefacts: a control plane with PostgreSQL persistence and HashiCorp Vault secret storage, an HTTP data plane, an Identity Hub, an issuer service, and a federated catalog. Two control-plane assemblies exist side by side in the repository. \texttt{controlplane-persistence-dcp} carries the full \gls{dcp} identity stack; \texttt{controlplane-persistence} retains the stock \texttt{iam-mock} identity extension bundled in the upstream base runtime. This pair realises the two goals for this connector (\cref{subsec:mock-arm}).
+The \textbf{Fraunhofer ISST \gls{edc}} repository carries two control-plane assemblies side
+by side~\citep{fraunhoferIsstDst}. \texttt{controlplane-persistence-dcp} carries the full
+\gls{dcp} identity stack, and \texttt{controlplane-persistence} retains the stock
+\texttt{iam-mock} identity extension bundled in the upstream base runtime. That pair
+realises the two goals for this connector without any code written for the benchmark
+(\cref{subsec:mock-arm}).
 
-The \textbf{Factory-X \gls{edc}}, version 0.3.0, derives from Tractus-X \gls{edc}~0.11.0 on Eclipse \gls{edc}~0.14.0~\citep{factoryxEdc, tractusxEdc}. The deployed distributions are the \texttt{edc-controlplane-\allowbreak postgresql-\allowbreak hashicorp-\allowbreak vault} control plane and the \texttt{edc-dataplane-\allowbreak hashicorp-\allowbreak vault} data plane, together with the project's Identity Hub and issuer-service runtimes for the identity-enabled arm. For the identity-disabled arm, this work adds a benchmark-specific control-plane assembly, described in \cref{subsec:mock-arm}.
+The \textbf{Factory-X \gls{edc}} has no such pair. Its deployed distributions are
+\texttt{edc-controlplane-\allowbreak postgresql-\allowbreak hashicorp-\allowbreak vault}
+and \texttt{edc-dataplane-\allowbreak hashicorp-\allowbreak vault}, with the project's
+Identity Hub and issuer-service runtimes for the identity-enabled
+arm~\citep{factoryxEdc}. The identity-disabled arm required a benchmark-specific
+control-plane assembly, described in \cref{subsec:mock-arm}.
 
-\textbf{DSP-Native BaSyx}, version 0.0.3, is a Spring Boot~3.5.6 application embedding the Eclipse BaSyx \gls{aas} components, version 2.0.0-milestone-08, with MongoDB persistence~\citep{dspNativeBasyx, eclipseBasyxDocs}. Its \gls{dsp} endpoint is provided by the embedded \texttt{dataspace-protocol-lib} (MongoDB variant, version 0.1.1)~\citep{dspProtocolLib}. The benchmark runs a locally patched image, \texttt{dsp-native-basyx:patched-edDSA}, which adds a BouncyCastle fallback for Ed25519 signature verification of \glspl{jwt}. Without the patch, token verification against the consumer's \gls{edc} identity stack fails. The patch is therefore a precondition for the identity-enabled arm, not a performance modification.
+\textbf{DSP-Native BaSyx} runs a locally patched image,
+\texttt{dsp-native-\allowbreak basyx:\allowbreak patched-edDSA}, which adds a BouncyCastle fallback for Ed25519
+signature verification of \glspl{jwt}~\citep{dspNativeBasyx}. Without the patch, token
+verification against the consumer's \gls{edc} identity stack fails. The patch is therefore
+a precondition for the identity-enabled arm, not a performance modification.
 
 % [H]: pinned, not floating -- as a float this table drifted past the
 % \section below and was typeset under the wrong heading.
-\begin{table}[H]
+\begin{table}[ht]
     \centering
     \small
     \setlength{\tabcolsep}{4pt}
@@ -109,7 +126,7 @@ The central structural property of the setup is deployment parity. For each conn
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{figures/identity-onoff-parity.pdf}
-    \caption[Identity ON/OFF deployment parity]{Deployment parity between the two arms. The monitoring, data-plane, persistence, and connector-core layers are identical and only the identity layer differs. The lower strip shows how each connector realises the identity-disabled arm.}
+    \caption[Identity ON/OFF deployment parity]{Deployment parity between the two arms. The monitoring, data-plane, persistence, and connector-core layers are identical and only the identity layer differs.}
     \label{fig:identity-onoff-parity}
 \end{figure}
 
@@ -124,7 +141,7 @@ Concretely, each arm runs the following services:
 \begin{itemize}[leftmargin=*, itemsep=2pt, topsep=4pt]
     \item \textbf{Fraunhofer ISST.} The \gls{dcp} control-plane and federated-catalog assemblies, two Identity Hubs, the issuer service, and an nginx instance serving the static \texttt{did:web} documents.
     \item \textbf{Factory-X.} Its issuer service and two Identity Hubs, next to the two control planes and two data planes.
-    \item \textbf{BaSyx.} The same Factory-X identity infrastructure, an \gls{edc} consumer control plane, and the BaSyx provider configured with its \gls{dcp}-backed validation service (\texttt{validationservice=mvd}). That service verifies \gls{jwt} signatures, resolves \glspl{did}, and queries the membership \gls{vp} for every incoming \gls{dsp} request.
+    \item \textbf{BaSyx.} The same Factory-X identity infrastructure, an \gls{edc} consumer control plane, and the BaSyx provider configured with its \gls{dcp}-backed validation service. That service verifies \gls{jwt} signatures, resolves \glspl{did}, and queries the membership \gls{vp} for every incoming \gls{dsp} request.
 \end{itemize}
 
 \subsection{Identity-Disabled Arm (G2): Mock Identity}\label{subsec:mock-arm}
@@ -150,14 +167,14 @@ The $G_2$ deployment therefore replaces it with a raw-\gls{dsp} driver: the k6 c
 \Cref{tab:arm-topology} summarises the per-connector service topology of both arms. Within each connector pair, the held-constant set comprises:
 
 \begin{itemize}[leftmargin=*, itemsep=1pt, topsep=4pt]
-    \item the host and its configuration;
-    \item the container memory limits and \gls{jvm} heap bounds;
-    \item the persistence and secret-store services;
-    \item the complete observability stack;
-    \item the seeded asset and policy;
-    \item the transfer type (\texttt{HttpData-PULL});
-    \item the poll interval of the driver;
-    \item the application log level, and the driver code itself.
+    \item The host and its configuration;
+    \item The container memory limits and \gls{jvm} heap bounds;
+    \item The persistence and secret-store services;
+    \item The complete observability stack;
+    \item The seeded asset and policy;
+    \item The transfer type (\texttt{HttpData-PULL});
+    \item The poll interval of the driver;
+    \item The application log level, and the driver code itself.
 \end{itemize}
 
 The varied set is exactly the identity layer, plus the consumer-side driver discussed above for BaSyx.
@@ -181,7 +198,7 @@ That arm therefore wrote about seven times as much log per transaction as the id
         DSP-Native BaSyx & Issuer service, 2$\times$ Identity Hub; \gls{edc} consumer control plane; provider with \texttt{mvd} validation & Provider with \texttt{mock} validation; raw-\gls{dsp} k6 driver and callback sink replace the \gls{edc} consumer & Keycloak, MongoDB, MQTT broker, DNS resolver, monitoring stack \\
         \bottomrule
     \end{tabularx}
-    \caption[Per-connector topology of the two deployment arms]{Service topology of the identity-enabled and identity-disabled arms per connector. The right column lists the services present unchanged in both arms of that connector.}
+    \caption[Per-connector topology of the two deployment arms]{Service topology of the identity-enabled and identity-disabled arms per connector.}
     \label{tab:arm-topology}
 \end{table}
 
@@ -202,9 +219,9 @@ Two cross-connector non-uniformities remain, and both are disclosed here. First,
 \textbf{Why this composition.} The pipeline has three layers because \gls{otel} deliberately covers only the first of them. Instrumentation has to be identical across heterogeneous runtimes, because an instrument that varies per connector reintroduces the very confound the fairness requirement forbids~\citep{Ralph2020}. \Gls{otel} meets that condition as a vendor- and tool-agnostic \gls{cncf} standard. It is explicitly not an observability backend, and leaves storage and visualisation to other tools~\citep{otelWhatIs}. That boundary forces an explicit backend decision. Prometheus answers it on the three properties this benchmark depends on:
 
 \begin{itemize}[leftmargin=*, itemsep=2pt, topsep=4pt]
-    \item a dimensional data model queried through PromQL, which yields the per-service breakdown the analysis needs~\citep{prometheusOverview};
-    \item counter and histogram types that match the rate-error-duration view~\citep{prometheusMetricTypes};
-    \item a range-query endpoint that evaluates an expression between an explicit start and end timestamp, which makes the time-aligned per-run snapshot of \cref{subsec:orchestration} possible~\citep{prometheusHttpApi}.
+    \item A dimensional data model queried through PromQL, which yields the per-service breakdown the analysis needs~\citep{prometheusOverview}.
+    \item Counter and histogram types that match the rate-error-duration view~\citep{prometheusMetricTypes}.
+    \item A range-query endpoint that evaluates an expression between an explicit start and end timestamp, which makes the time-aligned per-run snapshot of \cref{subsec:orchestration} possible~\citep{prometheusHttpApi}.
 \end{itemize}
  Grafana supplies the frontend that \gls{otel} leaves open, over the metric and the trace store alike~\citep{grafanaDocs, grafanaTempoDocs}. Two alternatives are rejected on the same criteria: a hosted commercial observability service would move telemetry off the benchmark host and forfeit reproduction from pinned open images~\citep{papadopoulos2021reproducible}, and consuming each connector's own metrics endpoint would make the instrument a per-connector variable. Instrumenting at all has a cost, and this work does not assume it away: monitoring frameworks impose measurable overhead on the application they observe~\citep{reichelt2021overhead}. The agent is therefore itself put through the on-versus-off comparison of \cref{subsec:tracing}.
 
@@ -242,8 +259,6 @@ Load is generated with Grafana k6, a scriptable load generator whose scenarios a
 Second, a \gls{dsp} transaction is not a single request but a multi-step, partially asynchronous protocol flow. A k6 script expresses that full sequence as one measured transaction: catalog request, negotiation initiation, polling to the agreed state, transfer initiation, polling to the \gls{edr}, and data pull. Third, custom metrics, tags, and thresholds allow the harness to emit exactly the metric set defined in \cref{sec:metrics} and to enforce per-scenario validity gates.
 
 The harness is maintained as a small software project rather than as a set of ad-hoc scripts, so that running an experiment is one reproducible command instead of a remembered procedure. \Cref{lst:harness-layout} shows its layout: a library layer carrying the protocol flow, the polling logic, the seeding helpers and the metric definitions; the eight scenario scripts; the orchestration and tooling scripts; and one configuration file per connector.
-
-{\pagebreak}
 
 \begin{lstlisting}[numbers=none, basicstyle=\scriptsize\ttfamily, columns=fixed, caption={Layout of the k6 harness. The lib/ and scenarios/ directories are byte-identical in all three connector repositories and are checked as such before every run.}, label=lst:harness-layout]
 k6-scripts/
@@ -502,11 +517,11 @@ Everything an experiment consumes is version-controlled on one branch (\texttt{f
 Replicating a connector's measurement reduces to five steps on a comparable Docker host:
 
 \begin{enumerate}[leftmargin=*, itemsep=1pt, topsep=4pt]
-    \item clone the connector repository at the audited branch;
-    \item build the first-party images;
-    \item start the desired arm with its Compose file;
-    \item for an identity-enabled arm, run the one-shot identity provisioning;
-    \item invoke the campaign script for that arm.
+    \item Clone the connector repository at the audited branch.
+    \item Build the first-party images
+    \item Start the desired arm with its Compose file
+    \item For an identity-enabled arm, run the one-shot identity provisioning.
+    \item Invoke the campaign script for that arm.
 \end{enumerate}
  \Cref{sec:test-env} specifies the environment that produced the reported numbers. The principles this procedure follows are the established ones for reproducible performance evaluation: a controlled environment, repeated runs, and distribution-based reporting~\citep{papadopoulos2021reproducible, hoefler2015scientific}. Residual nondeterminism remains.
 
