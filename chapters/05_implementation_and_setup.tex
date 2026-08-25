@@ -19,7 +19,9 @@ The \textbf{Factory-X \gls{edc}}, version 0.3.0, derives from Tractus-X \gls{edc
 
 \textbf{DSP-Native BaSyx}, version 0.0.3, is a Spring Boot~3.5.6 application embedding the Eclipse BaSyx \gls{aas} components, version 2.0.0-milestone-08, with MongoDB persistence~\citep{dspNativeBasyx, eclipseBasyxDocs}. Its \gls{dsp} endpoint is provided by the embedded \texttt{dataspace-protocol-lib} (MongoDB variant, version 0.1.1)~\citep{dspProtocolLib}. The benchmark runs a locally patched image, \texttt{dsp-native-basyx:patched-edDSA}, which adds a BouncyCastle fallback for Ed25519 signature verification of \glspl{jwt}. Without the patch, token verification against the consumer's \gls{edc} identity stack fails. The patch is therefore a precondition for the identity-enabled arm, not a performance modification.
 
-\begin{table}[ht]
+% [H]: pinned, not floating -- as a float this table drifted past the
+% \section below and was typeset under the wrong heading.
+\begin{table}[H]
     \centering
     \small
     \setlength{\tabcolsep}{4pt}
