@@ -1,0 +1,321 @@
+<title>Connector Thesis Integrity Review</title>
+<style>
+  :root {
+    --paper:      #fbfbfd;
+    --surface:    #ffffff;
+    --ink:        #1b1f2a;
+    --ink-soft:   #454c5e;
+    --slate:      #5c6478;
+    --rule:       #e3e5ec;
+    --rule-soft:  #eef0f5;
+    --accent:     #3f4d6b;
+    --crit:       #a8323c;
+    --crit-bg:    #fdf4f4;
+    --warn:       #8a6413;
+    --warn-bg:    #fdf9ef;
+    --sugg:       #35657c;
+    --sugg-bg:    #f2f8fa;
+    --ok:         #2f6b46;
+    --ok-bg:      #f1f8f3;
+
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Source Serif Pro", Georgia, serif;
+    --sans:  ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono:  ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:     #14161c;
+      --surface:   #191c24;
+      --ink:       #e8eaf0;
+      --ink-soft:  #b9bfcd;
+      --slate:     #98a0b3;
+      --rule:      #2c3140;
+      --rule-soft: #232733;
+      --accent:    #9fb0d4;
+      --crit:      #f08a92;
+      --crit-bg:   #251a1d;
+      --warn:      #dcb45f;
+      --warn-bg:   #241f14;
+      --sugg:      #83bcd4;
+      --sugg-bg:   #16222a;
+      --ok:        #7ec79a;
+      --ok-bg:     #16231b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:     #14161c;
+    --surface:   #191c24;
+    --ink:       #e8eaf0;
+    --ink-soft:  #b9bfcd;
+    --slate:     #98a0b3;
+    --rule:      #2c3140;
+    --rule-soft: #232733;
+    --accent:    #9fb0d4;
+    --crit:      #f08a92;
+    --crit-bg:   #251a1d;
+    --warn:      #dcb45f;
+    --warn-bg:   #241f14;
+    --sugg:      #83bcd4;
+    --sugg-bg:   #16222a;
+    --ok:        #7ec79a;
+    --ok-bg:     #16231b;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.62;
+    margin: 0;
+    padding: 3rem 1.5rem 6rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 50rem; margin: 0 auto; display: flex; flex-direction: column; gap: 2.5rem; }
+
+  header.masthead { display: flex; flex-direction: column; gap: .6rem; }
+  .eyebrow {
+    font-family: var(--sans); font-size: .72rem; font-weight: 600;
+    letter-spacing: .13em; text-transform: uppercase; color: var(--accent);
+  }
+  h1 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(1.9rem, 4.4vw, 2.7rem);
+    line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: -.01em;
+  }
+  .sub { color: var(--slate); font-size: .95rem; margin: 0; }
+
+  h2 {
+    font-family: var(--serif); font-weight: 600; font-size: 1.5rem; line-height: 1.25;
+    margin: 0 0 .2rem; text-wrap: balance;
+    padding-bottom: .5rem; border-bottom: 2px solid var(--rule);
+  }
+  h3 {
+    font-family: var(--sans); font-weight: 650; font-size: 1rem;
+    margin: 0 0 .1rem; letter-spacing: -.005em;
+  }
+  section { display: flex; flex-direction: column; gap: 1.15rem; }
+  p { margin: 0; }
+  a { color: var(--accent); }
+
+  .note {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: 1.1rem 1.3rem; display: flex; flex-direction: column; gap: .7rem;
+    font-size: .93rem; color: var(--ink-soft);
+  }
+  .note strong { color: var(--ink); }
+
+  .counts { display: flex; flex-wrap: wrap; gap: .6rem; }
+  .count {
+    display: flex; align-items: baseline; gap: .5rem;
+    border: 1px solid var(--rule); background: var(--surface);
+    padding: .55rem .9rem; font-size: .85rem; color: var(--slate);
+  }
+  .count b { font-size: 1.25rem; font-family: var(--serif); font-variant-numeric: tabular-nums; }
+  .count.c b { color: var(--crit); } .count.w b { color: var(--warn); }
+  .count.s b { color: var(--sugg); } .count.o b { color: var(--ok); }
+
+  .find {
+    background: var(--surface); border: 1px solid var(--rule); border-left-width: 4px;
+    padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: .55rem;
+  }
+  .find.crit { border-left-color: var(--crit); }
+  .find.warn { border-left-color: var(--warn); }
+  .find.sugg { border-left-color: var(--sugg); }
+  .find.ok   { border-left-color: var(--ok); }
+  .find > .top { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+  .chip {
+    font-size: .66rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+    padding: .2rem .5rem; border-radius: 2px; white-space: nowrap;
+  }
+  .chip.crit { color: var(--crit); background: var(--crit-bg); }
+  .chip.warn { color: var(--warn); background: var(--warn-bg); }
+  .chip.sugg { color: var(--sugg); background: var(--sugg-bg); }
+  .chip.ok   { color: var(--ok);   background: var(--ok-bg); }
+  .find p { font-size: .93rem; color: var(--ink-soft); }
+  .fix { font-size: .93rem; color: var(--ink); }
+  .fix b { font-weight: 650; }
+
+  code, .loc {
+    font-family: var(--mono); font-size: .84em;
+    background: var(--rule-soft); padding: .1rem .35rem; border-radius: 2px;
+    color: var(--ink); white-space: nowrap;
+  }
+  .quote { font-family: var(--serif); font-style: italic; color: var(--ink); }
+
+  .scroll { overflow-x: auto; border: 1px solid var(--rule); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .87rem; min-width: 34rem; }
+  th, td { text-align: left; padding: .55rem .8rem; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th {
+    font-size: .68rem; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--slate); font-weight: 650; border-bottom: 1px solid var(--rule);
+  }
+  td.st { white-space: nowrap; font-weight: 600; color: var(--ok); }
+  tr:last-child td { border-bottom: none; }
+
+  ol.actions { margin: 0; padding-left: 0; list-style: none; counter-reset: a; display: flex; flex-direction: column; gap: .8rem; }
+  ol.actions li {
+    counter-increment: a; display: grid; grid-template-columns: 1.9rem 1fr; gap: .8rem;
+    font-size: .95rem; align-items: baseline;
+  }
+  ol.actions li::before {
+    content: counter(a); font-family: var(--serif); font-size: 1.1rem; color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  ul.plain { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .4rem; font-size: .93rem; color: var(--ink-soft); }
+  footer { border-top: 1px solid var(--rule); padding-top: 1.2rem; font-size: .85rem; color: var(--slate); }
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Pre-submission review</div>
+  <h1>Benchmarking &amp; Performance Analysis of Dataspace Connectors</h1>
+  <p class="sub">Whole thesis — 8 chapter files, 289 paragraphs, 65 references. Reference verification: prioritized (10 of 65 checked in depth).</p>
+</header>
+
+<div class="note">
+  <p><strong>Read this first.</strong> This is a self-review, not a Turnitin replacement, and it does not "detect AI". Real plagiarism detection compares against billions of sources; this checks your reference list, verifies sources exist, and flags prose that reads as ungrounded. Every item is a prompt to check, not a verdict. Still run TU Dortmund's official check.</p>
+  <p>On the "will it be flagged as AI" worry specifically: no local tool can promise a pass, because the detectors are closed models with shifting thresholds. What actually settles a challenge is <strong>provenance, not polish</strong> — a git history with months of real commits, a <code>.bib</code> that grew over time, raw run folders, dated drafts. You already have that: this repo has real commit history and immutable per-run result folders. Keep it, and don't squash the history before submission.</p>
+</div>
+
+<div class="counts">
+  <div class="count c"><b>3</b> Critical</div>
+  <div class="count w"><b>5</b> Warning</div>
+  <div class="count s"><b>3</b> Suggestion</div>
+  <div class="count o"><b>0</b> Citation defects</div>
+</div>
+
+<section>
+  <h2>The headline: your prose and citations are clean</h2>
+  <p>This is the unusual part, so take it first. The citation backbone is <strong>defect-free</strong>: 65 bibliography entries, 65 distinct in-text citations, <strong>zero orphans, zero uncited padding, zero duplicate numbers</strong>. Every reference I verified matched on authors, year, venue, and identifier — including page ranges and DOIs.</p>
+  <p>The prose pass came back nearly empty too. Across all eight chapters the machine-prose vocabulary scan found <em>two</em> hits: one figurative "landscape" and one "Furthermore" (both discussed below), and <strong>zero</strong> universal-claim phrases, <strong>zero</strong> stacked hedges, and no <span class="loc">read-first</span> paragraphs in the triage. Your body chapters are dense with version strings, measured values, component names, and state names — which is exactly the grounding that makes prose unmistakably yours.</p>
+  <p>The real problems are elsewhere: <strong>a scope contradiction that runs from the abstract into Chapter 4</strong>, an empty declaration page, and an abstract that was never updated from the proposal stage.</p>
+</section>
+
+<section>
+  <h2>1. Critical</h2>
+
+  <div class="find crit">
+    <div class="top"><span class="chip crit">Critical</span><h3>The thesis promises four connectors and delivers three</h3></div>
+    <p>Chapters 1–4 state throughout that the study benchmarks <em>four</em> implementations, naming Tractus-X EDC among them. Chapter 5 then excludes Tractus-X — <span class="quote">"could not be brought to instrumentation parity … within the time frame of this work"</span> — and Chapters 5, 6 and 8 report three. The exclusion is acknowledged <strong>only</strong> in Ch. 5 and the Ch. 6 threats section. An examiner reads the abstract and Chapter 1 first, and will hit this contradiction on page one.</p>
+    <p>Unreconciled locations: <span class="loc">abstract.tex:5</span>, <span class="loc">01:18</span>, <span class="loc">01:27</span>, <span class="loc">03:68</span> and the "This thesis" row of <code>tab:related-work-comparison</code>, <span class="loc">04:8</span>, <span class="loc">04:14</span>, <span class="loc">04:86</span> (goal G1 environment), <span class="loc">04:129</span> (figure caption: "generalised across the four connectors"), plus roughly ten "four implementations" references in Ch. 2.</p>
+    <p class="fix"><b>Fix:</b> decide the framing and apply it once, everywhere. The defensible version keeps four in Ch. 2 (four implementations <em>exist</em> and are profiled) but states three in the abstract, the objective, the Ch. 3 table row, and the Ch. 4 goal — with a single forward sentence in Ch. 1 noting that Tractus-X is profiled but not instrumented, and why. Don't leave the reader to discover it in Chapter 5.</p>
+  </div>
+
+  <div class="find crit">
+    <div class="top"><span class="chip crit">Critical</span><h3>The Statutory Declaration page is empty</h3></div>
+    <p><span class="loc">main.tex:339–345</span> sets <code>\thispagestyle{empty}</code> and a PDF bookmark named "Statutory Declaration" — and then the document ends. There is no declaration text. For a TU Dortmund master's thesis the <em>Eigenständigkeitserklärung</em> is mandatory, and a missing one is a formal defect independent of the thesis content.</p>
+    <p class="fix"><b>Fix:</b> paste your faculty's exact required wording (do not paraphrase it — the wording is prescribed), with place, date, and signature line. While you're there: check whether your examination regulations require an <strong>AI-use declaration</strong>. You have used AI substantively for drafting and LaTeX support; most German programmes now permit that <em>if declared</em>, and declaring is the cheap path where concealing is the expensive one.</p>
+  </div>
+
+  <div class="find crit">
+    <div class="top"><span class="chip crit">Critical</span><h3>The abstract is still a proposal, not a thesis abstract</h3></div>
+    <p><span class="loc">preamble/abstract.tex</span> is written in the future tense throughout — <span class="quote">"This thesis aims to conduct"</span>, <span class="quote">"the thesis will also analyze"</span>, <span class="quote">"The research will adapt"</span>, <span class="quote">"The results … will contribute"</span> — and states <strong>no findings at all</strong>. The work is finished; Chapter 6 has the numbers. It also says "four connector implementations" (see above), opens a sentence with "Furthermore", promises <span class="quote">"valuable insights"</span> and <span class="quote">"areas for improvement"</span> without specifics, and uses US spellings (<em>organizations, analyze, utilization</em>) where the entire body uses British <em>-ise/-isation</em> — 25 instances of "utilisation" alone.</p>
+    <p>It also never mentions <strong>X1, the measured cost of identity</strong>, which is the thesis's headline contribution.</p>
+    <p class="fix"><b>Fix:</b> rewrite in past/present to match the finished work, name three connectors, and state the actual results — the measured identity overhead, the capacity finding, and the fact that the host was never the limit. An empirical abstract that contains no numbers is the single most-read page of the thesis working against you. This is the highest-value hour you can spend.</p>
+  </div>
+</section>
+
+<section>
+  <h2>2. Warnings</h2>
+
+  <div class="find warn">
+    <div class="top"><span class="chip warn">Warning</span><h3>Two different k6 versions across the campaign, never discussed</h3></div>
+    <p><span class="loc">05:62</span> records the load generator as <span class="quote">k6 v2.0.0 (v2.2.0 for the endurance runs)</span>. That string is the only mention in the thesis — the version change appears in no parity argument, no threats-to-validity item, and no reproducibility note. It matters because the endurance run feeds the RQ3 resource comparison in §6.3, and the whole study rests on holding every factor constant except identity. Chapter 5 even argues the k6 driver is <span class="quote">"byte-identical across all connector repositories"</span>.</p>
+    <p class="fix"><b>Fix:</b> one sentence in §6.7 stating that the endurance scenario ran on v2.2.0, that the same version was used for <em>both</em> arms of every connector (confirm this from your run folders), and therefore that it cannot bias the G1−G2 difference. If it was <em>not</em> uniform across arms, that is a genuine limitation and needs saying.</p>
+  </div>
+
+  <div class="find warn">
+    <div class="top"><span class="chip warn">Warning</span><h3>Two direct quotations without an adjacent citation</h3></div>
+    <p><span class="loc">02:54</span> — the sentence quoting <span class="quote">"the same language for specifying their trust model"</span>, <span class="quote">"lingua franca"</span> and <span class="quote">"a common set of trusted ecosystem services"</span> carries no citation; the nearest is at the end of the <em>previous</em> sentence.</p>
+    <p><span class="loc">02:184</span> — same pattern for <span class="quote">"all EDC extensions and runtimes from the DST department"</span>.</p>
+    <p class="fix"><b>Fix:</b> add <code>\citep{gaiaxArchitecture}</code> and <code>\citep{fraunhoferIsstDst}</code> at the end of those two sentences. Verbatim quoted words need the citation on the sentence that contains them, not one sentence earlier. I checked all 34 quoted passages — the other 32 are correctly attributed.</p>
+  </div>
+
+  <div class="find warn">
+    <div class="top"><span class="chip warn">Warning</span><h3>No page numbers on quotations from paginated sources</h3></div>
+    <p>None of the direct quotes carry locators. For the web specs (DSP, DCP, Eclipse docs) that's defensible — they're unpaginated. But IDS-RAM 4 <span class="loc">02:34</span>, the Gaia-X Architecture Document, and the Trust Framework are paginated PDFs, and examiners expect <code>\citep[p.~N]{key}</code> on a verbatim quote from those.</p>
+    <p class="fix"><b>Fix:</b> add page locators to the IDS-RAM and Gaia-X quotations. natbib takes <code>\citep[p.~42]{IDS4.0}</code> directly.</p>
+  </div>
+
+  <div class="find warn">
+    <div class="top"><span class="chip warn">Warning</span><h3>19 tables, no List of Tables</h3></div>
+    <p><code>\listoftables</code> is commented out at <span class="loc">main.tex:256</span> while the List of Figures is active. The thesis carries 19 tables, several of which (connector versions, the metric set, the analysis statistics) are reference material a reader will want to jump back to.</p>
+    <p class="fix"><b>Fix:</b> uncomment the block. Every table already has a <code>\caption</code> and a short caption, so it will render correctly with no further work.</p>
+  </div>
+
+  <div class="find warn">
+    <div class="top"><span class="chip warn">Warning</span><h3>ISO/IEC 20151-1 may no longer be an FDIS</h3></div>
+    <p>Reference [13] cites the standard as <em>FDIS</em>. I confirmed it was at FDIS/approval stage after the DIS registration of May 2025 — but you submit in September 2026, and IDSA has published material on where the standard stands in 2026. If it has been published as a full International Standard by then, citing the draft looks out of date on the thesis's foundational definition of "dataspace".</p>
+    <p class="fix"><b>Fix:</b> re-check <a href="https://www.iso.org/standard/86589.html">iso.org/standard/86589.html</a> shortly before submission and drop "FDIS" from the entry if it has been published.</p>
+  </div>
+</section>
+
+<section>
+  <h2>3. Reference verification</h2>
+  <p>Ten references verified in depth — chosen as the ones most worth checking (recent preprints, a journal article, a technical report, a workshop paper, an edited-volume chapter, a live standard, and a web-hosted standard). <strong>All ten matched exactly</strong>, including arXiv identifiers, DOI, volume/issue, and page ranges. No fabrications, no mismatches.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>#</th><th>Reference</th><th>Status</th><th>Checked</th></tr></thead>
+      <tbody>
+        <tr><td>8</td><td>Galij et al., <em>Performance Impact of Data Sovereignty Features</em></td><td class="st">Verified</td><td>Appl. Sci. 15(17):9841, DOI 10.3390/app15179841 — all match</td></tr>
+        <tr><td>51</td><td>Arnold et al., <em>A Service Architecture for Dataspaces</em></td><td class="st">Verified</td><td>arXiv:2507.07979, 4 authors, Jul 2025 — match</td></tr>
+        <tr><td>46</td><td>Dizdarević et al., <em>Benchmarking Open Source MQTT Brokers</em></td><td class="st">Verified</td><td>arXiv:2305.13893, May 2023 — match</td></tr>
+        <tr><td>50</td><td>Pampus et al., <em>Evolving Data Space Technologies</em></td><td class="st">Verified</td><td>ISoLA 2022, LNCS 13704, pp. 366–381 — match</td></tr>
+        <tr><td>63</td><td>Reichelt et al., <em>Overhead Comparison of OpenTelemetry…</em></td><td class="st">Verified</td><td>SSP 2021 Leipzig, CEUR-WS Vol-3043 — match</td></tr>
+        <tr><td>44</td><td>Minhas et al., <em>Using GQM to compare research and practice…</em></td><td class="st">Verified</td><td>J. Softw. Evol. Process, 2023 — match</td></tr>
+        <tr><td>49</td><td>Steinbuss &amp; Tiran, <em>Data Space Connector Report</em></td><td class="st">Verified</td><td>IDSA Report No. 1, October 2025 — match</td></tr>
+        <tr><td>43</td><td>Armstrong &amp; Eigenmann, <em>Scientific Benchmarking…</em></td><td class="st">Verified</td><td>MIT Press 2001, pp. 109–127 — match</td></tr>
+        <tr><td>41</td><td>ACM SIGSOFT, <em>Empirical Standard: Benchmarking</em></td><td class="st">Verified</td><td>URL live; the five attributes you cite are the ones it lists</td></tr>
+        <tr><td>13</td><td>ISO/IEC FDIS 20151-1</td><td class="st">Verified</td><td>Exists; stage may have advanced — see warning above</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:.9rem;color:var(--slate)">The remaining 55 are largely well-known works (Jain, Basili, Little, Amdahl, Dean &amp; Barroso, Cooper, Hoefler &amp; Belli, Kounev, Wohlin, Gregg) and vendor documentation with live URLs. Ask if you want an exhaustive pass over all 65.</p>
+</section>
+
+<section>
+  <h2>4. Prose &amp; attribution detail</h2>
+
+  <div class="find ok">
+    <div class="top"><span class="chip ok">No action</span><h3>The two vocabulary hits are both fine</h3></div>
+    <p><span class="loc">03:36</span> uses "landscape" in <span class="quote">"summarises this landscape"</span> — a literal description of a research landscape, not figurative filler. The only "Furthermore" in the thesis is in the abstract, which you're rewriting anyway.</p>
+  </div>
+
+  <div class="find ok">
+    <div class="top"><span class="chip ok">No action</span><h3>The USE-method paraphrase is a genuine paraphrase</h3></div>
+    <p>I spot-checked <span class="loc">02:291</span> — <span class="quote">"saturation, the accumulation of queued work, is the more reliable indicator of a bottleneck"</span> — against Gregg's original wording. It is reworded, not near-verbatim, and it is cited. Correct as it stands.</p>
+  </div>
+
+  <div class="find sugg">
+    <div class="top"><span class="chip sugg">Suggestion</span><h3>Consider a German Zusammenfassung</h3></div>
+    <p>The thesis has an English abstract only. Some TU Dortmund faculties require a German summary alongside it.</p>
+    <p class="fix"><b>Fix:</b> check your <em>Prüfungsordnung</em>. If required, it goes next to the abstract in <code>preamble/</code>.</p>
+  </div>
+
+  <div class="find sugg">
+    <div class="top"><span class="chip sugg">Suggestion</span><h3>Verify the environment version strings against the host</h3></div>
+    <p><span class="loc">05:55–62</span> lists Docker Engine 29.6.1, Docker Compose v5.2.0, k6 v2.0.0, Ubuntu 24.04.4, kernel 6.8.0-124. These are your own environment facts and I have no basis to dispute them — but they are exactly the kind of detail a reproducibility-minded examiner spot-checks, and a transposed digit is easy to make.</p>
+    <p class="fix"><b>Fix:</b> re-read them off the host once (<code>docker version</code>, <code>k6 version</code>, <code>uname -r</code>) and confirm against the table.</p>
+  </div>
+</section>
+
+<section>
+  <h2>5. Bottom line</h2>
+  <ol class="actions">
+    <li>Rewrite the abstract: past tense, three connectors, actual numbers including the X1 identity-overhead result, British spelling.</li>
+    <li>Reconcile four vs. three across the abstract, Ch. 1, the Ch. 3 comparison table, and the Ch. 4 goal definition and figure caption.</li>
+    <li>Write the Statutory Declaration page, and check whether an AI-use declaration is required.</li>
+    <li>Add the two missing quotation citations, and one sentence on the k6 version change in the threats section.</li>
+    <li>Turn on the List of Tables; add page locators to the IDS-RAM and Gaia-X quotes; re-check the ISO 20151 stage before submitting.</li>
+  </ol>
+  <p style="margin-top:.5rem">None of these are integrity problems in the sense that matters — no fabricated sources, no unattributed passages, no broken citations. They are a scope contradiction, a missing formal page, and a stale abstract. All are a few hours of work, and the thesis is in genuinely good shape underneath them.</p>
+</section>
+
+<footer>
+  Reviewed against LaTeX source and the compiled PDF. Prose triage covered 289 paragraphs; citation cross-check covered all 65 references; reference existence verified for a prioritized sample of 10. Not a substitute for TU Dortmund's official integrity check.
+</footer>
+
+</div>

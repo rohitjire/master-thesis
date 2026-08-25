@@ -10,9 +10,7 @@ evidence is in \cref{chap:results-evaluation}; nothing is re-derived here.
 
 Dataspace connectors are compared on features far more often than on performance, and the
 comparisons that do exist rarely hold the identity layer constant
-(\cref{sec:gap-analysis}). This thesis measured three \gls{dsp}-conformant connectors (the Fraunhofer ISST \gls{edc}, the Factory-X \gls{edc}, and DSP-Native BaSyx) on a
-normalised single-host substrate, each deployed twice: once with its full \gls{dcp}
-identity stack running, and once with identity verification mocked. The difference between
+(\cref{sec:gap-analysis}). This thesis measured three \gls{dsp}-conformant connectors on a normalised single-host substrate: the Fraunhofer ISST \gls{edc}, the Factory-X \gls{edc}, and DSP-Native BaSyx. Each was deployed twice, once with its full \gls{dcp} identity stack running and once with identity verification mocked. The difference between
 those two deployments is a direct measurement of what identity costs, rather than an
 inference from systems that differ in several respects at once.
 
@@ -26,10 +24,7 @@ variation, so it is not read as a difference. DSP-Native BaSyx completes the sam
 transaction in 2884.5\,ms.
 
 Identity costs a fixed amount per request, and only in the control plane. Measured on the
-provider itself it adds 30.0\,ms, 41.3\,ms, and 44.7\,ms. The cost does not grow with the
-work a request performs: across a thousandfold increase in catalog size it stays inside a
-narrow band while the underlying latency rises, so its relative weight falls as requests
-get larger. The data plane shows no difference at all.
+provider itself it adds 30.0\,ms, 41.3\,ms, and 44.7\,ms. The cost does not grow with the work a request performs. Across a thousandfold increase in catalog size it stays inside a narrow band while the underlying latency rises, so its relative weight falls as requests get larger. The data plane shows no difference at all.
 
 The protocol sets the baseline, not the identity layer. Between 93 and 97\,\% of every
 transaction is spent waiting for the two asynchronous state machines to reach their
@@ -45,14 +40,12 @@ machine.
 The best-looking arm in the campaign is the one that cannot be compared. DSP-Native BaSyx
 with identity disabled leads every measurement taken: 814.0\,ms end to end against
 4198.0 and 4416.0\,ms for the two \gls{edc} connectors, 39.49\,tx/s at fifty concurrent
-clients against 3.34 and 2.24, and the lowest processor, heap, and collector figures of
-any arm. That result belongs to the setup rather than to the connector. Its mock validator
-accepts a token an \gls{edc} consumer cannot produce, so this arm runs without an \gls{edc}
-consumer at all: k6 speaks \gls{dsp} to the provider directly and a callback sink absorbs
-the asynchronous replies (\cref{subsec:mock-arm}). A consumer control plane, its database,
-and its status polling are therefore absent from the measurement, and those are most of
-what the other five arms spend their time on. The comparison that survives is the
-provider's own latency, where identity costs 44.7\,ms against 30.0 and 41.3\,ms and all
+clients against 3.34 and 2.24, and the lowest processor, heap, and collector figures of any arm.
+
+That result belongs to the setup rather than to the connector. Its mock validator accepts a token an \gls{edc} consumer cannot produce, so this arm runs without an \gls{edc} consumer at all. Instead, k6 speaks \gls{dsp} to the provider directly and a callback sink absorbs the asynchronous replies (\cref{subsec:mock-arm}). A consumer control plane, its database,
+and its status polling are therefore absent from the measurement, and those are most of what the other five arms spend their time on.
+
+The comparison that survives is the provider's own latency, where identity costs 44.7\,ms against 30.0 and 41.3\,ms and all
 three connectors sit in the same order of magnitude.
 
 Beyond the measurements, this thesis contributes the instrument that produced them: a
@@ -68,11 +61,9 @@ end-to-end performance under realistic dataspace data-exchange workloads?}
 
 They are closer than their differing origins suggest at a realistic operating point, and
 they diverge under load. At 1\,tx/s the two \gls{edc}-derived connectors are
-indistinguishable from each other, and DSP-Native BaSyx completes the same transaction in
-roughly 60\,\% of their time (\cref{sec:rq1}). Under rising load the ordering changes:
-Factory-X is the first to stop converting offered load into completed transactions, at
-about 2.5\,tx/s; the Fraunhofer ISST \gls{edc} sustains roughly 4\,tx/s before plateauing;
-and BaSyx continues to deliver at every rung tested (\cref{sec:rq2}). Resource consumption
+indistinguishable from each other, and DSP-Native BaSyx completes the same transaction in roughly 60\,\% of their time (\cref{sec:rq1}).
+
+Under rising load the ordering changes. Factory-X is the first to stop converting offered load into completed transactions, at about 2.5\,tx/s. The Fraunhofer ISST \gls{edc} sustains roughly 4\,tx/s before plateauing, and BaSyx continues to deliver at every rung tested (\cref{sec:rq2}). Resource consumption
 separates them further, with garbage-collection activity differing by nearly two orders of
 magnitude between the \gls{edc} connectors and BaSyx, while none of the three approached
 the host's capacity (\cref{sec:rq3}). No connector showed heap growth that would exhaust
@@ -92,15 +83,9 @@ set by the protocol it implements.
 The second is where each implementation performs credential verification. On both
 \gls{edc} connectors the identity cost concentrates almost entirely in the catalog request, the first protected message of an exchange, while the subsequent asynchronous waits
 are barely affected. On DSP-Native BaSyx the same cost appears inside those waits instead.
-This is consistent with the \gls{edc} stack verifying a presentation once per exchange and
-then proceeding against an established context, and with BaSyx validating per message
-(\cref{sec:x1-overhead}); the per-hop traces collected during the campaign are the
-evidence that would confirm it directly.
+This is consistent with the \gls{edc} stack verifying a presentation once per exchange and then proceeding against an established context, and with BaSyx validating per message (\cref{sec:x1-overhead}). The per-hop traces collected during the campaign are the evidence that would confirm it directly.
 
-The third is deployment shape. DSP-Native BaSyx collapses control plane and data
-plane into a single process and serves the transfer synchronously, which is the most
-plausible account of both its lower baseline latency and its very different
-garbage-collection profile (\cref{sec:sut,sec:rq3}). That connector's comparison against
+The third is deployment shape. DSP-Native BaSyx collapses control plane and data plane into a single process and serves the transfer synchronously. That is the most plausible account of both its lower baseline latency and its very different garbage-collection profile (\cref{sec:sut,sec:rq3}). That connector's comparison against
 the other two is, however, the weakest of the three: its two arms do not share a consumer,
 so only its provider-side figures are directly comparable (\cref{subsec:tv-internal}).
 
@@ -109,14 +94,15 @@ so only its provider-side figures are directly comparable (\cref{subsec:tv-inter
 
 Five limits bound what these results support. Everything was measured on one machine, with
 the participants communicating over a container network rather than a real one. The
-absolute latencies are therefore lower than a distributed deployment would show. What
-carries beyond this setup is the ordering of the connectors and the shape of their curves,
-not the millisecond values. The workload is narrower than a production dataspace: one asset type,
+absolute latencies are therefore lower than a distributed deployment would show. What carries beyond this setup is the ordering of the connectors and the shape of their curves, not the millisecond values.
+
+The workload is narrower than a production dataspace: one asset type,
 one dataset shape, the negotiate--transfer--pull cycle, and a single membership credential,
 so richer usage policies were never exercised. The
 thirty-minute endurance window is long enough to show that no component grows fast enough to
-exhaust its heap on that timescale, and too short to exclude a slow leak. And no
-significance test accompanies any comparison. Five repetitions of a run whose internal
+exhaust its heap on that timescale, and too short to exclude a slow leak.
+
+No significance test accompanies any comparison. Five repetitions of a run whose internal
 transactions are not independent of one another cannot support
 one~\citep{hoefler2015scientific}. Differences are therefore judged against the observed
 run-to-run range, and reported as inconclusive wherever the ranges of two arms overlap.
@@ -150,10 +136,7 @@ a separate service in one of the implementations measured here
 connectors that sit close together at two-party scale stay close once discovery is federated.
 
 \textbf{Measure every form of data transfer, not one.} This benchmark moved bytes one way, as
-an HTTP pull from a provider endpoint. The \gls{dsp} governs the control plane only and states
-that data-plane ``interfaces and interaction patterns are not in scope''~\citep{datapsaceProtocol2025},
-so how fast a connector moves data is a property of the implementation rather than a guarantee
-of the protocol. The \gls{edc} ecosystem already carries data-plane implementations beyond
+an HTTP pull from a provider endpoint. The \gls{dsp} governs the control plane only, and states that data-plane ``interfaces and interaction patterns are not in scope''~\citep{datapsaceProtocol2025}. How fast a connector moves data is therefore a property of the implementation rather than a guarantee of the protocol. The \gls{edc} ecosystem already carries data-plane implementations beyond
 HTTP in separate technology repositories~\citep{eclipseEdcTechnologyAws}, and push transfers
 reverse the direction of the movement entirely. Sweeping object storage, message brokers, push
 as well as pull, and streaming instead of request--response would show whether identity stays
@@ -162,8 +145,5 @@ confined to the control plane when the data plane is not a single synchronous re
 \textbf{Vary the usage policy.} Every negotiation here carried the same minimal policy, and
 nothing beyond a membership credential was evaluated. Usage control is what separates a
 dataspace connector from an ordinary transfer service, and the policies written in practice
-are considerably richer than the one used here~\citep{dam2023policypatterns}. Policy
-evaluation runs on the critical path of contract negotiation, which is where the identity cost
-concentrates on the two \gls{edc} connectors (\cref{sec:x1-overhead}), so policy complexity is
-a plausible second cost of the same shape. Holding the connector and the workload fixed while
+are considerably richer than the one used here~\citep{dam2023policypatterns}. Policy evaluation runs on the critical path of contract negotiation, which is where the identity cost concentrates on the two \gls{edc} connectors (\cref{sec:x1-overhead}). Policy complexity is therefore a plausible second cost of the same shape. Holding the connector and the workload fixed while
 varying policy complexity reuses the two-arm design of \cref{sec:gqm-decomposition} directly.
