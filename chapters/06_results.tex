@@ -317,10 +317,6 @@ zero and ten per cent. On DSP-Native BaSyx the pattern inverts: the catalog requ
 by 47.9\,ms, but time-to-agreed rises by a factor of 7.0 and time-to-\gls{edr} by 4.0, so
 the cost falls inside the asynchronous state machine rather than ahead of it.
 
-Each pattern matches a different design. The \gls{edc} pattern is what a design would produce if it verifies a presentation once, at the first protected request of an exchange, and then proceeds against an established context. The BaSyx pattern is what per-message validation inside the protocol handlers would produce. Both readings are consistent with the respective documented
-designs~\citep{dcpSpec, dspProtocolLib}, and the traces of \cref{subsec:tracing} are the
-evidence that would confirm or refute them directly. % TODO: needs source -- confirm against the EDC DCP implementation whether verification is per-exchange or per-message.
-
 One measurement resists this account. Negotiation initiation is consistently faster
 with identity enabled than without it: 6.2\,ms against 50.1\,ms on the \gls{dst}
 \gls{edc}, 7.0\,ms against 45.8\,ms on Factory-X, and 6.8\,ms against 10.4\,ms on BaSyx.
