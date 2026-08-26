@@ -16,7 +16,8 @@ This chapter reports the measurements that answer the research questions of \cre
     \setlength{\tabcolsep}{4pt}
     \input{tables/rq1-steady}
     \begin{tablenotes}\footnotesize
-        \item Latency columns in ms. Throughput is completed transactions per second over the measured window, not the rate the load generator was configured to offer.
+        \item Latency columns in ms. 
+        \item Throughput is completed transactions per second over the measured window, not the rate the load generator was configured to offer.
         \item $\Delta = \tilde{x}_{G_1} - \tilde{x}_{G_2}$ of the median, reported on the $G_1$ row (\cref{subsec:analysis-statistics}).
     \end{tablenotes}
     \end{threeparttable}
@@ -47,7 +48,7 @@ The ratio of mean to median lies between 0.97 and 1.01 in all six arms. The dist
       \legend{DST $G_1$, DST $G_2$, Factory-X $G_1$, Factory-X $G_2$}
     \end{axis}
     \end{tikzpicture}
-    \caption[Data-plane rate against payload size]{Achieved data-plane transfer rate against payload size, by connector and identity goal. Both axes are logarithmic.}
+    \caption[Data-plane rate against payload size]{Achieved data-plane transfer rate against payload size, by connector and identity goal.}
     \label{fig:rq1-payload}
 \end{figure}
 
@@ -222,7 +223,7 @@ show that no component grows catastrophically, and insufficient to exclude a slo
       \legend{DST $G_1$, DST $G_2$, Factory-X $G_1$, Factory-X $G_2$}
     \end{axis}
     \end{tikzpicture}
-    \caption[Catalog latency against catalog size]{Catalog-request latency against the number of advertised assets, by connector and identity goal. The horizontal axis is logarithmic.}
+    \caption[Catalog latency against catalog size]{Catalog-request latency against the number of advertised assets, by connector and identity goal.}
     \label{fig:rq5-catalog}
 \end{figure}
 
@@ -248,11 +249,6 @@ The preceding sections report the difference between the two goals question by q
     \small
     \setlength{\tabcolsep}{4pt}
     \input{tables/x1-overhead}
-    \begin{tablenotes}\footnotesize
-        \item Both the difference and the ratio are reported: a fixed offset is a large ratio on a cheap operation and a negligible one on an expensive one, so either number alone conceals whether the cost is constant or proportional.
-        \item \emph{Separated} records whether the two goals' observed ranges overlap. It is a weak criterion at this repetition count and is not a significance test (\cref{subsec:analysis-statistics}).
-        \item The DSP-Native BaSyx identity-disabled arm uses a different load driver from its identity-enabled arm (\cref{subsec:mock-arm}), so its $\Delta$ confounds the identity layer with a harness difference and is not comparable with the other two connectors' (\cref{sec:results-validity}).
-    \end{tablenotes}
     \end{threeparttable}
     \caption[Identity overhead per connector and metric]{Identity overhead X1 per connector and metric, as the difference between the identity-enabled and identity-disabled goals.}
     \label{tab:x1-overhead}
