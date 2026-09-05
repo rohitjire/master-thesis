@@ -148,7 +148,7 @@ DSP-Native BaSyx continues to climb, reaching 6.0\,tx/s identity-disabled and 5.
 
 \textbf{Identity and memory.} The identity layer's effect on memory is confined to one connector. Peak heap differs between arms by 1.8\,\% for the \gls{dst} \gls{edc} and 0.9\,\% for Factory-X, both within run-to-run variation, whereas BaSyx holds 665.9\,MB identity-enabled against 323.8\,MB identity-disabled, a factor of 2.06.
 
-\textbf{Long-run stability.} No service grows fast enough to threaten its container limit. Long-run
+\textbf{Long-run stability.} No service shows heap growth fast enough to threaten its container limit within the thirty-minute observation window. Long-run
 stability was measured with the \texttt{soak} scenario, a gentle 0.5\,tx/s held for
 thirty minutes and run once per arm, with heap occupancy sampled every five seconds and
 a least-squares trend fitted to each series.
@@ -291,10 +291,11 @@ lengthening its tail disproportionately.
 Measured on the provider alone the same cost is 30.0\,ms (1.15) and 41.3\,ms (1.22), and
 for DSP-Native BaSyx 44.7\,ms (2.90). The load control holds in all three cases. The
 provider served the same request rate in both arms to within one per cent. A higher
-latency at equal load therefore isolates the difference to the work performed per request,
-which is the credential verification itself.
+latency at equal load is therefore consistent with additional identity-related processing per
+request, though the measurement does not by itself isolate the internal cause to credential
+verification.
 
-\textbf{Fixed, not proportional.} The cost is fixed per request, not proportional to the work. The catalog sweep
+\textbf{Approximately fixed, not proportional.} The results are consistent with an approximately fixed request-level overhead over the tested catalog sizes, though the limited replication does not justify treating it as strictly constant. The catalog sweep
 separates the two possibilities, because it varies the work while holding the identity
 operation constant. Across a thousandfold increase in catalog size the difference stays
 within a narrow band: 135.8, 124.0, 105.8 and 131.4\,ms for the \gls{dst}
@@ -306,9 +307,9 @@ A verification performed once per request, independent of how much the request r
 this signature. Its practical consequence is that the relative penalty of running real
 identity diminishes as the workload per request increases.
 
-\textbf{Control plane only.} The cost is confined to the control plane. \Cref{fig:rq1-payload} shows the four
+\textbf{Control plane only, on the paths tested.} For the two \gls{edc} connectors and the HTTP-pull data-plane path tested here, no material identity-related data-plane effect is observed. \Cref{fig:rq1-payload} shows the four
 data-plane series lying almost on top of one another across five orders of magnitude, with
-the largest difference in pull latency being 7.5\,ms on a 100\,MB transfer. Identity is paid once per transaction and nothing per byte transferred. That is consistent with a design that establishes trust before the transfer begins, then hands the data plane a token rather than re-verifying during it~\citep{dcpSpec}.
+the largest difference in pull latency being 7.5\,ms on a 100\,MB transfer. On these paths, identity is paid once per transaction and nothing per byte transferred. That is consistent with a design that establishes trust before the transfer begins, then hands the data plane a token rather than re-verifying during it~\citep{dcpSpec}.
 
 \textbf{Where the cost lands differs by architecture.} This is the observation that most constrains any explanation of the connector-to-connector differences. On both
 \gls{edc} connectors the increase concentrates almost entirely in the catalog request,

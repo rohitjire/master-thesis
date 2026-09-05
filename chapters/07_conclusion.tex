@@ -77,13 +77,15 @@ Three factors account for most of what was measured, in decreasing order of effe
 The dominant one is the asynchronous protocol design itself. It is common to all
 three implementations, so it explains the baseline rather than the differences between
 them. Contract negotiation and transfer are state machines whose terminal states a client
-must wait for, and that waiting is 93--97\,\% of every transaction (\cref{sec:rq4}). No implementation choice within a connector can move a figure that is
-set by the protocol it implements.
+must wait for, and that waiting is 93--97\,\% of every transaction (\cref{sec:rq4}). The protocol imposes asynchronous coordination and
+therefore shapes the latency budget, but implementation choices determine how quickly the
+state transitions are processed; the protocol explains the structure of the delay rather than
+a fixed latency value.
 
 The second is where each implementation performs credential verification. On both
 \gls{edc} connectors the identity cost concentrates almost entirely in the catalog request, the first protected message of an exchange, while the subsequent asynchronous waits
 are barely affected. On DSP-Native BaSyx the same cost appears inside those waits instead.
-This is consistent with the \gls{edc} stack verifying a presentation once per exchange and then proceeding against an established context, and with BaSyx validating per message (\cref{sec:x1-overhead}). The per-hop traces collected during the campaign are the evidence that would confirm it directly.
+This pattern suggests the implementations may differ in where or how often credential verification occurs, with the \gls{edc} stack verifying a presentation once per exchange and then proceeding against an established context, and BaSyx validating per message; the current measurements do not establish that mechanism (\cref{sec:x1-overhead}). The per-hop traces collected during the campaign are the evidence that would confirm it directly.
 
 The third is deployment shape. DSP-Native BaSyx collapses control plane and data plane into a single process and serves the transfer synchronously. That is the most plausible account of both its lower baseline latency and its very different garbage-collection profile (\cref{sec:sut,sec:rq3}). That connector's comparison against
 the other two is, however, the weakest of the three: its two arms do not share a consumer,
@@ -94,7 +96,7 @@ so only its provider-side figures are directly comparable (\cref{subsec:tv-inter
 
 Five limits bound what these results support. Everything was measured on one machine, with
 the participants communicating over a container network rather than a real one. The
-absolute latencies are therefore lower than a distributed deployment would show. What carries beyond this setup is the ordering of the connectors and the shape of their curves, not the millisecond values.
+absolute latencies are therefore lower than a distributed deployment would show. The study establishes the ordering of the connectors and the shape of their curves in this single-host setup. Whether those relationships generalise to distributed deployments remains to be validated.
 
 The workload is narrower than a production dataspace: one asset type,
 one dataset shape, the negotiate--transfer--pull cycle, and a single membership credential,
