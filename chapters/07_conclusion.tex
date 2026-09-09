@@ -26,6 +26,8 @@ transaction in 2884.5\,ms.
 Identity costs a fixed amount per request, and only in the control plane. Measured on the
 provider itself it adds 30.0\,ms, 41.3\,ms, and 44.7\,ms. The cost does not grow with the work a request performs. Across a thousandfold increase in catalog size it stays inside a narrow band while the underlying latency rises, so its relative weight falls as requests get larger. The data plane shows no difference at all.
 
+\pagebreak
+
 The protocol sets the baseline, not the identity layer. Between 93 and 97\,\% of every
 transaction is spent waiting for the two asynchronous state machines to reach their
 terminal states. Initiating a negotiation, initiating a transfer, and pulling the data
@@ -127,6 +129,8 @@ would also test the central finding directly: identity costs a fixed amount per 
 long as a \gls{did} document is read from a neighbouring container, and fetching one across a
 network may not behave that way. The principles for reproducible measurement in distributed
 environments are already established~\citep{papadopoulos2021reproducible}.
+
+\pagebreak
 
 \textbf{Grow the number of participants, not only the catalog.} Every measurement here
 involved one consumer and one provider. A production dataspace has many of both, and the

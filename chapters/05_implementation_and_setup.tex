@@ -211,6 +211,7 @@ Two cross-connector non-uniformities remain, and both are disclosed here. First,
     \label{fig:deployment-topology}
 \end{figure}
 
+\pagebreak
 
 \section{Observability Stack}\label{sec:data-tools}
 
@@ -230,6 +231,8 @@ Two cross-connector non-uniformities remain, and both are disclosed here. First,
 \textbf{Instrumentation.} The \gls{otel} Java agent (version 2.8.0) instruments every connector \gls{jvm}, attached at start-up via the \texttt{-javaagent} flag. It injects bytecode at class-loading time and needs no modification of the application~\citep{otelJavaAgent}. This zero-code property is the decisive fairness argument. The connectors under test are heterogeneous: Jetty/Jersey-based \gls{edc} runtimes and a Spring Boot application. The same agent nevertheless instruments all of them, and the \gls{otel} semantic conventions guarantee that the resulting series carry the same names and semantics everywhere. Examples are \texttt{http\_server\_request\_duration} for server-side request latency and the \texttt{jvm\_*} series for heap, \gls{gc}, and thread telemetry~\citep{opentelemetrySemconv}. Each container sets a distinct \texttt{OTEL\_SERVICE\_NAME}, so every runtime is separable in every downstream query, and the agent exports over OTLP/gRPC every 5\,s.
 
 \textbf{Collection and storage.} All agents push to a single \gls{otel} Collector, which batches the streams and re-exposes the metrics in Prometheus format, converting the \gls{otel} resource attributes into Prometheus labels so that per-runtime attribution survives the format boundary. Prometheus scrapes the collector and the node exporter every 5\,s, matching the agent export interval so that every scrape observes fresh samples. Retention covers one working week, which comfortably outlives the longest scenario and leaves the archived per-run snapshot, not the live database, as the artefact of record.
+
+\pagebreak
 
 \textbf{Reading instrument.} Grafana provisions two dashboards from the repository: a rate-error-duration dashboard over the connector \gls{api} series and a host dashboard over the node-exporter series~\citep{grafanaDocs}. Grafana's role is limited by design to live inspection: verifying during a run that the stack is healthy and that load arrives where expected.
 
@@ -260,6 +263,8 @@ Second, a \gls{dsp} transaction is not a single request but a multi-step, partia
 
 The harness is maintained as a small software project rather than as a set of ad-hoc scripts, so that running an experiment is one reproducible command instead of a remembered procedure. \Cref{lst:harness-layout} shows its layout: a library layer carrying the protocol flow, the polling logic, the seeding helpers and the metric definitions; the eight scenario scripts; the orchestration and tooling scripts; and one configuration file per connector.
 
+\pagebreak
+
 \begin{lstlisting}[numbers=none, basicstyle=\scriptsize\ttfamily, columns=fixed, caption={Layout of the k6 harness. The lib/ and scenarios/ directories are byte-identical in all three connector repositories and are checked as such before every run.}, label=lst:harness-layout]
 k6-scripts/
   lib/               protocol flow, HTTP helpers, polling, seeding, metrics
@@ -281,6 +286,8 @@ One driver therefore exercises six deployments, three connectors each in two arm
 Each connector repository exposes the same two entry points next to its Compose files, so that the operating procedure is identical whichever connector is under test. \texttt{install.sh} takes the identity arm as its only argument, selects the matching Compose file, and brings the stack up with monitoring. \texttt{cleanup.sh} tears it down together with its volumes, so that the next run starts from an empty database and not from inherited state. Given no argument, it removes both arms. The three stacks share container names by design and run one at a time on the same host (\cref{subsec:hardware}).
 
 \texttt{install.sh} therefore performs a pre-flight check. It removes containers left behind by a previously benchmarked connector, and refuses to start while another connector's stack is still running. A silent cross-connector collision thus becomes an explicit error.
+
+\pagebreak
 
 The identity-enabled arms of Factory-X and BaSyx boot with empty Identity Hubs and must be provisioned once before any transaction can succeed: registering the trusted issuer, creating both participants, requesting their membership credentials, and writing the \gls{sts} client secrets to Vault. That provisioning exists only as an interactive \gls{api} collection, which is unusable on a headless server, so this work ports it to a one-shot k6 script requiring nothing beyond the k6 binary the scenarios already need. The Fraunhofer ISST arm instead ships pre-signed credentials alongside its static \gls{did} documents and needs no such step. \Cref{lst:run-workflow} shows the resulting lifecycle.
 
@@ -403,6 +410,8 @@ results/<connector>/<arm>/<scenario>/<UTC-timestamp>/
   meta.json        parameters, epochs, identity mode, git commit
 \end{lstlisting}
 
+\pagebreak
+
 A campaign script layers the repetition discipline on top and drives a complete arm unattended. The sequence, the spacing between scenarios, and the environment are therefore fixed across all six connector--arm combinations, instead of varying with the session that executed them. Repetition is allocated where it is informative, in proportion to how much a result depends on the scenario, rather than spread uniformly.
 
 \texttt{steady} is executed five times, because it carries both the head-to-head operating-point comparison and every identity-overhead figure, and because five is a pragmatic minimum for characterising run-to-run variation at the operating point. \texttt{saturation-open} is executed three times, since the saturation point is a headline result and a single run offers no way to tell a difference between connectors from run-to-run variation. \texttt{catalog-sweep} is executed twice at each size, so that the shape of the scaling curve is not decided by one observation per point.
@@ -425,6 +434,8 @@ The preceding sections describe how measurements are produced and archived. This
 The program contains one function per table in \cref{chap:results-evaluation}, each named after that table's cross-reference label and writing a comma-separated file of the same name. No number reported in this thesis originates anywhere else. The same functions run against every connector and both arms with no per-connector special-casing, which keeps the cross-connector comparison a comparison of connectors and not of analyses~\citep{kistowski2015benchmark}.
 
 Three sources feed it, and they are deliberately not interchangeable. The k6 summary carries the client's view of every measured window, aggregated per metric. The Prometheus snapshots carry the server's view of the same window, sampled every five seconds. The k6 console log carries the only time-resolved client record. k6 summarises a whole run as one set of statistics, so a ramped scenario cannot be read from the summary at all. The console, by contrast, prints a cumulative completed-iteration count once per second, and differencing that recovers what each load rung actually delivered. Because the client and the server observe the same window through independent instruments, their agreement corroborates a figure and their disagreement is itself a finding~\citep{hasselbring2021benchmarking}.
+
+\pagebreak
 
 \Cref{tab:analysis-per-rq} states, for each recurring research question, which scenario supplies the data, which quantity is extracted from it, and which statistic is computed. It is the operational form of the \gls{gqm} tree of \cref{tab:gqm-tree}: that table maps questions to metrics, this one maps metrics to the numbers that appear in the results.
 
@@ -487,6 +498,8 @@ Four statistics are computed and no others. \Cref{tab:analysis-statistics} gives
 \end{table}
 
 No significance test accompanies any comparison. A $p$-value or a confidence interval requires enough independent replicates to estimate variability. This design affords one to five runs per arm (\cref{subsec:orchestration}), and at those counts any such figure would be produced by the assumption used to compute it rather than by the data~\citep{hoefler2015scientific}. The range takes its place. Where the two arms' observed ranges do not overlap, the difference between them exceeds the run-to-run variation of the arms themselves. Where they overlap, the comparison is reported as inconclusive rather than as a small effect. This is a weak criterion and is labelled as one wherever it is used.
+
+\pagebreak
 
 Two quantities are not read directly from a summary. The delivered rate of each rung in the ramped scenarios is obtained by differencing the load generator's cumulative iteration count over that stage, because the per-run summary averages every rung into every other. That rate is then compared against the mean rate offered during the stage, not against its nominal target. The generator ramps linearly towards the target, so the target is the rate reached at the end of a rung and not the rate offered across it. Comparing against it understates delivery on every ramped rung~\citep{k6docs}.
 

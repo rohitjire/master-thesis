@@ -163,6 +163,7 @@ The rest of this section introduces the Eclipse Dataspace Components (EDC) proje
     \label{fig:ids-ram-system-components}
 \end{figure}
 
+\pagebreak
 
 \subsection{Eclipse Dataspace Components (EDC)}\label{subsec:edc}
 
@@ -211,6 +212,8 @@ The three differ along four axes that recur throughout the comparison: (a) the E
 
 \textbf{Fraunhofer ISST EDC.} The Fraunhofer ISST EDC is the EDC extensions and runtime distribution maintained by the \gls{dst} department of Fraunhofer ISST~\citep{fraunhoferIsstDst}. The repository describes itself as the source of ``all EDC extensions and runtimes from the DST department''. Its version numbers take the form \texttt{<DST-Version>-<EDC-Version>}, recording both its own iteration and the EDC core baseline the extensions are built against. The benchmarked configuration tracks EDC core version~0.15.1. Its distinguishing architectural choice is the depth of its identity integration. Factory-X integrates DCP at the connector boundary plus a custom DID validator. The Fraunhofer ISST distribution goes further: it bundles the full EDC identity stack as separate runtimes alongside the connector itself. These are an \texttt{identity-hub-persistence} runtime instantiating the EDC IdentityHub~\citep{eclipseEdcIdentityHub}, and an \texttt{issuer-service-persistence} runtime that issues the verifiable credentials the IdentityHub then presents. DCP is wired through all three EDC subsystems, Control Plane, Data Plane, and Federated Catalog, and not only at the connector boundary. This distribution should not be confused with the unrelated and now-archived \texttt{FraunhoferISST/DataspaceConnector} project of 2022, which is an IDS-native connector predating the Dataspace Protocol and is not part of this thesis.
 
+\pagebreak
+
 \begin{table}[ht]
     \centering
     \small
@@ -237,12 +240,15 @@ Comparing the three implementations of \cref{sec:connectors} requires performanc
 
 The two subsections that follow map onto this division. \Cref{subsec:performance-metrics} treats time behaviour and capacity: latency, throughput, and how both scale with load. \Cref{subsec:resource-util} treats resource utilisation. Each concept is defined against its primary source and paired with the concrete signal the thesis instruments for it. \Cref{chap:implementation} describes the full measurement pipeline, from OpenTelemetry through Prometheus to Grafana, and \cref{chap:results-evaluation} reports the measured values.
 
+\pagebreak
 
 \subsection{Throughput, Latency, and Scalability}\label{subsec:performance-metrics}
 
 \textbf{Latency.} The latency, or response time, of a request is the interval between its submission and the completion of its response. In queueing terms, this interval decomposes into \emph{waiting time}, spent in a queue before processing begins, and \emph{service time}, spent in actual processing~\citep{jain1991art}. The distinction matters because the two respond differently to load, as later paragraphs show. A single latency figure is rarely sufficient. For request--response systems the user-relevant quantity is the \emph{distribution} of response times, and in particular its tail. \emph{The Tail at Scale} argues that in large-scale services rare slow responses dominate the user-perceived experience. It names the recurring causes of latency variability as ``queueing'', shared-resource contention, ``maintenance activities'', and ``periodic garbage collection in garbage-collected languages''~\citep{dean2013tail}. Two consequences follow for this thesis. First, latency is reported as the median and the 95th and 99th percentiles rather than as a mean, computed from the request-duration histogram each connector exposes. \Cref{subsec:resource-util} returns to the garbage-collection cause, which is observable in the same deployment. Second, a complete \gls{dsp} exchange is not a single request but the asynchronous, multi-message negotiation-and-transfer cycle of \cref{sec:dsp}. Its end-to-end latency is the sum of the per-message latencies across two state machines, reconstructed from distributed traces that span both the provider-side and consumer-side runtimes. This end-to-end view is the one that bears on the asynchronous-cycle research question of \Cref{chap:introduction}.
 
 \textbf{Throughput.} Throughput is the rate at which a system completes work, expressed for the present purpose in requests or completed transfers per unit time~\citep{jain1991art}. Throughput does not rise without bound as offered load increases. Every system has a \emph{capacity}, and as load approaches it the system passes through a \emph{knee}. Beyond that knee throughput plateaus while latency climbs steeply, a regime characterised as saturation~\citep{jain1991art}. \Cref{fig:knee-curve} sketches this relationship. Throughput, latency, and the number of concurrent requests in the system are not independent. Little's Law states that for a stable system the mean number of requests in residence equals the product of the arrival rate and the mean response time, $L = \lambda W$~\citep{little1961proof}. This thesis uses that relation to cross-check that measured throughput, concurrency, and latency are mutually consistent. Throughput is instrumented as the rate of completed requests per endpoint, separated by connector runtime so that the provider and consumer sides can be attributed independently.
+
+\pagebreak
 
 \begin{figure}[ht]
     \centering

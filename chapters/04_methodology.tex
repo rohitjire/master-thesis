@@ -40,6 +40,8 @@ A benchmark is best understood, in the definition of \emph{Systems Benchmarking:
 
 \textbf{Statistical rigour and reproducibility.} Sound reporting is a recurring failure point. \emph{Scientific Benchmarking of Parallel Computing Systems} finds that performance results are often reported with too little statistical care to separate a real improvement from noise. It prescribes design and reporting rules to correct that~\citep{hoefler2015scientific}. \emph{Methodological Principles for Reproducible Performance Evaluation in Cloud Computing}~\citep{papadopoulos2021reproducible} and \emph{A Methodology for Scientific Benchmarking with Large-Scale Applications}~\citep{armstrong2001large} reinforce the same point: repeat the runs, report distributions rather than point values, and control the environment.
 
+\pagebreak
+
 \textbf{Quality vocabulary.} Metric selection finally needs a shared vocabulary. ISO/IEC~25010 defines performance efficiency through three sub-characteristics (time behaviour, resource utilisation, and capacity) that map directly onto latency, resource consumption, and throughput~\citep{iso25010}.
 
 Two further candidates are considered but not adopted as the organising spine. A purely hypothesis-driven design is not adopted as the organising framework, because the primary objective is comparative benchmark construction and characterisation rather than confirmatory hypothesis testing. A full factorial Design of Experiments multiplies the run matrix beyond what a one-connector-at-a-time schedule on a shared host can absorb~\citep{jain1991art}. Both inform the experiment design in \cref{chap:implementation} without dictating the structure of this chapter.
@@ -194,6 +196,8 @@ This is the layer on which the three implementations differ most, as \cref{sec:r
 
 The metrics fall into two tiers. Primary metrics are observed by the load generator at the client and answer the research questions directly; secondary metrics are sampled from the systems under test and explain the primary numbers by exposing resource behaviour. Measuring both from independent vantage points is itself a validity safeguard, since agreement between the client view and the server view corroborates each number~\citep{hasselbring2021benchmarking}. How each metric is collected, through the load generator, the in-process instrumentation, and the host exporter, is described in \cref{sec:data-tools}; this section defines what is measured and why. \Cref{tab:metrics-summary} lists the full set.
 
+\pagebreak
+
 \subsection{Primary Metrics}\label{subsec:primary-metrics}
 
 Primary metrics capture client-observed time behaviour and capacity. Latency is recorded per protocol phase (catalog request, contract-negotiation initiation, transfer initiation, and data pull) and end-to-end across the whole transaction, each reported at the median and the 95th and 99th percentiles. Throughput is the rate of completed transactions sustained at a given offered load, and data-plane throughput is recorded separately in megabytes per second to isolate raw transfer capacity from the control-plane handshake.
@@ -205,6 +209,8 @@ The arithmetic mean is not used as a headline figure. A small number of very slo
 Two phases of the cycle are asynchronous: the consumer initiates a request and then polls until the contract reaches an agreed state and until an endpoint data reference becomes available. The time to each of these states is therefore measured by polling, and is reported as an upper bound within one poll interval. The quantisation this introduces is recorded with each run and revisited in \cref{chap:results-evaluation}. A failure rate, the fraction of transactions that do not complete, accompanies every latency figure, since latency is meaningful only over successful transactions.
 
 The latency metrics map to the ISO/IEC~25010 time-behaviour sub-characteristic and the throughput metrics to capacity~\citep{iso25010}. The two are read together rather than in isolation, following the relationship between throughput, concurrency, and latency expressed by Little's law~\citep{little1961proof}.
+
+\pagebreak
 
 \subsection{Secondary Metrics}\label{subsec:secondary-metrics}
 

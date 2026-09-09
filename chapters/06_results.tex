@@ -25,6 +25,8 @@ This chapter reports the measurements that answer the research questions of \cre
     \label{tab:rq1-steady}
 \end{table}
 
+\pagebreak
+
 \textbf{Throughput.} Throughput does not distinguish the connectors at the operating point. Every arm delivered the offered load: completed transactions range from 0.915 to 0.950\,tx/s against an offered 1\,tx/s, a spread of under four per cent across all six arms. It is reported for completeness, not as a result. Capacity is the subject of \cref{sec:rq2}.
 
 \textbf{Latency does distinguish them.} Under $G_1$ the two \gls{edc} connectors are indistinguishable from one another: 4672.5\,ms for the \gls{dst} \gls{edc} against 4649.0\,ms for Factory-X, a difference of 23.5\,ms, or 0.5\,\%. DSP-Native BaSyx completes the same transaction in 2884.5\,ms, some 38\,\% faster. Under $G_2$ the ordering is preserved but the separation widens: 4198.0\,ms and 4416.0\,ms for the \gls{edc} pair against 814.0\,ms for BaSyx, which is then roughly one fifth of either.
@@ -53,6 +55,8 @@ The ratio of mean to median lies between 0.97 and 1.01 in all six arms. The dist
 \end{figure}
 
 \textbf{Payload size.} Data-plane throughput rises monotonically with payload size and saturates at the largest transfers. For the \gls{dst} \gls{edc} it climbs from 0.27\,MB/s at 1\,KB to 515.1\,MB/s at 100\,MB, and for Factory-X from 0.26\,MB/s to 458.2\,MB/s. Per-request overhead dominates small payloads, not transfer time. A 1\,KB pull takes 3.7--3.9\,ms and a 100\,KB pull 4.0--4.3\,ms, so a hundredfold increase in payload costs under ten per cent in time. Beyond 1\,MB the pull duration grows in proportion to size.
+
+\pagebreak
 
 \textbf{The identity arms are indistinguishable throughout.} Across all five sizes and both connectors the largest difference in pull latency between $G_1$ and $G_2$ is 7.5\,ms, on the 100\,MB transfer. The achieved rates differ by at most 3.7\,\%, which is within the run-to-run variation reported in \cref{tab:rq1-steady}. The verified byte counts confirm that each run transferred the asset its label names, ruling out a substituted asset as an explanation for the agreement.
 
@@ -92,6 +96,8 @@ The ratio of mean to median lies between 0.97 and 1.01 in all six arms. The dist
 DSP-Native BaSyx continues to climb, reaching 6.0\,tx/s identity-disabled and 5.9\,tx/s identity-enabled at the top rung. Its delivery ratio falls smoothly, not abruptly. Factory-X shows neither pattern cleanly. Its delivered rate dips at the fourth rung before recovering to 4.6--4.8\,tx/s at an offered 10\,tx/s. Its identity-enabled arm returned no measurement at the top rung, so that point is absent from the figure. \Cref{sec:results-validity} records that omission.
 
 \textbf{Delivery counts completions, not successes.} These figures therefore include transactions abandoned at the poll deadline. The proportion so abandoned over the whole ladder is 22--34\,\% for the \gls{dst} and BaSyx arms and 50\,\% for both Factory-X arms.
+
+\pagebreak
 
 \Cref{fig:rq2-concurrency} reports the closed-model ladder as an independent check on the same ceiling. The \texttt{concurrency-closed} scenario replaces the arrival rate with a fixed client population, stepping through 5, 10, 20 and 50 concurrent users at ninety seconds each. It ran once per arm. Under a closed model a saturated server shows throughput flattening while residence time grows in proportion to the client population, which is the form Little's law takes at saturation~\citep{little1961proof}. Agreement between the two workload models is what makes an observed ceiling a property of the connector rather than of one model.
 
@@ -280,6 +286,8 @@ difference to the work done per request.
     \label{tab:x1-provider}
 \end{table}
 
+\pagebreak
+
 Measured end to end, the identity layer costs the \gls{dst} \gls{edc} 474.5\,ms per
 transaction (a factor of 1.11) and Factory-X 233.0\,ms (1.05). Sustained throughput is
 unaffected in both: the arms deliver the same rate to within one per cent, because at an
@@ -310,6 +318,8 @@ identity diminishes as the workload per request increases.
 \textbf{Control plane only, on the paths tested.} For the two \gls{edc} connectors and the HTTP-pull data-plane path tested here, no material identity-related data-plane effect is observed. \Cref{fig:rq1-payload} shows the four
 data-plane series lying almost on top of one another across five orders of magnitude, with
 the largest difference in pull latency being 7.5\,ms on a 100\,MB transfer. On these paths, identity is paid once per transaction and nothing per byte transferred. That is consistent with a design that establishes trust before the transfer begins, then hands the data plane a token rather than re-verifying during it~\citep{dcpSpec}.
+
+\pagebreak
 
 \textbf{Where the cost lands differs by architecture.} This is the observation that most constrains any explanation of the connector-to-connector differences. On both
 \gls{edc} connectors the increase concentrates almost entirely in the catalog request,
