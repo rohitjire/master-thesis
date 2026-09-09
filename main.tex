@@ -88,7 +88,7 @@
 \usepackage[T1]{fontenc}
 
 % PDF options
-\usepackage[hyperfootnotes=false, pdfpagelabels, colorlinks, linkcolor=black, filecolor=black, citecolor=black]{hyperref}
+\usepackage[hyperfootnotes=false, pdfpagelabels, colorlinks, linkcolor=black, filecolor=black, citecolor=black, urlcolor=black]{hyperref}
 \urlstyle{rm}
 \hypersetup{%
 bookmarksopen={true},
@@ -340,6 +340,10 @@ pdfpagelayout={SinglePage}
 
 \phantomsection
 \addcontentsline{toc}{chapter}{Bibliography}
+% Declared AI tools (see the AI declaration in the front matter). \nocite here rather
+% than \citep on the declaration page so they take the LAST numbers in the
+% citation-ordered IEEEtranN bibliography instead of [1] and [2].
+\nocite{aiClaudeAssistant,aiClaudeCode}
 \bibliographystyle{IEEEtranN}
 \bibliography{biblography/references}
 
